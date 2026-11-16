@@ -1,6 +1,6 @@
 "use client";
 
-import {useEffect,useRef,useState} from "react";
+import {useEffect,useRef,useState,type SyntheticEvent} from "react";
 import {ArrowLeft,ArrowRight,Expand,Images,X} from "lucide-react";
 
 type GalleryPhoto={id:string;title:string;detail:string;alt:string;photo:string;credit:string};
@@ -44,7 +44,7 @@ export function TP9VerticeGallery(){
  },[selected]);
  const selectedPhoto=selected===null?null:PHOTOS[selected];
  const showImage=(index:number)=>()=>{setSelected(index);};
- const onPhotoError=(event:React.SyntheticEvent<HTMLImageElement>)=>{
+ const onPhotoError=(event:SyntheticEvent<HTMLImageElement>)=>{
   const image=event.currentTarget;
   if(!image.src.includes("photo-1619642751034-765dfdf7c58e"))image.src=imageFallback;
  };
