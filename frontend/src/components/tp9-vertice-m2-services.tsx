@@ -6,10 +6,10 @@ type Service={number:string;name:string;description:string;photo:string;alt:stri
 const services:Service[]=[
  {number:"01",name:"Revisão preventiva",description:"Verificações e orientações para acompanhar os cuidados periódicos com seu veículo.",photo:"photo-1792326103553-4e4e8964279e",alt:"Veículos em oficina automotiva com carros sob manutenção"},
  {number:"02",name:"Diagnóstico eletrônico",description:"Consulta de sistemas e sintomas para orientar uma avaliação técnica.",photo:"photo-1632733711679-529326f6db12",alt:"Profissional trabalhando em componentes eletrônicos de automóvel"},
- {number:"03",name:"Óleo e filtros",description:"Cuidados com a lubrificação e a substituição periódica de componentes.",photo:"photo-1771340742493-52fbd5476ccb",alt:"Profissional realizando lubrificação do motor"},
+ {number:"03",name:"Troca de óleo e filtros",description:"Cuidados com a lubrificação e a substituição periódica de componentes.",photo:"photo-1771340742493-52fbd5476ccb",alt:"Profissional realizando lubrificação do motor"},
  {number:"04",name:"Freios e suspensão",description:"Avaliação de componentes envolvidos no controle e na segurança do veículo.",photo:"photo-1769218402167-b0ef15eaf7cc",alt:"Componentes de suspensão e rodas observados na oficina"},
- {number:"05",name:"Pneus e rodas",description:"Orientação sobre pneus, rodas e serviços relacionados à rodagem.",photo:"photo-1792792944402-5e94ce198dce",alt:"Mecânico trabalhando na roda e no pneu de um carro"},
- {number:"06",name:"Manutenção geral",description:"Consulte a equipe sobre outras necessidades de manutenção e disponibilidade.",photo:"photo-1652852592938-15bf8c50ab6d",alt:"Veículo em elevador de manutenção dentro de oficina"}
+ {number:"05",name:"Ar-condicionado automotivo",description:"Consulta sobre avaliação e manutenção do sistema de climatização do veículo.",photo:"photo-1792792944402-5e94ce198dce",alt:"Fotografia ilustrativa de manutenção de roda de um veículo em oficina"},
+ {number:"06",name:"Alinhamento e balanceamento",description:"Orientação sobre inspeção e ajustes de rodas conforme a necessidade e os equipamentos disponíveis.",photo:"photo-1652852592938-15bf8c50ab6d",alt:"Carro em elevador de oficina para avaliação e ajustes mecânicos"}
 ];
 const fallback="https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=1000&q=82";
 const image=(photo:string)=>"https://images.unsplash.com/"+photo+"?auto=format&fit=crop&w=1000&q=85";
