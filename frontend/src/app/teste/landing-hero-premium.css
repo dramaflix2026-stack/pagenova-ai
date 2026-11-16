@@ -1509,3 +1509,25 @@
 @media(prefers-reduced-motion:reduce){
  .pnr-page .pnr-hero--premium .pnr-hero-image-stage>.pnr-hero-ambient-svg{display:none!important}
 }
+
+
+/* Illuminate source pixels, not synthetic SVG outlines. The clipped duplicates
+   track the approved hero exactly while its parent keeps floating. */
+.pnr-page .pnr-hero--premium .pnr-hero-ambient-svg .pnr-hero-ambient-icons{
+ opacity:1!important;animation:none!important;filter:none!important;
+}
+.pnr-page .pnr-hero--premium .pnr-hero-panel-light{
+ opacity:0;mix-blend-mode:screen;
+ filter:brightness(2.25) saturate(1.7) contrast(1.1);
+ animation:pnrPanelPixelGlow 4.4s ease-in-out infinite;
+}
+.pnr-page .pnr-hero--premium .pnr-hero-panel-light-2{animation-delay:-1.35s}
+.pnr-page .pnr-hero--premium .pnr-hero-panel-light-3{animation-delay:-2.7s}
+@keyframes pnrPanelPixelGlow{
+ 0%,100%{opacity:.03}
+ 40%,60%{opacity:.83}
+ 80%{opacity:.17}
+}
+@media(prefers-reduced-motion:reduce){
+ .pnr-page .pnr-hero--premium .pnr-hero-panel-light{animation:none!important;opacity:0!important}
+}
