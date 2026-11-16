@@ -85,7 +85,8 @@ test("rejects incomplete or altered client-side telemetry payloads",()=>{
 test("original instruction never enters persisted local event, offline replay or cloud insert",()=>{
  const page=readFileSync(new URL("../src/app/app/builder-v2/page.tsx",import.meta.url),"utf8");
  assert.match(page,/const safeInstruction=captureSafeEditorInstruction\(instruction\)/);
- assert.match(page,/safeInstruction\};/);
+ assert.match(page,/interpretation,safeInstruction,/);
+ assert.match(page,/outcome==="rejected"&&isEditorFailurePath\(failurePath\)\?\{failurePath\}:\{\}/);
  assert.match(page,/isSafeEditorInstruction\(event\.safeInstruction\)/);
  assert.match(page,/instruction_redacted:event\.safeInstruction\.text/);
  assert.match(page,/instruction_redaction_version:event\.safeInstruction\.version/);
