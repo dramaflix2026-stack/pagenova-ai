@@ -69,6 +69,15 @@ export function selectApprovedExecutionTechnique(records:readonly ReviewedSoluti
  matches.sort((a,b)=>b.score-a.score);
  return matches[0]||null;
 }
+/** A memory only changes a route where the built-in handler would not
+ * have attempted the deterministic universal engine first. */
+export function shouldRerouteUsingApprovedTechnique(
+ technique:ApprovedTechnique|null,
+ options:{compound:boolean;hasAttachments:boolean;imageChange:boolean;preferScopedCopy:boolean;learnedAiEligible:boolean;strongAiEvidence:boolean}
+):boolean{
+ return !!technique&&!options.compound&&!options.hasAttachments&&!options.imageChange&&
+  (options.preferScopedCopy||(options.learnedAiEligible&&!options.strongAiEvidence));
+}
 /** Only trusted confirmation can be attributed to a specific memory. */
 export function confirmedReuseSource(technique:ApprovedTechnique|null,usedForRoute:boolean,verified:boolean):string|null{
  return technique&&usedForRoute&&verified?technique.sourceEventId:null;
