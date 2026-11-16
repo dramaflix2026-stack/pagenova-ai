@@ -75,7 +75,10 @@ export function TP9VerticeModel3Approved({brand,email,whatsapp,address,gallery=[
  const directContact=safePhone?"https://wa.me/"+safePhone:safeEmail?"mailto:"+safeEmail:"#tp9v3-contact";
  const providedGallery=gallery.filter(item=>/^https?:\/\//i.test(item.src)).slice(0,6);
  const photoCaptions=["Mecânico realizando inspeção do motor","Equipamentos de pneus e balanceamento","Profissional trabalhando no motor de um veículo","Veículo elevado para manutenção","Balanceamento de roda em oficina","Inspeção técnica com lanterna no compartimento do motor"];
- const photos=[...providedGallery,...source.gallery.slice(0,6-providedGallery.length).map((id,index)=>({src:photo(id),caption:photoCaptions[providedGallery.length+index]}))].slice(0,6);
+ // The legacy three-photo auto-generated gallery is replaced in full by the six curated workshop photographs.
+ // A complete explicitly supplied six-photo gallery, or customer-hosted uploads, always takes precedence.
+ const hasCustomerPhotos=providedGallery.length>=6||providedGallery.some(item=>!/(?:images\\.unsplash\\.com|unsplash\\.com\\/photos\\/|images\\.pexels\\.com)/i.test(item.src));
+ const photos=hasCustomerPhotos?[...providedGallery,...source.gallery.slice(providedGallery.length).map((id,index)=>({src:photo(id),caption:photoCaptions[providedGallery.length+index]}))].slice(0,6):source.gallery.map((id,index)=>({src:photo(id),caption:photoCaptions[index]}));
  const validReviews=reviews.filter(item=>item.name?.trim()&&item.quote?.trim()).slice(0,6);
  const reviewCards=[...validReviews.map(item=>({...item,demonstrative:false})),...placeholderReviews.slice(0,6-validReviews.length).map(item=>({...item,demonstrative:true}))];
  const customFAQs=faqs.filter(item=>item.question?.trim()&&item.answer?.trim()).slice(0,6);
