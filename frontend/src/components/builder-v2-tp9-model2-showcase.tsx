@@ -1,10 +1,13 @@
 "use client";
 import type { ReactNode } from "react";
 import {useState} from "react";
+import {TP9VerticeM2BentoGallery} from "./tp9-vertice-m2-bento-gallery";
 type Photo={src:string;caption?:string};
 type Review={name:string;role?:string;quote:string};
-type Props={niche:string;gallery:Photo[];reviews:Review[];reviewsSection?:ReactNode};
-export function BuilderV2TP9Model2Showcase({niche,gallery,reviews,reviewsSection}:Props){
+type Props={brand?:string;niche:string;gallery:Photo[];reviews:Review[];reviewsSection?:ReactNode};
+export function BuilderV2TP9Model2Showcase({brand,niche,gallery,reviews,reviewsSection}:Props){
+ const normalizedBrand=(brand||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+ const isVertice=/\bvertice\s+auto\s+center\b/.test(normalizedBrand);
  const [selected,setSelected]=useState<number|null>(null);
  const [index,setIndex]=useState(0);
  const current=reviews[index];
@@ -13,7 +16,7 @@ export function BuilderV2TP9Model2Showcase({niche,gallery,reviews,reviewsSection
 @media(max-width:800px){.tp9m2-mosaic{grid-auto-rows:140px;gap:10px}.tp9m2-mosaic button,.tp9m2-mosaic button:nth-child(5n+1),.tp9m2-mosaic button:nth-child(5n+2){grid-column:span 6;grid-row:span 2}.tp9m2-review{padding:30px}}
 @media(max-width:520px){.tp9m2-mosaic{grid-auto-rows:130px}.tp9m2-mosaic button,.tp9m2-mosaic button:nth-child(5n+1),.tp9m2-mosaic button:nth-child(5n+2){grid-column:span 12;grid-row:span 2}.tp9m2-gallery,.tp9m2-testimonials{padding:70px 7%}}
 `}</style>
-<section className="tp9m2-gallery" id="tp9-galeria"><div className="eyebrow">05 / Portfólio</div><h2>Galeria de <span>projetos.</span></h2><p>Imagens cadastradas para {niche.toLowerCase()}. Somente fotografias fornecidas ou registradas pela empresa são apresentadas como projetos.</p>{gallery.length?<div className="tp9m2-mosaic">{gallery.map((photo,i)=><button key={photo.src+i} type="button" onClick={()=>setSelected(i)} aria-label={"Ampliar fotografia "+(i+1)}><img src={photo.src} alt={photo.caption||"Fotografia cadastrada "+(i+1)} loading="lazy"/>{photo.caption&&<span>{photo.caption}</span>}</button>)}</div>:<div className="tp9m2-empty">Galeria pronta para receber fotografias reais dos projetos e serviços. Nenhum trabalho fictício será exibido.</div>}</section>
+{isVertice?<TP9VerticeM2BentoGallery/>:<section className="tp9m2-gallery" id="tp9-galeria"><div className="eyebrow">05 / Portfólio</div><h2>Galeria de <span>projetos.</span></h2><p>Imagens cadastradas para {niche.toLowerCase()}. Somente fotografias fornecidas ou registradas pela empresa são apresentadas como projetos.</p>{gallery.length?<div className="tp9m2-mosaic">{gallery.map((photo,i)=><button key={photo.src+i} type="button" onClick={()=>setSelected(i)} aria-label={"Ampliar fotografia "+(i+1)}><img src={photo.src} alt={photo.caption||"Fotografia cadastrada "+(i+1)} loading="lazy"/>{photo.caption&&<span>{photo.caption}</span>}</button>)}</div>:<div className="tp9m2-empty">Galeria pronta para receber fotografias reais dos projetos e serviços. Nenhum trabalho fictício será exibido.</div>}</section>}
 {reviewsSection}
-{selected!==null&&gallery[selected]&&<div className="tp9m2-modal" role="dialog" aria-modal="true" aria-label="Fotografia ampliada" onClick={()=>setSelected(null)}><button type="button" onClick={()=>setSelected(null)}>Fechar ✕</button><img src={gallery[selected].src} alt={gallery[selected].caption||"Fotografia ampliada"} onClick={e=>e.stopPropagation()}/></div>}</div>;
+{!isVertice&&selected!==null&&gallery[selected]&&<div className="tp9m2-modal" role="dialog" aria-modal="true" aria-label="Fotografia ampliada" onClick={()=>setSelected(null)}><button type="button" onClick={()=>setSelected(null)}>Fechar ✕</button><img src={gallery[selected].src} alt={gallery[selected].caption||"Fotografia ampliada"} onClick={e=>e.stopPropagation()}/></div>}</div>;
 }
