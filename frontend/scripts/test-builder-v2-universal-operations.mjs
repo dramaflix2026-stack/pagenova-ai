@@ -1473,3 +1473,44 @@ test("idempotent HEX section lookup retains full resolved section ID",()=>{
  assert.ok(source.includes("const section=matching[0];"));
  assert.ok(!source.includes("const section=matching[0][0];"));
 });
+
+test("single-section educational photo prompt stays one image and preserves other blocks",async()=>{
+ const {parseScopedSectionPhotoRequest,isSingleSectionImageIntent,canonicalPhotoSection,curatedRealSectionPhoto,applyUniversalSectionPhoto,readUniversalSectionPhoto}=await import("../src/lib/builder-v2-universal-section-photo.ts");
+ const prompt="Substitua somente a fotografia principal da seção Nossa Abordagem por uma fotografia real de estudantes em uma sala de aula moderna. Preserve todos os títulos, textos, cores, alinhamentos e demais seções.";
+ const request=parseScopedSectionPhotoRequest(prompt);
+ assert.equal(isSingleSectionImageIntent(prompt),true);
+ assert.equal(request?.sectionLabel,"Nossa Abordagem");
+ assert.equal(canonicalPhotoSection(request.sectionLabel),"differences");
+ const photo=curatedRealSectionPhoto(request.description);
+ assert.match(photo||"",/^https:\/\/images.unsplash.com\//);
+ for(const variant of ["01","02","03"]){
+  const original={templateId:"prompt-adaptive",briefingLayoutVariant:variant,niche:"Cursos profissionalizantes",blocks:[
+   {id:"hero",type:"heading",section:"inicio",text:"Meu futuro"},{id:"first-image",type:"image",section:"inicio",src:"https://example.com/first.jpg"},
+   {id:"differentials",type:"heading",section:"diferenciais",text:"Nossa Abordagem"}]};
+  const result=applyUniversalSectionPhoto(original,"differences",photo);
+  assert.equal(result.ok,true,variant);
+  if(!result.ok)continue;
+  assert.deepEqual(result.site.blocks,original.blocks);
+  assert.equal(result.site.universalSectionImages.differences,photo);
+  assert.deepEqual(result.changedIds,["section-photo:differences"]);
+  assert.equal(result.site.briefingLayoutVariant,variant);
+  assert.equal(readUniversalSectionPhoto(result.site.universalSectionImages,"differences","fallback"),photo);
+  assert.equal(readUniversalSectionPhoto(undefined,"differences","fallback"),"fallback");
+ }
+ assert.equal(isSingleSectionImageIntent("Substitua todas as imagens do site."),false);
+ assert.equal(applyUniversalSectionPhoto({blocks:[]},"services",photo).ok,false);
+});
+test("TP10 model renderers receive opt-in photo override and preview audits it",()=>{
+ const root=readFileSync(new URL("../src/components/builder-v2-site.tsx",import.meta.url),"utf8");
+ const hero=readFileSync(new URL("../src/components/template10-education-hero.tsx",import.meta.url),"utf8");
+ assert.ok(hero.includes("universalSectionImages={universalSectionImages}"));
+ assert.equal((root.match(/universalSectionImages=\{props.site.universalSectionImages\}/g)||[]).length,3);
+ for(const name of ["template10-education-sections.tsx","builder-v2-tp10-model2.tsx","builder-v2-tp10-model3.tsx"]){
+  const source=readFileSync(new URL("../src/components/"+name,import.meta.url),"utf8");
+  assert.ok(source.includes('readUniversalSectionPhoto(universalSectionImages,"differences",'),name);
+ }
+ const page=readFileSync(new URL("../src/app/app/builder-v2/page.tsx",import.meta.url),"utf8");
+ assert.ok(page.includes("if(isSingleSectionImageIntent(prompt))"));
+ assert.ok(page.includes("pendingSectionPhotoVisualReviewRef.current="));
+ assert.ok(page.includes("if(only===undefined&&!coverReplacement&&!"));
+});

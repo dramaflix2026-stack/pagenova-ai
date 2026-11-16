@@ -22,6 +22,7 @@ import {importReadyCrmProject} from "@/lib/builder-v2-crm-transport";
 import { applySiteMotionInstruction, hasMotionIntent, type SiteMotion } from "@/lib/site-builder-animation";
 import {applyUniversalPaletteEdit} from "@/lib/builder-v2-universal-palette";
 import {isExplicitImageChangeRequest} from "@/lib/builder-v2-image-intent";
+import {parseScopedSectionPhotoRequest,isSingleSectionImageIntent,canonicalPhotoSection,curatedRealSectionPhoto,applyUniversalSectionPhoto} from "@/lib/builder-v2-universal-section-photo";
 import {institutionalImageIntent,planInstitutionalImageEdit,restoreInstitutionalSectionImages,type HeroComposition,type MediaLayout} from "@/lib/builder-v2-institutional-images";
 import {isScopedBannerCopyRequest,applyHeroBannerCopy,type HeroBannerCopy} from "@/lib/builder-v2-hero-banner-edits";
 import {applySocialInstruction,type SocialFooter} from "@/lib/site-social-links";
@@ -310,6 +311,7 @@ export default function BuilderV2() {
   const [reviewCandidate,setReviewCandidate]=useState<{id:string;status:"pending"|"approved"|"rejected"}|null>(null);
   const previewVisualAuditRef=useRef<HTMLDivElement|null>(null);
   const pendingBackgroundVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;color:string}|null>(null);
+  const pendingSectionPhotoVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;src:string}|null>(null);
   const [previewVisualAudit,setPreviewVisualAudit]=useState<string|null>(null);
   useEffect(()=>{
     const styles=(site as unknown as Record<string,unknown>).universalSectionStyles as Record<string,{backgroundColor?:string;headingColor?:string;textColor?:string}>|undefined;
@@ -372,6 +374,35 @@ export default function BuilderV2() {
       }
     },1200);
     return ()=>window.clearTimeout(timer);
+  },[site]);
+
+  useEffect(()=>{
+    const pending=pendingSectionPhotoVisualReviewRef.current;
+    if(!pending)return;
+    let attempts=0;
+    const timer=window.setInterval(()=>{
+      if(pendingSectionPhotoVisualReviewRef.current!==pending){window.clearInterval(timer);return;}
+      const iframe=previewVisualAuditRef.current?.querySelector("iframe");
+      const doc=iframe?.contentDocument;
+      const root=doc?.getElementById("pn-v2-preview-root")||doc?.body;
+      const targets=root?findUniversalPreviewSections(root,"diferenciais"):[];
+      const displayed=targets.flatMap(section=>Array.from(section.querySelectorAll<HTMLImageElement>("img")))
+        .filter(image=>image.getAttribute("src")===pending.src);
+      if(targets.length===1&&displayed.length===1){
+        pendingSectionPhotoVisualReviewRef.current=null;
+        window.clearInterval(timer);
+        recordEditorLearningEvent(pending.niche,pending.prompt,"applied","universal-image-section-visual-verified",pending.variant);
+        captureReviewCandidate();
+        setMessages(previous=>[...previous,{role:"assistant",text:"Uma fotografia substituída e localizada na prévia. As demais imagens foram preservadas. Confira o resultado antes de aprovar."}]);
+      }else if(++attempts>=25){
+        pendingSectionPhotoVisualReviewRef.current=null;
+        window.clearInterval(timer);
+        recordEditorLearningEvent(pending.niche,pending.prompt,"rejected","universal-image-section-missing-target",pending.variant);
+        captureReviewCandidate();
+        setMessages(previous=>[...previous,{role:"assistant",text:"A fotografia solicitada não apareceu na seção correta da prévia. Não considere essa edição como concluída."}]);
+      }
+    },500);
+    return ()=>window.clearInterval(timer);
   },[site]);
 
   const reviewEventRef=useRef<{id:string;niche:string;intent:string;target:string;outcome:"applied"|"rejected";strategy:string;review?:string}|null>(null);
@@ -781,6 +812,7 @@ export default function BuilderV2() {
     const galleryId=Array.from(new Set(current.blocks.map(b=>b.section||"principal"))).find(id=>/galeria|gallery|foto|portf[oó]lio/i.test(id)||current.blocks.some(b=>(b.section||"principal")===id&&b.type==="heading"&&/galeria|gallery|fotos|portf[oó]lio/i.test(b.text)));
     const slots=Array.from({length:6},(_,i)=>i>=3&&galleryId?galleryId:ids[i%Math.max(1,ids.length)]||"principal");
     const coverReplacement=only===undefined&&/\b(?:capa|hero|foto principal|imagem principal|banner principal)\b/i.test(prompt)&&isExplicitImageChangeRequest(prompt);
+    if(only===undefined&&!coverReplacement&&!/\b(?:todas|todos|seis|6)\s+(?:as\s+)?(?:fotos|imagens|fotografias)\b/i.test(prompt))throw new Error("Não é seguro gerar seis fotografias para um pedido localizado. Informe a seção ou solicite explicitamente todas as imagens.");
     const heroSection=current.blocks.find(b=>b.type==="heading")?.section||"principal";
     const coverBlock=coverReplacement?current.blocks.find(b=>b.type==="image"&&b.imageExplicit===true)||current.blocks.find(b=>b.type==="image"):undefined;
     const jobs=coverReplacement?[{section:heroSection,index:0}]:only===undefined?slots.map((section,index)=>({section,index})): [{section:slots[only]||"principal",index:only}];
@@ -1612,13 +1644,36 @@ export default function BuilderV2() {
     }
     if (isExplicitImageChangeRequest(prompt) && site.blocks.length) {
       try {
+        if(isSingleSectionImageIntent(prompt)){
+          const request=parseScopedSectionPhotoRequest(prompt);
+          const section=request?canonicalPhotoSection(request.sectionLabel):null;
+          const photo=request?curatedRealSectionPhoto(request.description):null;
+          if(!request||!section||resolveBriefingFamily(site.niche||"")!==10||!photo)
+            throw new Error("Não existe adaptador validado para substituir essa única imagem. Nenhuma imagem foi alterada.");
+          const result=applyUniversalSectionPhoto(site,section,photo);
+          if(!result.ok)throw new Error(result.error);
+          const photoLoaded=await new Promise<boolean>(resolve=>{
+            const check=new window.Image();
+            const timeout=window.setTimeout(()=>{check.onload=null;check.onerror=null;resolve(false);},9000);
+            check.onload=()=>{window.clearTimeout(timeout);resolve(true);};
+            check.onerror=()=>{window.clearTimeout(timeout);resolve(false);};
+            check.src=photo;
+          });
+          if(!photoLoaded)throw new Error("A fotografia real não carregou. O projeto foi preservado.");
+          recordVersion(site,"Antes de substituir uma fotografia da seção");
+          setRedoHistory([]);setHistory(previous=>[...previous.slice(-19),site]);
+          pendingSectionPhotoVisualReviewRef.current={prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",section,src:photo};
+          setSite(result.site);setInstruction("");setGenerationError("");
+          setMessages(previous=>[...previous,{role:"user",text:prompt},{role:"assistant",text:"Uma única fotografia preparada. Verificando sua presença na seção correta da prévia."}]);
+          return;
+        }
         const match=prompt.match(/(?:imagem|foto)\s*(?:n[uú]mero\s*)?(\d+)/i);
         const index=match?Math.max(0,Math.min(5,Number(match[1])-1)):undefined;
         const updated=await generateVisuals(site,prompt,index);
         const result=hasMotionIntent(prompt)?{...updated,motion:applySiteMotionInstruction(updated,prompt)}:updated;
         recordEditorLearningEvent(site.niche||"",prompt,"applied","image-generation",site.briefingLayoutVariant||"01");captureReviewCandidate();
         recordVersion(site, "Antes de alterar imagens");setRedoHistory([]);setHistory(prev=>[...prev.slice(-19),site]);setSite(result);setInstruction("");
-      } catch(error) {setMessages(prev=>[...prev,{role:"assistant",text:error instanceof Error?error.message:"Falha ao gerar imagem."}]);}
+      } catch(error) {recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal-image-section-unresolved",site.briefingLayoutVariant||"01");captureReviewCandidate();setMessages(prev=>[...prev,{role:"assistant",text:error instanceof Error?error.message:"Falha ao editar fotografia."}]);}
       finally {setBusy(false);}
       return;
     }
