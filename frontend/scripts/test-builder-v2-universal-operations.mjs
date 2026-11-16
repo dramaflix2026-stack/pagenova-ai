@@ -1514,3 +1514,29 @@ test("TP10 model renderers receive opt-in photo override and preview audits it",
  assert.ok(page.includes("pendingSectionPhotoVisualReviewRef.current="));
  assert.ok(page.includes("if(only===undefined&&!coverReplacement&&!"));
 });
+
+test("new-section brief keeps immediately outside title and preserves explicit content",()=>{
+ const instruction='Adicione uma nova seção chamada Projetos dos Alunos imediatamente após a seção Depoimentos. Inclua o título "Projetos que transformam conhecimento em prática" e três cards sobre projetos desenvolvidos pelos estudantes. Preserve todas as seções existentes, imagens, textos e cores. Não duplique nenhuma seção e não adicione conteúdo depois do rodapé.';
+ const original={templateId:"prompt-adaptive",briefingLayoutVariant:"01",blocks:[
+  {id:"course",section:"cursos",type:"heading",text:"Cursos"},
+  {id:"gallery",section:"galeria",type:"heading",text:"Galeria"},
+  {id:"review",section:"depoimentos",type:"heading",text:"Depoimentos"},
+  {id:"faq",section:"faq",type:"heading",text:"Perguntas frequentes"},
+  {id:"footer",section:"rodape",type:"heading",text:"Rodapé"}]};
+ const result=applyUniversalNaturalLanguage(original,instruction);
+ assert.equal(result?.ok,true,result?.ok===false?result.error:"No match");
+ if(!result?.ok)return;
+ const created=result.site.blocks.filter(block=>block.section==="custom-projetos-dos-alunos");
+ assert.equal(created.length,7);
+ assert.equal(created[0].text,"Projetos que transformam conhecimento em prática");
+ assert.ok(!created.some(block=>/informações essenciais|cuidados e recomendações|próximos passos/i.test(block.text)));
+ assert.ok(created.some(block=>/Desafios práticos/.test(block.text)));
+ assert.ok(created.some(block=>/Projetos colaborativos/.test(block.text)));
+ assert.ok(created.some(block=>/Portfólio de aprendizagem/.test(block.text)));
+ assert.equal(result.site.blocks.filter(block=>block.section==="custom-projetos-dos-alunos-imediatamente").length,0);
+ assert.deepEqual(result.site.blocks.filter(block=>!block.section?.startsWith("custom-")),original.blocks);
+ const index=result.site.blocks.findIndex(block=>block.section==="custom-projetos-dos-alunos");
+ assert.equal(result.site.blocks[index-1].section,"depoimentos");
+ assert.equal(result.site.blocks[index+created.length].section,"faq");
+ assert.deepEqual(result.site.universalSectionEvents?.at(-1),{action:"move",section:{id:"custom-projetos-dos-alunos",label:"Projetos dos Alunos"},after:{id:"depoimentos",label:"Depoimentos"}});
+});

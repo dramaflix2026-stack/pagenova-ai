@@ -279,14 +279,18 @@ function applyVisibleEditorCommand<T extends UniversalSite>(site:T,raw:string):U
 /** Create a section from natural user language, without template IDs or rigid syntax. */
 function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
  const normalized=(value:string)=>value.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
- const request=instruction.match(/^\s*(?:adicione|crie|inclua|insira)\s+uma\s+(?:nova\s+)?se[cç][aã]o\s+(?:chamada|denominada)\s+(?:"([^"]+)"|“([^”]+)”|'([^']+)'|([^,.\n]+?)(?=\s*(?:,|\.|\s+imediatamente\s+antes|\s+antes|\s+depois|\s+ap[oó]s|$)))/i);
+ const request=instruction.match(/^\s*(?:adicione|crie|inclua|insira)\s+uma\s+(?:nova\s+)?se[cç][aã]o\s+(?:chamada|denominada)\s+(?:"([^"]+)"|“([^”]+)”|'([^']+)'|([^,.\n]+?)(?=\s*(?:,|\.|\s+(?:imediatamente\s+)?(?:antes|depois|ap[oó]s)|$)))/i);
  if(!request)return null;
- const name=(request[1]||request[2]||request[3]||request[4]||"").trim().replace(/\s+(?:com|contendo)\s+(?:(?:um|dois|duas|tr[eê]s|quatro|cinco|seis|\d+)\s+cards?\b).*$/i,"").trim();
+ const name=(request[1]||request[2]||request[3]||request[4]||"").trim()
+  .replace(/\s+(?:imediatamente|logo)\s*$/i,"")
+  .replace(/\s+(?:com|contendo)\s+(?:(?:um|dois|duas|tr[eê]s|quatro|cinco|seis|\d+)\s+cards?\b).*$/i,"").trim();
  if(!name)return {ok:false,error:"Informe o nome da nova seção."};
- const destination=instruction.match(/\b(?:imediatamente\s+)?(antes|depois|ap[oó]s)\s+(?:(?:das|dos|da|do|de|as|os|a|o)\b\s+)?(?:se[cç][aã]o\s+)?(?:de\s+)?["“”']?([^,"“”'.\n]+)["“”']?/i);
+ const destination=instruction.match(/\b(?:(?:imediatamente|logo)\s+)?(antes|depois|ap[oó]s)\s+(?:(?:das|dos|da|do|de|as|os|a|o)\b\s+)?(?:se[cç][aã]o\s+)?(?:de\s+)?["“”']?([^,"“”'.\n]+)["“”']?/i);
  if(!destination && !site.blocks.length)return {ok:false,error:"O site não possui seções para posicionar a nova seção."};
  const targetLabel=destination?.[2]?.trim().replace(/\s+(?:com|contendo|que)\s+.*$/i,"").trim();
  const target=targetLabel?resolveUniversalSection(site,targetLabel):null;
+ const explicitHeading=instruction.match(/(?:inclua|adicione|com)\s+(?:o\s+)?t[ií]tulo\s+["“]([^"”]{3,220})["”]/i)?.[1]?.trim();
+ const title=explicitHeading||name;
  if(destination&&!target)return {ok:false,error:"Seção de referência não encontrada: "+targetLabel+". Nenhuma alteração aplicada."};
  const sectionId="custom-"+normalized(name).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
  if(site.blocks.some(b=>b.section===sectionId))return {ok:false,error:"Essa seção já existe. Nenhuma alteração aplicada."};
@@ -354,6 +358,15 @@ function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction
    {title:"Compromisso com você",description:"Facilitamos o contato para esclarecer dúvidas e encontrar a solução mais adequada."}
   ];
  }
+ // Education project showcases need project-specific, non-fabricated example cards.
+ // Do not imply that demonstrative projects were actually completed by students.
+ if(!cards.length&&requestedCount===3&&/projetos?\s+(?:dos?\s+)?(?:alunos?|estudantes?)|(?:alunos?|estudantes?)\s+(?:e\s+)?projetos?/i.test(normalized(name+" "+instruction))){
+  cards=[
+   {title:"Desafios práticos",description:"Estudos de caso e exercícios ilustrativos que conectam teoria e prática na resolução de problemas."},
+   {title:"Projetos colaborativos",description:"Exemplos de atividades em equipe para planejar soluções, compartilhar ideias e apresentar resultados."},
+   {title:"Portfólio de aprendizagem",description:"Propostas de registros e apresentações para acompanhar competências desenvolvidas ao longo dos estudos."}
+  ];
+ }
  // An ordinary four-differential request should not require the user to supply card titles.
  // Use neutral, editable sample copy; never fabricate business-specific achievements.
  if(!cards.length&&/\b(?:quatro|4)\s+diferenciais\b/i.test(instruction)){
@@ -388,8 +401,8 @@ function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction
   ?"Os cuidados após cada procedimento estético devem seguir as orientações individualizadas do profissional responsável. Confira algumas recomendações gerais."
   :"Conheça as informações e orientações sobre "+name.toLowerCase()+", organizadas para uma leitura simples e objetiva.";
  const entries=aftercare
-  ?[{type:"heading",text:name},{type:"paragraph",text:introduction},...cards.map(card=>({type:"paragraph",text:card.title+": "+card.description}))]
-  :[{type:"heading",text:name},...cards.flatMap(card=>[
+  ?[{type:"heading",text:title},{type:"paragraph",text:introduction},...cards.map(card=>({type:"paragraph",text:card.title+": "+card.description}))]
+  :[{type:"heading",text:title},...cards.flatMap(card=>[
     {type:"heading",text:card.title},
     {type:"paragraph",text:card.description}
    ])];
@@ -398,7 +411,14 @@ function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction
   const block={id:sectionId+"-"+i,section:sectionId,...entries[i]};
   operations.push({action:"add",block,afterId});afterId=block.id;
  }
- return applyUniversalOperations(site,operations);
+ const result=applyUniversalOperations(site,operations);
+ if(!result.ok||!destination||!target)return result;
+ // Persist the rendered anchor as a first-class move event. The React renderer
+ // may split approved sections across components; block order alone is not enough.
+ const oldEvents=Array.isArray(result.site.universalSectionEvents)?result.site.universalSectionEvents:[];
+ const anchorEvent={action:"move" as const,section:{id:sectionId,label:name},
+   ...(before?{before:{id:target,label:targetLabel}}:{after:{id:target,label:targetLabel}})};
+ return {...result,site:{...result.site,universalSectionEvents:[...oldEvents,anchorEvent]} as T};
 }
 
 /** Structured multi-line brief for a named three-card section. All changes commit atomically. */
