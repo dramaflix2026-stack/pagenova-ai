@@ -201,3 +201,47 @@
  .atelier-site .atelier-projects .atelier-project-card .atelier-project-info strong{font-size:16px!important}
  .atelier-site .atelier-about-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+
+/* AI-added differentiators: premium editorial treatment, not neon block. */
+.atelier-site .atelier-benefits{
+ background:#13231a!important;color:#f1f8ef!important;
+ padding:58px 5% 65px!important;
+ border-top:1px solid rgba(185,236,158,.14);
+ border-bottom:1px solid rgba(185,236,158,.14);
+}
+.atelier-site .atelier-benefits-heading{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr);align-items:end;gap:25px;margin-bottom:28px}
+.atelier-site .atelier-benefits-eyebrow{display:flex;align-items:center;gap:9px;color:#baff80!important;font-size:9px;letter-spacing:.16em;font-weight:800}
+.atelier-site .atelier-benefits-eyebrow i{width:7px;height:7px;border-radius:50%;background:#baff80;box-shadow:0 0 13px rgba(186,255,128,.35)}
+.atelier-site .atelier-benefits-heading h2{color:#f5fff1!important;font-size:clamp(29px,3.8vw,49px);font-weight:750;letter-spacing:-.06em;line-height:1.12;margin:16px 0 0}
+.atelier-site .atelier-benefits-heading>p{color:#aabfaf!important;font-size:12px;line-height:1.75;max-width:310px;margin:0}
+.atelier-site .atelier-benefits-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin:0!important}
+.atelier-site .atelier-benefits-grid article{
+ min-width:0;min-height:222px;padding:21px!important;
+ display:flex;flex-direction:column;align-items:stretch;
+ background:#1a3022!important;color:#f5fff1!important;
+ border:1px solid rgba(176,231,156,.19)!important;border-radius:12px!important;
+ transition:transform .22s ease,border-color .22s ease,background .22s ease;
+}
+.atelier-site .atelier-benefits-grid article:hover{transform:translateY(-3px);border-color:rgba(186,255,128,.6)!important;background:#203a29!important}
+.atelier-site .atelier-benefit-top{display:flex;align-items:start;justify-content:space-between}
+.atelier-site .atelier-benefit-symbol{width:43px;height:43px;border-radius:11px;display:grid;place-items:center;background:rgba(186,255,128,.10);color:#baff80;font-size:25px;line-height:1}
+.atelier-site .atelier-benefit-number{color:#78957e;font-size:10px;font-weight:800;letter-spacing:.1em}
+.atelier-site .atelier-benefits-grid h3{font-size:clamp(16px,1.9vw,22px);line-height:1.2;letter-spacing:-.035em;color:#f5fff1!important;margin:21px 0 10px!important;font-weight:750}
+.atelier-site .atelier-benefits-grid article p{font-size:11px;line-height:1.7;color:#b4c8b7;margin:0 0 20px}
+.atelier-site .atelier-benefit-rule{margin-top:auto;width:37px;height:2px;background:#baff80;border-radius:4px}
+@media(max-width:800px){
+ .atelier-site .atelier-benefits{padding:43px 5% 49px!important}
+ .atelier-site .atelier-benefits-heading{gap:15px;margin-bottom:22px}
+ .atelier-site .atelier-benefits-grid{gap:9px}
+ .atelier-site .atelier-benefits-grid article{padding:15px!important;min-height:240px}
+ .atelier-site .atelier-benefits-grid h3{font-size:16px}
+ .atelier-site .atelier-benefits-grid article p{font-size:10px}
+}
+@media(max-width:560px){
+ .atelier-site .atelier-benefits-heading{grid-template-columns:1fr;gap:12px}
+ .atelier-site .atelier-benefits-heading>p{max-width:100%}
+ .atelier-site .atelier-benefits-grid{grid-template-columns:1fr}
+ .atelier-site .atelier-benefits-grid article{min-height:160px}
+}
+@media(prefers-reduced-motion:reduce){.atelier-site .atelier-benefits-grid article{transition:none}}
