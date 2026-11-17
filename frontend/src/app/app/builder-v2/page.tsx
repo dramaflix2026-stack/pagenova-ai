@@ -2306,8 +2306,8 @@ export default function BuilderV2() {
         }
       }
       if(!response)throw new Error("Serviço de publicação indisponível.");
-      const data=await response.json().catch(()=>null) as {url?:string;error?:string;notice?:string}|null;
-      if(!response.ok||!data?.url)throw new Error(data?.error||("Falha no serviço de publicação (HTTP "+response.status+"). Tente novamente."));
+      const data=await response.json().catch(()=>null) as {url?:string;error?:string;notice?:string;verified?:boolean;snapshotHash?:string}|null;
+      if(!response.ok||!data?.url||data.verified!==true||!data.snapshotHash)throw new Error(data?.error||("O site ainda não foi confirmado no armazenamento público. Tente novamente."));
       setSite(previous=>previous.id===current.id?{...previous,publishedUrl:data.url}:previous);
       setPublishNotice(data.notice||"Site publicado! Acesse o link público para conferir o resultado.");
     }catch(error){setPublishError(error instanceof Error?error.message:"Falha na publicação. Seu site foi preservado.");}

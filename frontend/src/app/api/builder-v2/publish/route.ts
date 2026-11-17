@@ -74,7 +74,12 @@ export async function POST(request:NextRequest) {
     return NextResponse.json({error:"O armazenamento de publicação está indisponível. Tente novamente em instantes."},{status:503});
   }
   const storage=admin.storage.from(BUCKET);
-  let slug=baseSlug,upsert=false;
+  // Re-edits must retain the first customer-owned public address, even after
+  // changing the site title. Do not mutate another owner's snapshot.
+  const {data:existingPublication}=await admin.from("pagenova_site_publications")
+    .select("slug").eq("owner_id",userId).eq("project_id",site.id).maybeSingle();
+  let slug=existingPublication?.slug&&/^v2-[a-z0-9-]+$/.test(existingPublication.slug)
+    ?existingPublication.slug:baseSlug,upsert=false;
   for(let attempt=0;attempt<2;attempt++){
     let existing:Blob|null=null;
     let readError:{message:string}|null=null;
@@ -106,6 +111,23 @@ export async function POST(request:NextRequest) {
     contentType:"application/json",upsert,cacheControl:"0"
   });
   if(error)return NextResponse.json({error:"Falha ao publicar. Seu rascunho foi preservado."},{status:503});
+  // The API must never claim publication solely from a successful upload call.
+  // Confirm exact read-after-write bytes of the publicly served snapshot.
+  const snapshotHash=createHash("sha256").update(payload).digest("hex");
+  let verified=false;
+  for(let attempt=0;attempt<3;attempt++){
+    try{
+      const result=await storage.download(slug+".json");
+      if(result.data&&createHash("sha256").update(await result.data.text()).digest("hex")===snapshotHash){
+        verified=true;break;
+      }
+    }catch{ /* retry read-back without modifying the customer snapshot */ }
+    if(attempt<2)await new Promise(resolve=>setTimeout(resolve,150*(attempt+1)));
+  }
+  if(!verified){
+    console.error("[builder-v2/publish] snapshot integrity not confirmed");
+    return NextResponse.json({error:"O arquivo foi enviado, mas a confirmação da publicação falhou. Seu rascunho foi preservado."},{status:503});
+  }
   // Index the owned publication server-side. Domain selectors must never
   // trust IndexedDB names or a URL supplied by the browser.
   const {error:indexError}=await admin.from("pagenova_site_publications").upsert({
@@ -115,9 +137,9 @@ export async function POST(request:NextRequest) {
     console.error("[pagenova/domains] publication index error",indexError.code);
     // Publishing succeeded: a separate domain-list index error must not surface
     // as a warning to the user on the successful publication screen.
-    return NextResponse.json({slug,url:`${publicOrigin}/p/${slug}`,publishedAt});
+    return NextResponse.json({slug,url:`${publicOrigin}/p/${slug}`,publishedAt,snapshotHash,verified:true});
   }
   await admin.from("pagenova_custom_domains").update({slug,updated_at:publishedAt})
     .eq("owner_id",userId).eq("project_id",site.id);
-  return NextResponse.json({slug,url:`${publicOrigin}/p/${slug}`,publishedAt});
+  return NextResponse.json({slug,url:`${publicOrigin}/p/${slug}`,publishedAt,snapshotHash,verified:true});
 }
