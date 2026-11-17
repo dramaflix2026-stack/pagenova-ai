@@ -2372,3 +2372,52 @@
   width:24px!important;min-width:24px!important;height:18px!important;min-height:18px!important;
  }
 }
+
+
+/* Seamless guarantee artwork integration. Preserve the complete approved artwork,
+   including its baked-in text, shield and CTA; only soften the outer perimeter. */
+.pnr-page .pnr-trust .pnr-guarantee-full-art{
+ position:relative!important;
+ isolation:isolate;
+ border:0!important;
+ box-shadow:none!important;
+ background:transparent!important;
+}
+.pnr-page .pnr-trust .pnr-guarantee-full-art::before{
+ content:"";
+ position:absolute;
+ z-index:-1;
+ pointer-events:none;
+ inset:5% -4% 4%;
+ background:radial-gradient(ellipse 70% 54% at 50% 43%,rgba(26,113,32,.21),rgba(13,68,27,.11) 53%,transparent 82%);
+ filter:blur(22px);
+}
+.pnr-page .pnr-trust .pnr-guarantee-responsive-art{
+ display:block!important;
+ position:relative;
+ width:100%!important;
+ overflow:visible!important;
+ background:transparent!important;
+ -webkit-mask-image:linear-gradient(to right,transparent 0%,#000 4%,#000 96%,transparent 100%);
+ mask-image:linear-gradient(to right,transparent 0%,#000 4%,#000 96%,transparent 100%);
+}
+@media(max-width:767px){
+ .pnr-page .pnr-trust .pnr-guarantee-full-art{
+  overflow:visible!important;
+ }
+ .pnr-page .pnr-trust .pnr-guarantee-responsive-art{
+  -webkit-mask-image:
+   linear-gradient(to right,transparent 0%,#000 4%,#000 96%,transparent 100%),
+   linear-gradient(to bottom,transparent 0%,#000 2%,#000 98%,transparent 100%);
+  mask-image:
+   linear-gradient(to right,transparent 0%,#000 4%,#000 96%,transparent 100%),
+   linear-gradient(to bottom,transparent 0%,#000 2%,#000 98%,transparent 100%);
+  -webkit-mask-composite:source-in;
+  mask-composite:intersect;
+ }
+ .pnr-page .pnr-trust .pnr-guarantee-full-art::before{
+  inset:2% -3% 2%;
+  background:radial-gradient(ellipse 74% 68% at 50% 44%,rgba(35,135,38,.20),rgba(18,74,31,.09) 62%,transparent 87%);
+  filter:blur(20px);
+ }
+}
