@@ -10,10 +10,15 @@ declare global {
   }
 }
 
-const META_PIXEL_ID = "1051066844418593";
+const EXISTING_PIXEL_ID = "1051066844418593";
+const LANDING_PIXEL_ID = "2101736870240618";
 
-export function MetaPixel() {
+type MetaPixelProps = { landing?: boolean };
+
+export function MetaPixel({ landing = false }: MetaPixelProps) {
+  const pixelId = landing ? LANDING_PIXEL_ID : EXISTING_PIXEL_ID;
   useEffect(() => {
+    if (landing) return;
     const timer = window.setTimeout(() => {
       window.fbq?.("track", "ViewContent", {
         content_name: "PageNova AI",
@@ -24,11 +29,11 @@ export function MetaPixel() {
     }, 500);
 
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [landing]);
 
   return (
     <>
-      <Script id="meta-pixel" strategy="afterInteractive">
+      <Script id={landing ? "meta-pixel-landing" : "meta-pixel"} strategy="afterInteractive">
         {`
           !function(f,b,e,v,n,t,s)
           {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -40,7 +45,7 @@ export function MetaPixel() {
           (window, document,'script',
           'https://connect.facebook.net/en_US/fbevents.js');
 
-          fbq('init', '${META_PIXEL_ID}');
+          fbq('init', '${pixelId}');
           fbq('track', 'PageView');
         `}
       </Script>
@@ -50,7 +55,7 @@ export function MetaPixel() {
           height="1"
           width="1"
           style={{ display: "none" }}
-          src={`https://www.facebook.com/tr?id=${META_PIXEL_ID}&ev=PageView&noscript=1`}
+          src={`https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1`}
           alt=""
         />
       </noscript>
