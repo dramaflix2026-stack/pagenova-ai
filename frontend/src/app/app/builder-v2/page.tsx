@@ -1444,6 +1444,46 @@ export default function BuilderV2() {
     if(busy)return;
     // Resolve universal batches before any legacy shortcut can consume only one clause.
     if(site.blocks.length&&!isFullSiteCreationBrief(prompt)){
+      // Prioritize the verified, explicitly registered premium renderer binding
+      // before learned strategy ranking or a broad AI editor can re-interpret a
+      // simple color request. A successful state patch is NOT an approval.
+      const premiumBackground=applyRenderedSectionBackground(site,prompt);
+      if(premiumBackground){
+        if(!premiumBackground.ok){
+          const explanation=premiumBackground.error;
+          // Idempotent color requests are not extra learning successes.
+          setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:explanation}]);
+          setInstruction("");
+          return;
+        }
+        const verified=verifyUniversalEditResult(site,premiumBackground.site,premiumBackground.changedIds);
+        const proof=verified.ok?planUniversalVisualProof(site,premiumBackground.site,premiumBackground.changedIds):null;
+        if(!verified.ok||!proof?.ok){
+          const reason=!verified.ok?verified.reason:proof&&!proof.ok?proof.reason:"Prévia não verificável.";
+          recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal-rendered-background-preflight",site.briefingLayoutVariant||"01",undefined,undefined,activeSubmissionTraceRef.current);
+          captureReviewCandidate();
+          setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Edição bloqueada: "+reason}]);
+          setInstruction("");
+          return;
+        }
+        const solution=captureVerifiedEditorSolution(site,premiumBackground.site,premiumBackground.changedIds,{
+          niche:site.niche,model:site.briefingLayoutVariant,
+          family:String(resolveBriefingFamily(site.niche||"")||""),template:site.templateId
+        });
+        pendingUniversalVisualProofRef.current={
+          prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",
+          contract:proof.contract,siteAfter:premiumBackground.site,
+          regressionSentinels:captureCurrentPreviewRegression(site,premiumBackground.site,premiumBackground.changedIds),
+          strategy:"universal-rendered-section-background-visual-verified",solution,
+          trace:activeSubmissionTraceRef.current
+        };
+        recordVersion(site,"Antes da cor da seção Coleções Florais");
+        setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
+        setSite(premiumBackground.site);setInstruction("");setGenerationError("");
+        setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",
+          text:"Comando reconhecido como alteração de cor da seção Coleções Florais. Conferindo o fundo na prévia real antes de registrar sucesso no aprendizado."}]);
+        return;
+      }
       const compound=splitUniversalInstructions(prompt).length>1;
       const hasAttachments=!!reference||institutionalFiles.length>0||propertyFiles.length>0;
       const imageChange=isExplicitImageChangeRequest(prompt)&&/(?:imagem|foto|fotografia|capa|hero|banner)/i.test(prompt);

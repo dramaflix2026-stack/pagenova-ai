@@ -5,6 +5,7 @@ import ts from "typescript";
 import {applyRenderedSectionBackground} from "../src/lib/builder-v2-rendered-section-background.ts";
 import {verifyUniversalEditResult} from "../src/lib/builder-v2-universal-learning.ts";
 import {planUniversalVisualProof,auditUniversalVisualProof} from "../src/lib/builder-v2-editor-visual-proof.ts";
+import {classifyUniversalFeedback} from "../src/lib/builder-v2-universal-feedback.ts";
 
 
 const read=path=>readFileSync(new URL(path,import.meta.url),"utf8");
@@ -161,4 +162,39 @@ test("Test 02 renderer wiring remains isolated to premium M1 and normal universa
  assert.match(ui,/sectionBackgroundOverride&&\/\^#\[a-f\\d\]\{6\}\$\/i\.test\(sectionBackgroundOverride\)/);
  const otherModels=["../src/components/builder-v2-floriculture-model2.tsx","../src/components/builder-v2-floriculture-model3.tsx"].map(read);
  for(const source of otherModels)assert.ok(!source.includes("sectionBackgroundOverride"));
+});
+
+
+test("ML: 'exclusivamente' can never be mistaken for 'excluir seção'",()=>{
+ const classified=classifyUniversalFeedback(isolatedBackgroundPrompt);
+ assert.deepEqual(classified,{intent:"style",target:"collections",sectionKey:"produtos"});
+ const styleWithoutClause=classifyUniversalFeedback("Altere exclusivamente a cor de fundo da seção Coleções Florais para #EFE7DC.");
+ assert.deepEqual(styleWithoutClause,{intent:"style",target:"collections",sectionKey:"produtos"});
+ const realRemoval=classifyUniversalFeedback("Exclua a seção Coleções Florais");
+ assert.equal(realRemoval.intent,"remove-section");
+ const negative=classifyUniversalFeedback("Altere o fundo da seção Coleções Florais e não remova a seção");
+ assert.equal(negative.intent,"style");
+});
+test("ML: the exact premium color path must execute before historical Supabase route ranking",()=>{
+ const source=read("../src/app/app/builder-v2/page.tsx");
+ const premium=source.indexOf("const premiumBackground=applyRenderedSectionBackground(site,prompt);");
+ const history=source.indexOf("const [approvedPatterns,approvedSolutions]=await Promise.all(");
+ const generic=source.indexOf("const generic=applyUniversalNaturalLanguage(site,prompt);");
+ assert.ok(premium>0&&history>premium&&generic>premium);
+ const scope=source.slice(premium,source.indexOf("const compound=splitUniversalInstructions(prompt).length>1;",premium));
+ assert.match(scope,/verifyUniversalEditResult\(site,premiumBackground.site,premiumBackground.changedIds\)/);
+ assert.match(scope,/planUniversalVisualProof\(site,premiumBackground.site,premiumBackground.changedIds\)/);
+ assert.match(scope,/pendingUniversalVisualProofRef.current=\{/);
+ assert.match(scope,/captureCurrentPreviewRegression/);
+ assert.doesNotMatch(scope,/recordEditorLearningEvent\([^;]*"applied"/);
+ assert.match(scope,/setSite\(premiumBackground.site\)/);
+});
+test("ML: section background works with sites that lack prior universalSectionStyles",()=>{
+ const bare=isolatedBackgroundSeed();
+ delete bare.universalSectionStyles;
+ const updated=applyRenderedSectionBackground(bare,isolatedBackgroundPrompt);
+ assert.equal(updated?.ok,true);
+ assert.equal(updated.site.universalSectionStyles.produtos.backgroundColor,"#EFE7DC");
+ assert.deepEqual(updated.site.blocks,bare.blocks);
+ assert.equal(verifyUniversalEditResult(bare,updated.site,updated.changedIds).ok,true);
 });
