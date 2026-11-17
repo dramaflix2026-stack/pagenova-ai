@@ -322,7 +322,7 @@ export function LandingRevamp() {
     <header className="pnr-section-heading"><p className="pnr-overline">{t.solutionsTag}</p><h2>{t.solutionsTitle} <em>{t.solutionsHi}</em></h2><p>{t.solutionsDesc}</p></header>
     <div className="pnr-product-grid" data-motion-scope="solutions">{products.map((p,i)=>{const Icon=p.icon;return <a key={i} href={p.target} className={"pnr-product pnr-product-"+p.color}><span className="pnr-product-icon"><Icon size={25}/></span><span className="pnr-product-text"><strong>{t.solutionNames[i]}</strong><small>{t.solutionDescriptions[i]}</small>{i===2&&<small className="pnr-status">{t.solutionBadge}</small>}</span><ArrowUpRight size={19} className="pnr-product-arrow"/></a>})}</div>
    </section>
-   <section id="estilos" className="pnr-section pnr-styles">
+   <section id="estilos" className={"pnr-section pnr-styles"+(lang==="en"?" pnr-styles--en":"")}>
     <header className="pnr-section-heading"><p className="pnr-overline">{t.stylesTag}</p><h2>{t.stylesTitle} <em>{t.stylesHi}</em></h2><p>{t.stylesDesc}</p></header>
     <div className="pnr-style-grid" data-motion-scope="styles">{(["institucional","cinematografico","3d-imersivo"] as const).map((id,i)=><div className={"pnr-style-card"+(lang==="en"?" pnr-style-card--en":"")} key={id}><picture><source media="(max-width: 650px)" srcSet={localizedStyleImages[lang][id].mobile}/><img src={localizedStyleImages[lang][id].desktop} alt={t.types[i]} width="1600" height="900" loading="lazy" decoding="async"/></picture>{lang==="en"&&<EnglishGalleryFrame src={localizedStyleImages.en[id].desktop}/>}</div>)}</div>
     <p className="pnr-footnote">{t.stylesNote}</p>
