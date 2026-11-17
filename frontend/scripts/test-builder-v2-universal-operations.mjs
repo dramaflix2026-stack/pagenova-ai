@@ -660,8 +660,11 @@ test("salon niche aliases route consistently to TP1 without redirecting other fa
 
 test("cloud version history is explicitly scoped to the authenticated user",()=>{
  const route=readFileSync(new URL("../src/app/api/builder-v2/versions/route.ts",import.meta.url),"utf8");
- assert.match(route,/\.select\("id,label,site,created_at"\)\.eq\("user_id", user\.id\)\.eq\("project_id", projectId\)/);
- assert.match(route,/user_id: user\.id, project_id: projectId/);
+ // Delivery 7 preserves owner-scoped access and filters historical rows by site.
+ assert.match(route,/\.eq\("user_id",user\.id\)/);
+ assert.match(route,/\.eq\("project_id",projectId\)/);
+ assert.match(route,/\.eq\("site->>id",projectId\)/);
+ assert.match(route,/user_id:user\.id,project_id:body\.projectId/);
 });
 
 test("publishing preserves universal section events in the persisted snapshot",()=>{
@@ -870,7 +873,9 @@ test("a successfully published site is not presented as a domain-list failure",(
  const publish=readFileSync(new URL("../src/app/api/builder-v2/publish/route.ts",import.meta.url),"utf8");
  assert.doesNotMatch(publish,/notice:"Site publicado\. A atualização da lista de domínios/);
  assert.match(publish,/console\.error\("\[pagenova\/domains\] publication index error"/);
- assert.match(publish,/return NextResponse\.json\(\{slug,url:`\$\{publicOrigin\}\/p\/\$\{slug\}`,publishedAt\}\)/);
+ assert.match(publish,/snapshotHash,verified:true/);
+ assert.match(publish,/if\(!verified\)/);
+ assert.match(publish,/return NextResponse\.json\(\{slug,url:/);
  assert.match(editor,/setPublishNotice\(data\.notice\|\|/);
 });
 
