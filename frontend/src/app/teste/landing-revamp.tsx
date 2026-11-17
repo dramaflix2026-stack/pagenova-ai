@@ -176,17 +176,18 @@ const audiencesIcons=[MonitorSmartphone,Rocket,Store,Target];
 const priceIcons=[Zap,BarChart3,Layers3,Crown];
 const amounts=[207,247,397,597];
 
-export function LandingRevamp() {
- const [lang,setLang]=useState<Lang>("pt");
+export function LandingRevamp({ official = false, initialLanguage = "pt" }: { official?: boolean; initialLanguage?: Lang } = {}) {
+ const [lang,setLang]=useState<Lang>(initialLanguage);
  const [menu,setMenu]=useState(false);
  const [langOpen,setLangOpen]=useState(false);
  const [audienceTab,setAudienceTab]=useState(0);
  useEffect(()=>{
   const search=new URLSearchParams(window.location.search).get("lang");
+  if(official){setLang(initialLanguage);return;}
   if(search==="pt"||search==="en"||search==="es"){setLang(search);return;}
   const browser=navigator.language.toLowerCase();
   setLang(browser.startsWith("en")?"en":browser.startsWith("es")?"es":"pt");
- },[]);
+ },[official,initialLanguage]);
  useEffect(()=>{document.documentElement.lang=lang==="pt"?"pt-BR":lang;},[lang]);
  useEffect(()=>{
   const section=document.querySelector<HTMLElement>(".pnr-audiences");
@@ -241,16 +242,19 @@ export function LandingRevamp() {
  const t=translations[lang];
  const switchLang=(value:Lang)=>{
   setLang(value);setMenu(false);setLangOpen(false);
+  if(official){window.location.assign(value==="pt"?"/":`/${value}`);return;}
   const url=new URL(window.location.href);url.searchParams.set("lang",value);
   window.history.replaceState(null,"",url.toString());
  };
+ const homePath=official?(initialLanguage==="pt"?"/":`/${initialLanguage}`):"/teste";
+ const packagePath=official?"/montar-pacote":"/teste/montar-pacote";
  const navigation=["#solucoes","#estilos","#planos","#publicos"];
  const footerAnchors=[["#solucoes","#solucoes","#planos"],["#solucoes","#planos","#estilos"],["#faq","#faq","#faq"]];
  return <div className="pnr-page" data-visual-stage="static">
   <div className="pnr-global-ambient" aria-hidden="true"/>
   <header className="pnr-header">
    <div className="pnr-nav">
-    <Link href="/teste" className="pnr-brand" aria-label="PageNova AI"><img src="/brand/pagenova-logo.png" width="160" height="48" alt="PageNova AI"/></Link>
+    <Link href={homePath} className="pnr-brand" aria-label="PageNova AI"><img src="/brand/pagenova-logo.png" width="160" height="48" alt="PageNova AI"/></Link>
     <nav className="pnr-navlinks" aria-label="Principal">{t.nav.map((label,i)=><a key={label} href={navigation[i]}>{label}</a>)}</nav>
     <div className="pnr-navright"><div className="pnr-language-picker"><button type="button" className="pnr-language-trigger" aria-label="Selecionar idioma" aria-expanded={langOpen} onClick={()=>setLangOpen(!langOpen)}><span className="pnr-flag" aria-hidden="true"><LanguageFlag code={lang}/></span><ChevronDown size={13}/></button>{langOpen&&<div className="pnr-language-options" role="group" aria-label="Idiomas">{([["pt","🇧🇷","Português"],["en","🇺🇸","English"],["es","🇪🇸","Español"]] as const).map(([value,flag,label])=><button key={value} type="button" className={lang===value?"is-active":""} onClick={()=>switchLang(value)}><span aria-hidden="true"><LanguageFlag code={value}/></span><span>{label}</span></button>)}</div>}</div><Link href="/login">{t.login}</Link><Link href="/cadastro?trial=1" className="pnr-btn pnr-btn-primary">{t.start}<ArrowUpRight size={16}/></Link></div>
     <div className="pnr-mobile-flag-switch" role="group" aria-label="Idioma da página">{(["pt","en","es"] as const).map(value=><button key={value} type="button" className={lang===value?"is-active":""} aria-label={value==="pt"?"Português":value==="en"?"English":"Español"} aria-pressed={lang===value} onClick={()=>switchLang(value)}><LanguageFlag code={value}/></button>)}</div>
@@ -303,7 +307,7 @@ export function LandingRevamp() {
      <div className="pnr-price-top"><span className="pnr-price-icon"><Icon size={22}/></span><div><h3>{p.name}</h3><small>{p.subtitle}</small></div></div>
      <div className="pnr-price-number"><span>R$</span><strong>{amounts[i]}</strong><span>/mês</span></div>
      <div className="pnr-price-details"><span>{t.includes}</span><ul>{p.features.map(f=><li key={f}><Check size={15}/>{f}</li>)}</ul></div>
-     {i===2?<button type="button" className="pnr-price-button pnr-price-button-soon" disabled aria-label="Apps e Sistemas: Em Breve">Em Breve</button>:<Link href={"/teste/montar-pacote?plan="+(["studio","crm","apps","completo"][i])} className={"pnr-price-button"+(i===3?" primary":"")}>Montar meu pacote <ArrowRight size={15}/></Link>}<small className="pnr-price-pending">{i===2?"Disponível em breve":"Personalize sua contratação"}</small>
+     {i===2?<button type="button" className="pnr-price-button pnr-price-button-soon" disabled aria-label="Apps e Sistemas: Em Breve">Em Breve</button>:<Link href={packagePath+"?plan="+(["studio","crm","apps","completo"][i])} className={"pnr-price-button"+(i===3?" primary":"")}>Montar meu pacote <ArrowRight size={15}/></Link>}<small className="pnr-price-pending">{i===2?"Disponível em breve":"Personalize sua contratação"}</small>
     </article>})}</div><p className="pnr-footnote">{t.pricesNote}</p>
    </section>
    <PageNovaTrustSections language={lang}/>
