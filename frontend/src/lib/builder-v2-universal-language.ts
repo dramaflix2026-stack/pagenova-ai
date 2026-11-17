@@ -446,9 +446,9 @@ function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction
     {type:"paragraph",text:card.description,...(teamCards?{src:teamPhotoUrls[index]}:{})}
    ])];
  if(existing.length){
-  const idPattern=new RegExp("^"+sectionId.replace(/[.*+?^${}()|[\]\\]/g,"\\ const operations:UniversalOperation[]=recoverStale?[{action:"remove-section",sectionId:staleId}]:[];let afterId=previous.id;")+"-\\d+$");
   const generatedOnly=existing.length>=4&&existing.length<=12&&existing.every(block=>
-   idPattern.test(block.id)&&["heading","paragraph"].includes(block.type)
+   block.id.startsWith(sectionId+"-")&&/^\d+$/.test(block.id.slice(sectionId.length+1))
+   &&["heading","paragraph"].includes(block.type)
    &&!block.textExplicit&&!block.imageExplicit&&!block.alignExplicit
   );
   const headings=existing.filter(block=>block.type==="heading");
