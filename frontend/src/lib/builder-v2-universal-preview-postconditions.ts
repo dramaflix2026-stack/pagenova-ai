@@ -4,7 +4,7 @@ import type {UniversalSite} from "./builder-v2-universal-operations.ts";
 export type UniversalPreviewMoveContract={
  kind:"move-section";sectionId:string;anchorId:string;direction:"before"|"after";
  heading?:{text:string;align:"left"|"center"|"right"};
- cardTitles:string[];
+ cardTitles:string[];cardPhotos?:string[];
 };
 const normalize=(value:string)=>value.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/\s+/g," ").trim();
 
@@ -26,7 +26,8 @@ export function planUniversalPreviewMove<T extends UniversalSite>(before:T,after
  return {kind:"move-section",sectionId:move.section.id,anchorId:anchor,direction:move.before?"before":"after",
   ...(lead&&["center","left","right"].includes(lead.align||"")?
    {heading:{text:lead.text||"",align:lead.align as "left"|"center"|"right"}}:{}),
-  cardTitles:headings.length>=4?headings.slice(1).map(block=>block.text||""):[]
+  cardTitles:headings.length>=4?headings.slice(1).map(block=>block.text||""):[],
+  ...(sectionBlocks.some(block=>block.type==="paragraph"&&typeof block.src==="string")?{cardPhotos:sectionBlocks.filter(block=>block.type==="paragraph"&&typeof block.src==="string").map(block=>block.src!)}:{})
  };
 }
 
@@ -75,6 +76,13 @@ export function auditUniversalPreviewMove(root:ParentNode,win:Pick<Window,"getCo
   if(cards.length!==plan.cardTitles.length)return fail("A quantidade de cards renderizados está diferente da original.");
   const actual=cards.map(card=>normalize(card.querySelector("h3,h4")?.textContent||""));
   if(actual.some((value,index)=>value!==normalize(plan.cardTitles[index])))return fail("Os títulos dos cards foram alterados ou saíram de ordem.");
+  if(plan.cardPhotos?.length){
+   if(cards.length!==plan.cardPhotos.length)return fail("Os cards com fotografias não aparecem na quantidade solicitada.");
+   if(cards.some((card,index)=>{
+    const image=card.querySelector<HTMLImageElement>("img");
+    return !image||image.getAttribute("src")!==plan.cardPhotos![index]||!image.complete||image.naturalWidth<1;
+   }))return fail("Uma ou mais fotografias dos cards não carregaram na prévia.");
+  }
  }
  return {ok:true,reason:"Posição, título, alinhamento e cards confirmados na prévia."};
 }
