@@ -67,8 +67,8 @@
       "path": "src/components/builder-v2-site.tsx",
       "blobSha": "39f70209f2e11a82b84923c43d28eae10e4c344a",
       "approvedBindingRevision": {
-        "sha": "646755801488914b03e2b6bd91a1410d3aa77762",
-        "reason": "Pass brand through the existing TP9 Model 2 showcase binding to scope the approved Vértice Bento gallery. All other site rendering, models and editor/learning unchanged."
+        "sha": "fa73ea6299410df24aef0307188889699d4a1475",
+        "reason": "User-requested functional correction: consume a saved, explicitly targeted hero heading on TP9 Model 2 only; default design, other niches and variants remain unchanged."
       }
     },
     {
@@ -583,8 +583,8 @@
       "path": "src/components/builder-v2-tp9-model2-hero.tsx",
       "blobSha": "1962bda1a899127d6cc5027f022ee87a006afcbb",
       "approvedBindingRevision": {
-        "sha": "47f2089d83e143dbffcce331ef3f4fe99e5646e3",
-        "reason": "Approved Vértice TP9 Model 2 hero content fixes: Portuguese kicker and maintenance service categories, better CTA contrast and menu accessibility. Preserve black-gold composition, other niches and models."
+        "sha": "c84292c7a94dba745c87d9a0f8561b05308940a3",
+        "reason": "User-requested functional correction: give the edited main hero title a real DOM block ID and preserve existing default black-gold styling and content until explicitly edited."
       }
     },
     {
