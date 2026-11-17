@@ -1,3 +1,4 @@
+import { LandingShell } from "../teste/landing-shell";
 import type {Metadata} from "next";
 import { LandingRevamp } from "../teste/landing-revamp";
 import {LocalizedMarketing} from "@/components/localized-marketing";
@@ -6,4 +7,4 @@ export const metadata:Metadata={
  description:"Crea sitios web, landing pages, cuestionarios, formularios y ebooks con IA. Prueba PageNova gratis.",
  alternates:{canonical:"/es",languages:{"pt-BR":"/","en":"/en","es":"/es"}}
 };
-export default function LocalizedHome(){return process.env.PAGENOVA_PUBLIC_LP === "v2" ? <LandingRevamp official initialLanguage="es" /> : <LocalizedMarketing lang="es"/>;}
+export default function LocalizedHome(){return process.env.PAGENOVA_PUBLIC_LP === "v2" ? <LandingShell><LandingRevamp official initialLanguage="es" /></LandingShell> : <LocalizedMarketing lang="es"/>;}
