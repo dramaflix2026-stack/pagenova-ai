@@ -984,6 +984,30 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,ra
     ?{ok:true,site:current,changedIds:[]}
     :applyUniversalOperations(current,[{action:"update",blockId:title.id,changes:{align:"center"}}]);
   }
+  // An explicitly quoted heading can refer to the section moved by the
+  // preceding clause. This is ONE scoped heading, not all headings/cards.
+  // Resolve against this request's fresh move event; never use old events to
+  // infer intent. The entire compound instruction remains atomic.
+  const quotedHeadingAlignment=actionableClause.match(/^(?:centralize|alinhe(?:\\s+ao\\s+centro)?)\\s+(?:somente\\s+|apenas\\s+)?(?:o\\s+)?t[ií]tulo\\s+["“']([^"”']{1,150})["”']\\s*[.!?]?$/i);
+  if(quotedHeadingAlignment&&!contextualResult){
+   const normalizeHeading=(text:string)=>text.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").trim().toLowerCase().replace(/\\s+/g," ");
+   const desiredTitle=normalizeHeading(quotedHeadingAlignment[1]);
+   const initialEvents=site.universalSectionEvents||[];
+   const moved=(current.universalSectionEvents||[]).slice(initialEvents.length).filter(event=>event.action==="move");
+   if(moved.length>1)return {ok:false,error:"Há mais de uma seção movimentada; indique a seção do título. Nenhuma alteração aplicada."};
+   const candidateSections=moved.length===1
+    ?[moved[0].section.id]
+    :[...new Set(current.blocks.filter(block=>block.type==="heading"&&normalizeHeading(String(block.text||""))===desiredTitle).map(block=>block.section).filter((value):value is string=>!!value))];
+   const targets=candidateSections.flatMap(section=>{
+    const mainHeading=current.blocks.find(block=>block.section===section&&block.type==="heading");
+    return mainHeading&&normalizeHeading(String(mainHeading.text||""))===desiredTitle?[mainHeading]:[];
+   });
+   if(targets.length!==1)return {ok:false,error:"O título indicado não corresponde de forma única à seção solicitada. Nenhuma alteração aplicada."};
+   const heading=targets[0];
+   contextualResult=heading.align==="center"&&heading.alignExplicit===true
+    ?{ok:true,site:current,changedIds:[]}
+    :applyUniversalOperations(current,[{action:"update",blockId:heading.id,changes:{align:"center"}}]);
+  }
   // ID and quoted-label commands remain backward compatible.
   const result=contextualResult||applyVisibleEditorCommand(current,clause)||applySingleUniversalNaturalLanguage(current,clause)||applyUniversalNamedLanguage(current,clause);
   if(!result){
