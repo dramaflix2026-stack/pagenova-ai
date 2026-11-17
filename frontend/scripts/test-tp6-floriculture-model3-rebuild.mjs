@@ -91,3 +91,18 @@ test("New design and renderer parse as valid TSX",()=>{
   assert.deepEqual(ast.parseDiagnostics.map(d=>ts.flattenDiagnosticMessageText(d.messageText," ")),[],name);
  }
 });
+
+test("Approved visual revision: 3 sections only, split hero and clear cards",()=>{
+ assert.match(ui,/const heroHeadline=/);
+ assert.match(ui,/className="pn-floral3-hero-visual"/);
+ assert.match(ui,/className="pn-floral3-hero-divider"/);
+ assert.doesNotMatch(ui,/className="pn-floral3-hero-overlay"/);
+ assert.match(ui,/className="pn-floral3-value-top"/);
+ assert.match(ui,/className="pn-floral3-value-copy"/);
+ assert.match(ui,/className="pn-floral3-journey-copy"/);
+ for(const label of ["Escolha seu estilo","Conte sua ideia","Finalize os detalhes"])assert.ok(ui.includes(label));
+ assert.match(css,/\.pn-floral3 \.pn-floral3-hero\{display:grid;grid-template-columns:/);
+ assert.match(css,/\.pn-floral3 \.pn-floral3-values-grid\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+ assert.match(css,/\.pn-floral3 \.pn-floral3-journey-copy\{/);
+ assert.match(css,/@media\(max-width:520px\)/);
+});

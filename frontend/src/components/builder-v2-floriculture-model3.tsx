@@ -47,9 +47,9 @@ const values=[
  ["↗","Detalhes combinados","Condições e possibilidades esclarecidas antes de concluir a encomenda."]
 ] as const;
 const journey=[
- ["01","Escolha seu estilo","Explore coleções, referências e flores da estação."],
- ["02","Conte a sua ideia","Informe cores, ocasião, preferências e a mensagem desejada."],
- ["03","Combine os detalhes","Confirme disponibilidade e as opções de retirada ou entrega."]
+ ["01","Escolha seu estilo","Explore flores e encontre seu estilo."],
+ ["02","Conte sua ideia","Compartilhe cores e a ocasião."],
+ ["03","Finalize os detalhes","Confirme entrega ou retirada."]
 ] as const;
 const goodPhoto=(src:unknown)=>typeof src==="string"&&/^https:\/\/(?:images\.unsplash\.com|[\w.-]+\.supabase\.co|[\w.-]+\.cloudinary\.com)\//i.test(src);
 const goodEmail=(src:string)=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(src)&&src.length<=254;
@@ -62,6 +62,8 @@ export function TP6FloricultureModel3({brand,headline,description,photos,edits,r
  const business=brand?.trim()||"Jardim de Âmbar — Atelier Floral";
  const shortBrand=business.split(/\s+[—–-]\s+/)[0];
  const subtitle=description?.trim()||"Composições florais para expressar sentimentos, criar encontros e celebrar os detalhes.";
+ const briefingHeadline=headline?.trim()||"";
+ const heroHeadline=/^flores que transformam momentos em mem[oó]rias\.?$/i.test(briefingHeadline)?"Flores que criam memórias.":briefingHeadline||"Flores que criam memórias.";
  const photoBank=photos.filter(goodPhoto);
  const image=(i:number)=>photoBank.length?photoBank[i%photoBank.length]:fallback[i%fallback.length];
  const mail=(email||"").trim(),canMail=goodEmail(mail);
@@ -117,13 +119,17 @@ export function TP6FloricultureModel3({brand,headline,description,photos,edits,r
    <button className="pn-floral3-hamburger" type="button" aria-label={menu?"Fechar menu":"Abrir menu"} aria-expanded={menu} onClick={()=>setMenu(!menu)}>{menu?"✕":"☰"}</button>
   </header>
   <section id="inicio" className="pn-floral3-hero" aria-labelledby="pn-floral3-hero-title">
-   <img className="pn-floral3-hero-image" src={image(0)} alt="Fotografia floral editorial com flores naturais" fetchPriority="high"/>
-   <div className="pn-floral3-hero-overlay"/>
-   <div className="pn-floral3-hero-content"><span className="pn-floral3-eyebrow light">01 / BELEZA QUE FLORESCE</span>
-    <h1 id="pn-floral3-hero-title">{headline?.trim()||"O extraordinário mora nos detalhes."}</h1>
-    <p>{subtitle}</p><a className="pn-floral3-button light-button" href="#produtos">DESCUBRA NOSSAS FLORES <span aria-hidden="true">↗</span></a>
+   <div className="pn-floral3-hero-content"><span className="pn-floral3-eyebrow">01 / ATELIER FLORAL CONTEMPORÂNEO</span>
+    <h1 id="pn-floral3-hero-title">{heroHeadline}</h1>
+    <span className="pn-floral3-hero-divider" aria-hidden="true"/>
+    <p>{subtitle}</p><a className="pn-floral3-button" href="#produtos">DESCUBRA NOSSAS FLORES <span aria-hidden="true">↗</span></a>
+    <div className="pn-floral3-hero-note"><span>FLORES / AFETO / MEMÓRIAS</span><span>DESLIZE PARA EXPLORAR ↓</span></div>
    </div>
-   <div className="pn-floral3-hero-caption"><span>JARDIM DE ÂMBAR / ESTÚDIO FLORAL</span><span>UM GESTO. INFINITAS EMOÇÕES.</span></div>
+   <div className="pn-floral3-hero-visual">
+    <img className="pn-floral3-hero-image" src={image(0)} alt="Fotografia editorial de buquê de flores naturais" fetchPriority="high"/>
+    <div className="pn-floral3-hero-photo-note"><span>JARDIM DE ÂMBAR</span><span>COMPOSIÇÕES QUE ENCANTAM ↗</span></div>
+    <span className="pn-floral3-hero-flower-mark" aria-hidden="true">✳</span>
+   </div>
   </section>
 
   <section id="sobre" className="pn-floral3-about pn-floral3-section" aria-labelledby="pn-floral3-about-title">
@@ -138,7 +144,7 @@ export function TP6FloricultureModel3({brand,headline,description,photos,edits,r
   <section id="diferenciais" className="pn-floral3-values pn-floral3-section" aria-labelledby="pn-floral3-values-title">
    <div className="pn-floral3-section-top"><span>03 / O NOSSO JEITO</span><span>O QUE TORNA CADA GESTO ESPECIAL</span></div>
    <div className="pn-floral3-values-head"><span className="pn-floral3-eyebrow">FEITO COM ATENÇÃO</span><h2 id="pn-floral3-values-title">Mais do que flores.<br/><em>Significados.</em></h2><p>Quatro pilares para inspirar escolhas delicadas e uma experiência de encomenda acolhedora.</p></div>
-   <div className="pn-floral3-values-grid">{values.map(([icon,label,desc])=><article className="pn-floral3-value-card" key={label}><span className="pn-floral3-value-icon" aria-hidden="true">{icon}</span><h3>{label}</h3><p>{desc}</p></article>)}</div>
+   <div className="pn-floral3-values-grid">{values.map(([icon,label,desc],i)=><article className="pn-floral3-value-card" key={label}><div className="pn-floral3-value-top"><span>{String(i+1).padStart(2,"0")} / 04</span><span className="pn-floral3-value-icon" aria-hidden="true">{icon}</span></div><div className="pn-floral3-value-copy"><h3>{label}</h3><p>{desc}</p></div></article>)}</div>
   </section>
 
   <section id="produtos" className="pn-floral3-collections pn-floral3-section" aria-labelledby="pn-floral3-collections-title" style={edits?.collectionBackground&&/^#[0-9a-f]{6}$/i.test(edits.collectionBackground)?{backgroundColor:edits.collectionBackground}:undefined}>
@@ -151,7 +157,7 @@ export function TP6FloricultureModel3({brand,headline,description,photos,edits,r
   <section id="como-comprar" className="pn-floral3-journey pn-floral3-section" aria-labelledby="pn-floral3-journey-title">
    <div className="pn-floral3-section-top"><span>05 / COMO FUNCIONA</span><span>TRÊS PASSOS, UM GESTO ESPECIAL</span></div>
    <div className="pn-floral3-heading-pair"><div><span className="pn-floral3-eyebrow">SIMPLIFICAMOS SUA ESCOLHA</span><h2 id="pn-floral3-journey-title">Do primeiro olhar<br/><em>ao encanto.</em></h2></div><p>Escolha sua inspiração e converse com o atelier para confirmar a encomenda.</p></div>
-   <div className="pn-floral3-journey-grid">{journey.map(([n,label,desc],i)=><article className="pn-floral3-journey-card" key={n}><div className="pn-floral3-journey-photo"><img src={image(i+4)} alt={"Fotografia de flores — "+label} loading="lazy"/><span>{n}</span></div><h3>{label}</h3><p>{desc}</p></article>)}</div>
+   <div className="pn-floral3-journey-grid">{journey.map(([n,label,desc],i)=><article className="pn-floral3-journey-card" key={n}><div className="pn-floral3-journey-photo"><img src={image(i+4)} alt={"Fotografia de flores — "+label} loading="lazy"/><span className="pn-floral3-journey-number">{n}</span></div><div className="pn-floral3-journey-copy"><h3>{label}</h3><p>{desc}</p></div></article>)}</div>
   </section>
 
   <section id="depoimentos" className="pn-floral3-testimonials pn-floral3-section" aria-labelledby="pn-floral3-testimonials-title">
