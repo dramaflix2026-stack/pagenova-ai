@@ -466,7 +466,7 @@ function BuilderV2SiteContent(props:BuilderV2SiteProps){
    // other retail niches, or the universal editing/learning engine.
    if(variant==="01"&&retailNiche==="Floricultura"){
     const photos=getTP6Model2InternetPhotos("Floricultura","01");
-    const explicitlyEditedHero=props.site.blocks.find(b=>b.type==="image"&&b.imageExplicit&&b.src)?.src;
+    const explicitlyEditedHero=props.site.blocks.find(b=>b.type==="image"&&b.userUploaded&&b.src)?.src;
     return <TP6FloricultureModel1
      brand={props.site.header?.brand||props.site.title||"Jardim de Âmbar — Atelier Floral"}
      headline={heading} description={intro} images={photos}
