@@ -6,6 +6,7 @@ import {applyRenderedSectionBackground} from "../src/lib/builder-v2-rendered-sec
 import {verifyUniversalEditResult} from "../src/lib/builder-v2-universal-learning.ts";
 import {planUniversalVisualProof,auditUniversalVisualProof} from "../src/lib/builder-v2-editor-visual-proof.ts";
 import {classifyUniversalFeedback} from "../src/lib/builder-v2-universal-feedback.ts";
+import {applyRenderedFloricultureSectionCreation,resolveRenderedFloralAnchor,floricultureCustomSectionId} from "../src/lib/builder-v2-rendered-floriculture-section.ts";
 import {verifiedPeonyBouquetPhoto,isExplicitFloriculturePeonyHeroIntent,applyVerifiedFloricultureHeroPhoto} from "../src/lib/builder-v2-floriculture-hero-photo.ts";
 
 
@@ -229,3 +230,101 @@ test("Test 03: the real Model 01 Hero is the unique marked image and other model
  const otherModels=["../src/components/builder-v2-floriculture-model2.tsx","../src/components/builder-v2-floriculture-model3.tsx"].map(read);
  for(const source of otherModels)assert.ok(!source.includes("heroPhotoOverride"));
 });
+
+
+const actualTest04Prompt="Adicione uma nova seção chamada Cuidados com as Flores, imediatamente depois da seção Um processo tão especial quanto as flores e antes de Perguntas Frequentes.\n\nCrie três cards com as seguintes orientações:\n\n1. Água fresca — Troque a água regularmente para conservar as flores.\n2. Luz indireta — Evite exposição direta ao sol e calor intenso.\n3. Cuidado com as hastes — Faça cortes diagonais para favorecer a hidratação.\n\nUtilize um design premium, elegante e responsivo, seguindo a identidade visual atual da floricultura.\n\nNão duplique seções, não altere os conteúdos existentes e não modifique o rodapé.\n\nA nova seção deve aparecer imediatamente na prévia, na posição solicitada.";
+const test04Site=()=>({
+ niche:"Floricultura",title:"Jardim de Âmbar — Atelier Floral",briefingLayoutVariant:"01",
+ blocks:[
+  {id:"hero-title",type:"heading",section:"hero",text:"Flores que fazem cada instante florescer"},
+  {id:"hero-description",type:"paragraph",section:"hero",text:"Buquês premium."},
+  {id:"footer-title",type:"heading",section:"footer",text:"Contato"},
+  {id:"footer-text",type:"paragraph",section:"footer",text:"Informações institucionais"}
+ ]
+});
+test("Test 04: the exact customer request parses TWO independent real visible anchors and 3 literal cards",()=>{
+ const before=test04Site();
+ const output=applyRenderedFloricultureSectionCreation(before,actualTest04Prompt);
+ assert.equal(output?.ok,true);
+ const section=floricultureCustomSectionId("Cuidados com as Flores");
+ assert.equal(section,"custom-cuidados-com-as-flores");
+ assert.equal(output.changedIds.length,8);
+ const inserted=output.site.blocks.filter(block=>block.section===section);
+ assert.equal(inserted.length,8);
+ assert.deepEqual(inserted.filter(b=>b.type==="heading").map(b=>b.text),[
+  "Cuidados com as Flores","Água fresca","Luz indireta","Cuidado com as hastes"
+ ]);
+ assert.deepEqual(inserted.filter(b=>b.type==="paragraph").slice(1).map(b=>b.text),[
+  "Troque a água regularmente para conservar as flores.",
+  "Evite exposição direta ao sol e calor intenso.",
+  "Faça cortes diagonais para favorecer a hidratação."
+ ]);
+ assert.equal(output.site.blocks.at(-1).id,"footer-text");
+ assert.deepEqual(output.site.blocks.filter(b=>b.section==="hero"||b.section==="footer"),before.blocks);
+ const placement=output.site.universalSectionEvents.at(-1);
+ assert.equal(placement.action,"move");
+ assert.equal(placement.section.id,section);
+ assert.equal(placement.after.id,"como-comprar");
+ assert.equal(placement.before.id,"perguntas-frequentes");
+ assert.equal(verifyUniversalEditResult(before,output.site,output.changedIds).ok,true);
+ const proof=planUniversalVisualProof(before,output.site,output.changedIds);
+ assert.equal(proof.ok,true);
+ assert.deepEqual(proof.contract.tasks,[{
+  kind:"section-new",section,heading:"Cuidados com as Flores",
+  cardTitles:["Água fresca","Luz indireta","Cuidado com as hastes"],
+  preceding:"como-comprar",following:"perguntas-frequentes"
+ }]);
+});
+test("Test 04: only a single custom section between Process and FAQ passes visual proof",()=>{
+ const before=test04Site();
+ const edit=applyRenderedFloricultureSectionCreation(before,actualTest04Prompt);
+ assert.equal(edit.ok,true);
+ const proof=planUniversalVisualProof(before,edit.site,edit.changedIds);
+ const visible=()=>[{}];
+ const oldProcess={id:"como-comprar",getAttribute:()=>null,getClientRects:visible,
+  compareDocumentPosition:()=>4};
+ const faq={id:"perguntas-frequentes",getAttribute:()=>null,getClientRects:visible};
+ const titles=["Água fresca","Luz indireta","Cuidado com as hastes"];
+ const cards=titles.map(title=>({querySelector:()=>({textContent:title})}));
+ const fresh={id:"custom-cuidados-com-as-flores",getAttribute:()=>null,getClientRects:visible,
+  querySelector:()=>({textContent:"Cuidados com as Flores"}),
+  querySelectorAll:sel=>sel==="article"?cards:[],compareDocumentPosition:()=>4};
+ const root={querySelectorAll:sel=>sel==="section"?[oldProcess,fresh,faq]:[]};
+ const view={getComputedStyle:()=>({display:"block",visibility:"visible"})};
+ assert.equal(auditUniversalVisualProof(root,view,proof.contract).ok,true);
+ const duplicated={querySelectorAll:sel=>sel==="section"?[oldProcess,fresh,fresh,faq]:[]};
+ assert.equal(auditUniversalVisualProof(duplicated,view,proof.contract).ok,false);
+ const missing={querySelectorAll:sel=>sel==="section"?[oldProcess,faq]:[]};
+ assert.equal(auditUniversalVisualProof(missing,view,proof.contract).ok,false);
+});
+test("Test 04: ambiguous, reversed, duplicate or unsupported requests cannot fake learning",()=>{
+ const seed=test04Site(),done=applyRenderedFloricultureSectionCreation(seed,actualTest04Prompt);
+ assert.equal(applyRenderedFloricultureSectionCreation(done.site,actualTest04Prompt).ok,false);
+ assert.equal(applyRenderedFloricultureSectionCreation({...seed,briefingLayoutVariant:"02"},actualTest04Prompt),null);
+ assert.equal(applyRenderedFloricultureSectionCreation({...seed,briefingLayoutVariant:"03"},actualTest04Prompt),null);
+ assert.equal(applyRenderedFloricultureSectionCreation({...seed,niche:"Auto centers",title:"Vértice Auto Center"},actualTest04Prompt),null);
+ assert.equal(applyRenderedFloricultureSectionCreation(seed,actualTest04Prompt.replace("Um processo tão especial quanto as flores","Seção Inexistente")).ok,false);
+ assert.equal(applyRenderedFloricultureSectionCreation(seed,actualTest04Prompt.replace("depois da seção Um processo tão especial quanto as flores e antes de Perguntas Frequentes","depois da seção Perguntas Frequentes e antes de Um processo tão especial quanto as flores")).ok,false);
+ assert.equal(resolveRenderedFloralAnchor("Histórias em cada flor."),"depoimentos");
+ assert.equal(resolveRenderedFloralAnchor("Um processo tão especial quanto as flores."),"como-comprar");
+ assert.equal(resolveRenderedFloralAnchor("Perguntas Frequentes"),"perguntas-frequentes");
+});
+test("ML: new-section intent and feedback target ignore the FAQ anchor name",()=>{
+ assert.deepEqual(classifyUniversalFeedback(actualTest04Prompt),{intent:"add-section",target:"sections"});
+ const input="Adicione uma nova seção chamada Cuidados com as Flores, imediatamente depois da seção Um processo tão especial quanto as flores e antes de Perguntas Frequentes.";
+ assert.deepEqual(classifyUniversalFeedback(input),{intent:"add-section",target:"sections"});
+});
+test("Test 04 renderer works in published M1 and preview with no duplicate portal",()=>{
+ const editor=read("../src/app/app/builder-v2/page.tsx");
+ const portal=read("../src/components/tp10-universal-custom-sections.tsx");
+ assert.match(editor,/const renderedFloralSection=!reference/);
+ assert.match(editor,/applyRenderedFloricultureSectionCreation\(site,prompt\)/);
+ assert.match(editor,/rollbackOnFailure:true/);
+ assert.match(editor,/strategy:"universal-rendered-section-add-visual-verified"/);
+ assert.match(router,/return <TP10UniversalCustomSections blocks=\{props.site.blocks\} sectionEvents=\{props.site.universalSectionEvents\} floriculture>/);
+ assert.match(editor,/site.blocks.filter\(b=>!b.section\?\.startsWith\("custom-"\)\)/);
+ assert.match(portal,/floriculture\?"DICAS DO ATELIER"/);
+ assert.match(portal,/resolveTP10CustomPlacement/);
+ assert.match(portal,/createPortal/);
+});
+

@@ -48,6 +48,7 @@ import { Template5AIFuturistHero } from "@/components/template5-ai-futurist-hero
 import { Template5AIFuturistSections } from "@/components/template5-ai-futurist-sections";
 import { Template6RetailHero } from "@/components/template6-retail-hero";
 import { TP6FloricultureModel1 } from "@/components/builder-v2-floriculture-model1";
+import { TP10UniversalCustomSections } from "@/components/tp10-universal-custom-sections";
 import { TP6FloricultureModel2 } from "@/components/builder-v2-floriculture-model2";
 import { TP6FloricultureModel3 } from "@/components/builder-v2-floriculture-model3";
 import { Template8HospitalityHero } from "@/components/template8-hospitality-hero";
@@ -480,13 +481,13 @@ function BuilderV2SiteContent(props:BuilderV2SiteProps){
    if(variant==="01"&&retailNiche==="Floricultura"){
     const photos=getTP6Model2InternetPhotos("Floricultura","01");
     const explicitlyEditedHero=props.site.blocks.find(b=>b.type==="image"&&b.userUploaded&&b.src)?.src;
-    return <TP6FloricultureModel1
+    return <TP10UniversalCustomSections blocks={props.site.blocks} sectionEvents={props.site.universalSectionEvents} floriculture><TP6FloricultureModel1
      brand={props.site.header?.brand||props.site.title||"Jardim de Âmbar — Atelier Floral"}
      headline={heading} headlineBlockId={props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.id} description={intro} images={photos} sectionBackgroundOverride={props.site.universalSectionStyles?.produtos?.backgroundColor}
      heroImage={explicitlyEditedHero} heroPhotoOverride={props.site.universalHeroImageOverride}
      edits={props.site.tp6RetailEdits}
      reviews={readTP6RealReviews(props.site.blocks,6)}
-     whatsapp={props.site.footer?.whatsapp} email={props.site.footer?.email} address={props.site.footer?.address}/>;
+     whatsapp={props.site.footer?.whatsapp} email={props.site.footer?.email} address={props.site.footer?.address}/></TP10UniversalCustomSections>;
    }
    const labels=retailLabels[retailNiche]||["Seleção especial","Novidades","Favoritos","Nossa curadoria"];
    const internetPhotos=getTP6Model2InternetPhotos(retailNiche,"01");

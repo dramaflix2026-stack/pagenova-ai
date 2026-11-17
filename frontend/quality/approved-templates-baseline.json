@@ -67,8 +67,8 @@
       "path": "src/components/builder-v2-site.tsx",
       "blobSha": "39f70209f2e11a82b84923c43d28eae10e4c344a",
       "approvedBindingRevision": {
-        "sha": "4f835d6c3c2e817dc9a6aa84d1b6e7cbbf18a32f",
-        "reason": "Explicit user approval 2026-11-17: allow only TP6 Floricultura Model 01 Hero's audited replacement with a real internet photograph of pink and white peonies while keeping approved Models 02/03, other families, Universal Editor and ML unchanged."
+        "sha": "409842211d834a42dc4b7a48ff934d97415a19f1",
+        "reason": "Explicit user approval 2026-11-17: repair failed Test 04 for TP6 Floricultura Model 01 by rendering newly created custom sections in preview AND published site with validated dual anchors (Process and FAQ); Models 02/03 and all existing approved visuals remain frozen."
       }
     },
     {

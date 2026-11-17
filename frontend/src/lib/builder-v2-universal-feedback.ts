@@ -35,8 +35,13 @@ export function classifyUniversalFeedback(instruction:string):{intent:UniversalF
   /(imagem|foto|fotografia|capa|banner)/.test(text)?"image":
   /(cor|cores|color|fundo|background)/.test(text)?"style":
   /(texto|titulo|descric|subtitulo)/.test(text)?"copy":"other";
- const sectionKey=sectionTarget==="collections"?"produtos":sectionTarget?sectionTarget:undefined;
- return {intent,target,...(sectionKey?{sectionKey}:{})};
+ // When creating a NEW section, references such as "antes do FAQ"
+ // describe placement anchors, NOT the content being edited. Assign the
+ // learning to the section-add technique, not to FAQ or process edits.
+ const creatingNamedSection=intent==="add-section"&&/\buma\s+(?:nova\s+)?secao\s+(?:chamada|denominada)\b/.test(action);
+ const resolvedTarget:UniversalFeedbackTarget=creatingNamedSection?"sections":target;
+ const sectionKey=!creatingNamedSection?(sectionTarget==="collections"?"produtos":sectionTarget?sectionTarget:undefined):undefined;
+ return {intent,target:resolvedTarget,...(sectionKey?{sectionKey}:{})};
 }
 export function inferUniversalFeedbackFailureCode(strategy:string,outcome:"applied"|"rejected"):UniversalFeedbackFailureCode|null{
  if(outcome!=="rejected")return null;

@@ -30,6 +30,7 @@ import {quarantineReviewedReuses,reuseKey,type ReuseEdge,type ReuseOutcome} from
 import {auditFamilyTransfers,type FamilySourceReview,type FamilySolutionMemory,type FamilyTargetReview} from "@/lib/builder-v2-family-transfer-audit";
 import {applyApprovedSectionBackground} from "@/lib/builder-v2-universal-learned-style";
 import {applyRenderedSectionBackground} from "@/lib/builder-v2-rendered-section-background";
+import {applyRenderedFloricultureSectionCreation} from "@/lib/builder-v2-rendered-floriculture-section";
 import {createClient as createSupabaseBrowserClient} from "@/lib/supabase/client";
 import {parseUniversalCopyEdit,isIsolatedUniversalCopyResult} from "@/lib/builder-v2-universal-copy-edits";
 
@@ -525,7 +526,7 @@ export default function BuilderV2() {
   const pendingHeroPhotoVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;src:string;before:Site;strategy?:"floriculture-hero-photo";trace?:EditorSubmissionTrace|null}|null>(null);
   const pendingSectionPhotoVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;src:string;solution?:EditorSolutionMemory|null;trace?:EditorSubmissionTrace|null}|null>(null);
   const pendingMoveVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;contract:UniversalPreviewMoveContract;solution?:EditorSolutionMemory|null;reuse?:{sourceEventId:string;technique:string};trace?:EditorSubmissionTrace|null}|null>(null);
-  const pendingUniversalVisualProofRef=useRef<{prompt:string;niche:string;variant:string;contract:UniversalVisualProof;siteAfter:Site;regressionSentinels:RegressionSentinel[];strategy?:string;solution?:EditorSolutionMemory|null;reuse?:{sourceEventId:string;technique:string};trace?:EditorSubmissionTrace|null}|null>(null);
+  const pendingUniversalVisualProofRef=useRef<{prompt:string;niche:string;variant:string;contract:UniversalVisualProof;siteAfter:Site;before?:Site;rollbackOnFailure?:boolean;regressionSentinels:RegressionSentinel[];strategy?:string;solution?:EditorSolutionMemory|null;reuse?:{sourceEventId:string;technique:string};trace?:EditorSubmissionTrace|null}|null>(null);
   const [previewVisualAudit,setPreviewVisualAudit]=useState<string|null>(null);
   useEffect(()=>{
     const styles=(site as unknown as Record<string,unknown>).universalSectionStyles as Record<string,{backgroundColor?:string;headingColor?:string;textColor?:string}>|undefined;
@@ -709,7 +710,8 @@ export default function BuilderV2() {
         recordEditorLearningEvent(pending.niche,pending.prompt,"rejected",pending.strategy?.startsWith("ai-editor")?"ai-editor-visual-postcondition-failed":"universal-five-types-visual-postcondition-failed",
           pending.variant,null,undefined,pending.trace,undefined,evidence);
         captureReviewCandidate();
-        setMessages(previous=>[...previous,{role:"assistant",text:"Edição NÃO confirmada na prévia: "+result.reason+" Não marque como aprovada; o motor registrou a falha."}]);
+        if(pending.rollbackOnFailure&&pending.before&&!stale)setSite(pending.before);
+        setMessages(previous=>[...previous,{role:"assistant",text:"Edição NÃO confirmada na prévia: "+result.reason+(pending.rollbackOnFailure&&!stale?" O projeto foi restaurado para a versão anterior.":"")+" Não marque como aprovada; o motor registrou a falha."}]);
       }
     },500);
     return ()=>window.clearInterval(timer);
@@ -1523,6 +1525,44 @@ export default function BuilderV2() {
         setSite(result.site);setInstruction("");setGenerationError("");
         setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",
           text:"Fotografia real de peônias rosas e brancas selecionada. Verificando sua exibição na capa antes de registrar a edição como aplicada."}]);
+        return;
+      }
+      // Renderer-aware section additions are executed before generic/learned
+      // route ranking. Preserve the customer's actual card text, BOTH section
+      // anchors, and the first-try trace. No learned success without DOM proof.
+      const renderedFloralSection=!reference&&!institutionalFiles.length&&!propertyFiles.length
+        ?applyRenderedFloricultureSectionCreation(site,prompt):null;
+      if(renderedFloralSection){
+        if(!renderedFloralSection.ok){
+          recordEditorLearningEvent(site.niche||"",prompt,"rejected","rendered-section-anchor-parse",site.briefingLayoutVariant||"01",undefined,undefined,activeSubmissionTraceRef.current);
+          captureReviewCandidate();
+          setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:renderedFloralSection.error}]);
+          return;
+        }
+        const verified=verifyUniversalEditResult(site,renderedFloralSection.site,renderedFloralSection.changedIds);
+        const proof=verified.ok?planUniversalVisualProof(site,renderedFloralSection.site,renderedFloralSection.changedIds):null;
+        if(!verified.ok||!proof?.ok){
+          const explanation=!verified.ok?verified.reason:proof&&!proof.ok?proof.reason:"Contrato visual ausente";
+          recordEditorLearningEvent(site.niche||"",prompt,"rejected","rendered-section-preflight-failed",site.briefingLayoutVariant||"01",undefined,undefined,activeSubmissionTraceRef.current);
+          captureReviewCandidate();
+          setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"A seção não foi aplicada: "+explanation}]);
+          return;
+        }
+        const solution=captureVerifiedEditorSolution(site,renderedFloralSection.site,renderedFloralSection.changedIds,{
+          niche:site.niche,model:site.briefingLayoutVariant,
+          family:String(resolveBriefingFamily(site.niche||"")||""),template:site.templateId
+        });
+        pendingUniversalVisualProofRef.current={
+          trace:activeSubmissionTraceRef.current,prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",
+          contract:proof.contract,siteAfter:renderedFloralSection.site,before:site,rollbackOnFailure:true,
+          regressionSentinels:captureCurrentPreviewRegression(site,renderedFloralSection.site,renderedFloralSection.changedIds),
+          solution,strategy:"universal-rendered-section-add-visual-verified"
+        };
+        recordVersion(site,"Antes de adicionar uma seção floral com duas referências");
+        setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
+        setSite(renderedFloralSection.site);setInstruction("");setGenerationError("");
+        setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",
+          text:"Seção e cards registrados. Conferindo a prévia real: deve aparecer uma única vez, depois do Processo e antes das Perguntas Frequentes. O aprendizado só recebe o resultado após a verificação visual."}]);
         return;
       }
       const compound=splitUniversalInstructions(prompt).length>1;
@@ -2847,7 +2887,7 @@ export default function BuilderV2() {
   if(valid(styles.headingColor))rules.push(selectors.map(s=>s+" h2").join(",")+"{color:"+styles.headingColor+"!important}");
   if(valid(styles.textColor))rules.push(selectors.map(s=>s+" :is(h1,h2,h3,h4,h5,h6,p,blockquote,span,small,strong,em,li)").join(",")+"{color:"+styles.textColor+"!important;-webkit-text-fill-color:"+styles.textColor+"!important}");
   return rules;
-}).join("\n")}</style><style>{site.blocks.filter(b=>b.section?.startsWith("custom-")&&b.type==="paragraph"&&b.cardTitleAlign==="center"&&/^[a-zA-Z0-9_-]+$/.test(b.id)).map(b=>`[data-section-id="${b.section}"] .pn-section-heading,[data-section-id="${b.section}"] .pn-section-heading h2,[data-section-id="${b.section}"] .pn-section-heading [data-block-id]{text-align:center!important;margin-left:auto!important;margin-right:auto!important}section[data-universal-section="${b.section}"][data-pn-generated-premium="true"] > div > div:first-child > h2{text-align:center!important;width:100%!important}[data-section-id="${b.section}"] h3{text-align:center!important}[data-section-id="${b.section}"] p{text-align:left!important}`).join("\n")}</style><style>{site.blocks.filter(b=>b.section?.startsWith("custom-")&&b.type==="heading"&&typeof b.color==="string"&&/^#[0-9a-fA-F]{6}$/.test(b.color)&&/^[a-zA-Z0-9_-]+$/.test(b.section)).map(b=>{const headings=site.blocks.filter(h=>h.section===b.section&&h.type==="heading");const position=headings.findIndex(h=>h.id===b.id);return position>0?`section[data-universal-section="${b.section}"][data-pn-generated-premium="true"] [data-universal-custom-cards] article:nth-child(${position}) h3{color:${b.color}!important}`:""}).filter(Boolean).join("\n")}</style>{siteCategory==="real-estate"?<RealEstateTemplate properties={properties} whatsapp={realEstateWhatsapp} footer={site.footer} preview/>:siteCategory==="restaurant"&&site.templateId==="prompt-adaptive"?<BuilderV2Site site={site} onVariantChange={variant=>setSite(previous=>({...previous,briefingLayoutVariant:variant}))} templateId="prompt-adaptive" selectedNiche={selectedNiche||site.niche||""}/>:siteCategory==="restaurant"&&site.cinematic?.mode==="immersive-3d"?<div className="pn-immersive-3d"><BuilderV2Site site={site} onVariantChange={variant=>setSite(previous=>({...previous,briefingLayoutVariant:variant}))} templateId={site.templateId||"institutional-complete"} selectedNiche={selectedNiche||site.niche||""}/></div>:siteCategory==="restaurant"?(/pizzaria|pizza/i.test([restaurantSegment,site.niche,selectedNiche,site.title].filter(Boolean).join(" "))||((site.restaurant?.menu||[]).length>=2&&(site.restaurant?.menu||[]).filter(item=>/pizza|mussarela|calabresa|portuguesa|pepperoni|catupiry|marguerita|quatro queijos/i.test(item.name+" "+item.category)).length>=Math.ceil((site.restaurant?.menu||[]).length/2)))?<PizzeriaTemplate site={site} segment={restaurantSegment} preview/>:<RestaurantSegmentTemplate key={restaurantSegment||site.niche} site={site} segment={restaurantSegment||site.niche||"Delivery"} preview/>:<div className={site.cinematic?.mode==="immersive-3d"?"pn-immersive-3d":""}><TP10UniversalCustomSections blocks={site.blocks} sectionEvents={site.universalSectionEvents} automotive={resolveBriefingFamily(site.niche||"")===9}><UniversalIsolatedHeroPhoto src={resolveBriefingFamily(site.niche||"")===9?site.universalHeroImageOverride:undefined}><BuilderV2Site site={site} onVariantChange={variant=>setSite(previous=>({...previous,briefingLayoutVariant:variant}))} templateId={site.templateId||"institutional-complete"} selectedNiche={selectedNiche||site.niche||""} /></UniversalIsolatedHeroPhoto></TP10UniversalCustomSections></div>}</BuilderV2PreviewFrame></div>:<BuilderV2EmptyPreview device={previewDevice} onStart={()=>{composerRef.current?.scrollIntoView({behavior:"smooth",block:"center"});composerRef.current?.focus();}}/>}
+}).join("\n")}</style><style>{site.blocks.filter(b=>b.section?.startsWith("custom-")&&b.type==="paragraph"&&b.cardTitleAlign==="center"&&/^[a-zA-Z0-9_-]+$/.test(b.id)).map(b=>`[data-section-id="${b.section}"] .pn-section-heading,[data-section-id="${b.section}"] .pn-section-heading h2,[data-section-id="${b.section}"] .pn-section-heading [data-block-id]{text-align:center!important;margin-left:auto!important;margin-right:auto!important}section[data-universal-section="${b.section}"][data-pn-generated-premium="true"] > div > div:first-child > h2{text-align:center!important;width:100%!important}[data-section-id="${b.section}"] h3{text-align:center!important}[data-section-id="${b.section}"] p{text-align:left!important}`).join("\n")}</style><style>{site.blocks.filter(b=>b.section?.startsWith("custom-")&&b.type==="heading"&&typeof b.color==="string"&&/^#[0-9a-fA-F]{6}$/.test(b.color)&&/^[a-zA-Z0-9_-]+$/.test(b.section)).map(b=>{const headings=site.blocks.filter(h=>h.section===b.section&&h.type==="heading");const position=headings.findIndex(h=>h.id===b.id);return position>0?`section[data-universal-section="${b.section}"][data-pn-generated-premium="true"] [data-universal-custom-cards] article:nth-child(${position}) h3{color:${b.color}!important}`:""}).filter(Boolean).join("\n")}</style>{siteCategory==="real-estate"?<RealEstateTemplate properties={properties} whatsapp={realEstateWhatsapp} footer={site.footer} preview/>:siteCategory==="restaurant"&&site.templateId==="prompt-adaptive"?<BuilderV2Site site={site} onVariantChange={variant=>setSite(previous=>({...previous,briefingLayoutVariant:variant}))} templateId="prompt-adaptive" selectedNiche={selectedNiche||site.niche||""}/>:siteCategory==="restaurant"&&site.cinematic?.mode==="immersive-3d"?<div className="pn-immersive-3d"><BuilderV2Site site={site} onVariantChange={variant=>setSite(previous=>({...previous,briefingLayoutVariant:variant}))} templateId={site.templateId||"institutional-complete"} selectedNiche={selectedNiche||site.niche||""}/></div>:siteCategory==="restaurant"?(/pizzaria|pizza/i.test([restaurantSegment,site.niche,selectedNiche,site.title].filter(Boolean).join(" "))||((site.restaurant?.menu||[]).length>=2&&(site.restaurant?.menu||[]).filter(item=>/pizza|mussarela|calabresa|portuguesa|pepperoni|catupiry|marguerita|quatro queijos/i.test(item.name+" "+item.category)).length>=Math.ceil((site.restaurant?.menu||[]).length/2)))?<PizzeriaTemplate site={site} segment={restaurantSegment} preview/>:<RestaurantSegmentTemplate key={restaurantSegment||site.niche} site={site} segment={restaurantSegment||site.niche||"Delivery"} preview/>:<div className={site.cinematic?.mode==="immersive-3d"?"pn-immersive-3d":""}><TP10UniversalCustomSections blocks={resolveBriefingFamily(site.niche||"")===6&&site.briefingLayoutVariant==="01"&&/floricultur/i.test(site.niche||"")?site.blocks.filter(b=>!b.section?.startsWith("custom-")):site.blocks} sectionEvents={site.universalSectionEvents} automotive={resolveBriefingFamily(site.niche||"")===9}><UniversalIsolatedHeroPhoto src={resolveBriefingFamily(site.niche||"")===9?site.universalHeroImageOverride:undefined}><BuilderV2Site site={site} onVariantChange={variant=>setSite(previous=>({...previous,briefingLayoutVariant:variant}))} templateId={site.templateId||"institutional-complete"} selectedNiche={selectedNiche||site.niche||""} /></UniversalIsolatedHeroPhoto></TP10UniversalCustomSections></div>}</BuilderV2PreviewFrame></div>:<BuilderV2EmptyPreview device={previewDevice} onStart={()=>{composerRef.current?.scrollIntoView({behavior:"smooth",block:"center"});composerRef.current?.focus();}}/>}
 {(site.blocks.length>0||siteCategory!=="institutional")&&<p className="mt-3 text-left text-[11px] text-white/45">Role dentro da prévia para visualizar todo o site.</p>}
 </div><section aria-label="Publicação e links" className="pn-editor-publish-panel mt-4 rounded-xl border border-white/15 bg-[#141d1a] p-4 text-white">
 <div className="mb-3 flex items-center justify-between gap-2"><h2 className="text-left text-sm font-bold">Publicação</h2><span className="text-xs text-white/55">{site.publishedUrl?"Site publicado":"Rascunho"}</span></div>
