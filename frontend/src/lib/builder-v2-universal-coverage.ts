@@ -13,7 +13,7 @@ export const UNIVERSAL_TASKS=["text","color","image","section","layout"] as cons
 export type UniversalTask=typeof UNIVERSAL_TASKS[number];
 export type UniversalTaskCoverage={
  task:UniversalTask;reviewed:number;successful:number;failed:number;
- ratePercent:number|null;lower95Percent:number|null;
+ ratePercent:number|null;lower95Percent:number|null;coveredPairs:number;
 };
 export type UniversalCoverageAudit={
  completeDataset:boolean;reviewedRequests:number;
@@ -59,6 +59,7 @@ export function auditUniversalCoverage(
   UNIVERSAL_TASKS.map(task=>[task,{reviewed:0,successful:0,failed:0}])
  );
  const coverage=new Map<string,Set<string>>();
+ const taskPairs=new Map<UniversalTask,Set<string>>(UNIVERSAL_TASKS.map(task=>[task,new Set<string>()]));
  let reviewedRequests=0,unknownOrMixedRequests=0,pendingOrUnverifiableRequests=0;
  for(const rows of byRequest.values()){
   // Same admission rules as the first-request metrics: a complete, ordered,
@@ -80,6 +81,7 @@ export function auditUniversalCoverage(
    const niche=[...niches][0] as string,model=[...models][0] as string;
    const mapped=coverage.get(niche)||new Set<string>();
    mapped.add(model);coverage.set(niche,mapped);
+   taskPairs.get(task)!.add(niche+"|"+model);
   }
  }
  const tasks:UniversalTaskCoverage[]=UNIVERSAL_TASKS.map(task=>{
@@ -87,7 +89,8 @@ export function auditUniversalCoverage(
   const conf=completeDataset?wilson95(cohort.successful,cohort.reviewed):null;
   const sufficient=completeDataset&&cohort.reviewed>=30;
   return {task,...cohort,ratePercent:sufficient?round(cohort.successful/cohort.reviewed*100):null,
-   lower95Percent:sufficient&&conf?round(conf.lower*100):null};
+   lower95Percent:sufficient&&conf?round(conf.lower*100):null,
+   coveredPairs:taskPairs.get(task)!.size};
  });
  const coveredNicheModelPairs=[...coverage.values()].reduce((sum,x)=>sum+x.size,0);
  const nichesWithThreeModels=[...coverage.values()].filter(x=>x.size===3).length;
@@ -97,6 +100,11 @@ export function auditUniversalCoverage(
  return {completeDataset,reviewedRequests,unknownOrMixedRequests,pendingOrUnverifiableRequests,
   coveredNiches:coverage.size,coveredNicheModelPairs,nichesWithThreeModels,
   modelVariants:distinctModels,tasks,hasFull399PairCoverage,
-  hasEvidenceFor98Percent:hasFull399PairCoverage&&
-   tasks.every(x=>x.reviewed>=100&&x.lower95Percent!==null&&x.lower95Percent>=98)};
+  // Universal proof requires EACH task across ALL 133 niches × 3 models,
+  // never just 399 visits for one task and a high global rate. Use the raw
+  // lower bound, not the rounded UI percentage, to avoid false positives.
+  hasEvidenceFor98Percent:hasFull399PairCoverage&&tasks.every(x=>{
+   const interval=completeDataset?wilson95(x.successful,x.reviewed):null;
+   return x.coveredPairs>=399&&x.reviewed>=399&&interval!==null&&interval.lower>=0.98;
+  })};
 }
