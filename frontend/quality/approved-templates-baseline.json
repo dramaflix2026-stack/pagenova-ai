@@ -67,8 +67,8 @@
       "path": "src/components/builder-v2-site.tsx",
       "blobSha": "39f70209f2e11a82b84923c43d28eae10e4c344a",
       "approvedBindingRevision": {
-        "sha": "a8e87178aa8f2c5b5fe247f8e35a07bd1224bd27",
-        "reason": "Explicit user approval on 2026-11-17: render redesigned TP6 Floricultura Model 01 through a dedicated component only; previously approved TP9 binding and all other model variants remain intact."
+        "sha": "d2a7c542b08c66e3da528e518b84f27be445b4be",
+        "reason": "Explicit user approval 2026-11-17: exclusive TP6 Floricultura Model 02 route to standalone 12-section redesign, retaining Model 01, 03 and original generic retail routes."
       }
     },
     {
