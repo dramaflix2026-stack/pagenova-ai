@@ -293,7 +293,18 @@ function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction
  const title=explicitHeading||name;
  if(destination&&!target)return {ok:false,error:"Seção de referência não encontrada: "+targetLabel+". Nenhuma alteração aplicada."};
  const sectionId="custom-"+normalized(name).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
- if(site.blocks.some(b=>b.section===sectionId))return {ok:false,error:"Essa seção já existe. Nenhuma alteração aplicada."};
+ const existing=site.blocks.filter(block=>block.section===sectionId);
+ // A previous command may have persisted a section without ever rendering it.
+ // Repetition is a recovery intent, not an automatic "already exists" verdict.
+ // Only replace demonstrably generated/unreviewed content. Never overwrite
+ // hand-edited names, photos or specialties.
+ const recoverableTeam=normalized(name)==="nossa equipe"
+  &&/\b(?:fotografia|foto|imagem)\b/i.test(instruction)
+  &&/\bnome\b/i.test(instruction)
+  &&/\bespecialidade\b/i.test(instruction)
+  &&/\btr[eê]s\s+cards?\b/i.test(instruction);
+ if(existing.length&&!recoverableTeam)
+  return {ok:false,error:"Essa seção já existe nos dados. Confira se está visível na prévia antes de criar outra."};
  // Recover exactly the malformed section from the previous "imediatamente após"
  // parser, but never delete an independently edited section.
  const staleId=sectionId+"-imediatamente";
@@ -434,13 +445,44 @@ function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction
     {type:"heading",text:card.title},
     {type:"paragraph",text:card.description,...(teamCards?{src:teamPhotoUrls[index]}:{})}
    ])];
- const operations:UniversalOperation[]=recoverStale?[{action:"remove-section",sectionId:staleId}]:[];let afterId=previous.id;
+ if(existing.length){
+  const idPattern=new RegExp("^"+sectionId.replace(/[.*+?^${}()|[\]\\]/g,"\\ const operations:UniversalOperation[]=recoverStale?[{action:"remove-section",sectionId:staleId}]:[];let afterId=previous.id;")+"-\\d+$");
+  const generatedOnly=existing.length>=4&&existing.length<=12&&existing.every(block=>
+   idPattern.test(block.id)&&["heading","paragraph"].includes(block.type)
+   &&!block.textExplicit&&!block.imageExplicit&&!block.alignExplicit
+  );
+  const headings=existing.filter(block=>block.type==="heading");
+  const paragraphs=existing.filter(block=>block.type==="paragraph");
+  const alreadyComplete=existing.length===7&&headings.length===4&&paragraphs.length===3
+   &&normalized(headings[0].text||"")===normalized(title)
+   &&paragraphs.every(block=>typeof block.src==="string"&&/^https:\/\//i.test(block.src)
+    &&/especialidade/i.test(block.text||""));
+  const automaticContent=existing.every(block=>/^(?:Nossa Equipe|João Silva \(exemplo\)|Mariana Costa \(exemplo\)|Rafael Martins \(exemplo\)|Informações essenciais|Cuidados e recomendações|Próximos passos|Conheça as informações e orientações sobre nossa equipe)/i.test(String(block.text||""))
+   ||/Profissional demonstrativo|Especialidade:|principais pontos e orientações|orientações adequadas|Entre em contato para receber informações/i.test(String(block.text||"")));
+  if(!alreadyComplete&&(!generatedOnly||!automaticContent))
+   return {ok:false,error:"A seção está registrada, mas contém dados que podem ter sido personalizados. Não sobrescrevi as informações. Revise a prévia antes de editar."};
+  // When all cards already exist, reassert the placement without duplicating data.
+  // This produces an actual move event and forces a positive DOM/card/photo audit.
+  if(alreadyComplete){
+   return applyUniversalOperations(site,[{action:"move-section",sectionId,
+    ...(before?{beforeSectionId:target!}:{afterSectionId:target!})}]);
+  }
+ }
+ const safePrevious=existing.length?site.blocks.slice(0,index).reverse().find(block=>block.section!==sectionId&&block.section!==staleId):previous;
+ if(!safePrevious)return {ok:false,error:"Âncora de recuperação não encontrada. Nenhum dado foi modificado."};
+ const operations:UniversalOperation[]=[
+  ...(existing.length?[{action:"remove-section" as const,sectionId}]:[]),
+  ...(recoverStale?[{action:"remove-section" as const,sectionId:staleId}]:[])
+ ];let afterId=safePrevious.id;
  for(let i=0;i<entries.length;i++){
   const block={id:sectionId+"-"+i,section:sectionId,...entries[i]};
   operations.push({action:"add",block,afterId});afterId=block.id;
  }
+ if(existing.length&&destination&&target)operations.push({action:"move-section",sectionId,
+  ...(before?{beforeSectionId:target}:{afterSectionId:target})});
  const result=applyUniversalOperations(site,operations);
  if(!result.ok||!destination||!target)return result;
+ if(existing.length)return result; // the explicit move above is the final placement event
  // Persist the rendered anchor as a first-class move event. The React renderer
  // may split approved sections across components; block order alone is not enough.
  const oldEvents=Array.isArray(result.site.universalSectionEvents)?result.site.universalSectionEvents:[];
