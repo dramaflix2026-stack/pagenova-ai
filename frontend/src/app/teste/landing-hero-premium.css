@@ -2628,3 +2628,18 @@
     height: auto !important;
   }
 }
+
+/* English guarantee: compact desktop artwork without changing Portuguese or mobile. */
+@media (min-width: 768px) {
+  .pnr-page .pnr-trust .pnr-guarantee-full-art.pnr-guarantee-english {
+    width: min(100%, 960px) !important;
+    max-width: 960px !important;
+    margin: 0 auto 32px !important;
+  }
+  .pnr-page .pnr-trust .pnr-guarantee-english .pnr-guarantee-responsive-art,
+  .pnr-page .pnr-trust .pnr-guarantee-english .pnr-guarantee-full-image {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+  }
+}
