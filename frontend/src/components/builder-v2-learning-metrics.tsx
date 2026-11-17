@@ -4,6 +4,7 @@ import {createClient as createSupabaseBrowserClient} from "@/lib/supabase/client
 import {measureFirstRequests,type FirstRequestMetrics,type MeasuredEditorEvent} from "@/lib/builder-v2-first-request-metrics";
 import {evaluateStrategyEvidence,type StrategyEvidence,type StrategyEvent,type SourceReview,type SourceMemory,type ReuseEdge} from "@/lib/builder-v2-strategy-evidence";
 import {auditFamilyTransfers,type FamilyTransferAudit,type FamilySourceReview,type FamilySolutionMemory,type FamilyTargetReview} from "@/lib/builder-v2-family-transfer-audit";
+import {auditUniversalCoverage,type UniversalCoverageAudit,type UniversalCoverageEvent} from "@/lib/builder-v2-universal-coverage";
 import type {ReuseEdge as AuditedFamilyReuseEdge} from "@/lib/builder-v2-learned-technique-quarantine";
 
 const PAGE=500;
@@ -16,6 +17,7 @@ export function BuilderV2LearningMetrics({enabled=false}:{enabled?:boolean}){
  const [loading,setLoading]=useState(false);
  const [error,setError]=useState("");
  const [metrics,setMetrics]=useState<FirstRequestMetrics|null>(null);
+ const [coverage,setCoverage]=useState<UniversalCoverageAudit|null>(null);
  const [strategyEvidence,setStrategyEvidence]=useState<StrategyEvidence|null>(null);
  const [strategyError,setStrategyError]=useState("");
  const [familyTransferAudit,setFamilyTransferAudit]=useState<FamilyTransferAudit|null>(null);
@@ -24,7 +26,7 @@ export function BuilderV2LearningMetrics({enabled=false}:{enabled?:boolean}){
   if(!expanded||!enabled)return;
   let active=true;
   const load=async()=>{
-   setLoading(true);setError("");setStrategyError("");setStrategyEvidence(null);
+   setLoading(true);setError("");setStrategyError("");setStrategyEvidence(null);setCoverage(null);
    setFamilyTransferAudit(null);setFamilyTransferError("");
    try{
     const client=createSupabaseBrowserClient();
@@ -37,7 +39,7 @@ export function BuilderV2LearningMetrics({enabled=false}:{enabled?:boolean}){
     let complete=true;
     for(let offset=0;offset<MAX_ROWS;offset+=PAGE){
      const {data,error:readError}=await client.from("builder_editor_learning_events")
-      .select("id,request_id,operation_index,submitted_at,created_at,review_status,execution_status,strategy,intent,target")
+      .select("id,request_id,operation_index,submitted_at,created_at,review_status,execution_status,strategy,intent,target,niche,model")
       .eq("user_id",user.id).not("request_id","is",null)
       .order("created_at",{ascending:false}).order("id",{ascending:false})
       .range(offset,offset+PAGE-1);
@@ -64,7 +66,10 @@ export function BuilderV2LearningMetrics({enabled=false}:{enabled?:boolean}){
      if(rows.length<PAGE)break;
      if(offset+PAGE===MAX_ROWS)complete=false;
     }
-    if(active)setMetrics(measureFirstRequests(events,reused,countResult.count??events.length,complete));
+    if(active){
+     setMetrics(measureFirstRequests(events,reused,countResult.count??events.length,complete));
+     setCoverage(auditUniversalCoverage(events as UniversalCoverageEvent[],complete));
+    }
     // Attribution is intentionally stricter than a reuse link alone.
     // Source review must have been approved before the target command and
     // be backed by a visual-verified solution memory.
@@ -109,7 +114,7 @@ export function BuilderV2LearningMetrics({enabled=false}:{enabled?:boolean}){
      }
     }
    }catch(err){
-    if(active){setMetrics(null);setStrategyEvidence(null);setFamilyTransferAudit(null);setError(err instanceof Error?err.message:"Não foi possível medir este histórico.");}
+    if(active){setMetrics(null);setCoverage(null);setStrategyEvidence(null);setFamilyTransferAudit(null);setError(err instanceof Error?err.message:"Não foi possível medir este histórico.");}
    }finally{if(active)setLoading(false);}
   };
   void load();
@@ -153,6 +158,23 @@ export function BuilderV2LearningMetrics({enabled=false}:{enabled?:boolean}){
       "Taxas observadas: "+metrics.withVerifiedReuse.ratePercent+"% com reutilização e "+metrics.withoutVerifiedReuse.ratePercent+"% sem reutilização.":
       "Sem base suficiente para comparar os dois grupos (mínimo de 30 solicitações avaliadas em cada)."}
      </p>
+    </div>
+    <div className="rounded-lg border border-white/15 p-3" aria-label="Entrega 14: cobertura universal verificada">
+     <p className="font-semibold text-lime-300">Cobertura universal · Entrega 14</p>
+     <p className="mt-1 text-white/60">Somente comandos reais da sua conta, com revisão concluída. Uma solicitação conta uma vez, mesmo com várias operações.</p>
+     {coverage&&<div className="mt-3 space-y-2">
+      <p className="text-white/80">Nichos observados: <strong>{coverage.coveredNiches}/133</strong> · Combinações nicho/modelo: <strong>{coverage.coveredNicheModelPairs}/399</strong> · Nichos testados nos três modelos: <strong>{coverage.nichesWithThreeModels}</strong>.</p>
+      <div className="grid gap-2">
+       {coverage.tasks.map(item=><div key={item.task} className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-white/[.045] px-3 py-2">
+        <span className="font-semibold">{item.task==="text"?"Texto":item.task==="color"?"Cores":item.task==="image"?"Imagem":item.task==="section"?"Adicionar/remover seção":"Alinhamento/ordem"}</span>
+        <span className="text-white/65">{item.successful}/{item.reviewed} aprovados</span>
+        <span className={item.ratePercent===null?"text-amber-200":"text-lime-300"}>{item.ratePercent===null?"Amostra insuficiente":item.ratePercent+"% observado"}</span>
+       </div>)}
+      </div>
+      <p className="text-white/60">Pedidos com intenção mista/desconhecida: {coverage.unknownOrMixedRequests} · Pendentes ou inconclusivos: {coverage.pendingOrUnverifiableRequests}.</p>
+      <p role="status" className={coverage.hasEvidenceFor98Percent?"text-lime-300":"text-amber-200"}>{coverage.hasEvidenceFor98Percent?"Cobertura e intervalos estatísticos atingiram os critérios da auditoria.":"Meta de 98%–99% ainda não comprovada em todos os nichos, modelos e tipos de edição."}</p>
+      <p className="text-[11px] text-white/45">Percentuais exigem pelo menos 30 solicitações verificadas por tipo e leitura completa. A comprovação universal exige evidência real nas 399 combinações e limite inferior de confiança de 95% de no mínimo 98% em cada operação. Isto não substitui homologação visual.</p>
+     </div>}
     </div>
     <div className="rounded-lg border border-white/15 p-3" aria-label="Entrega 9: eficácia das estratégias">
      <p className="font-semibold text-lime-300">Estratégias de edição · Entrega 9</p>
