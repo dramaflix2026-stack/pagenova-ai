@@ -79,9 +79,8 @@ export function auditUniversalPreviewMove(root:ParentNode,win:Pick<Window,"getCo
   const intervening=all.filter(el=>el!==moved&&el!==following&&isVisible(el)&&
    (el.id||el.getAttribute("data-universal-section"))&&
    Boolean(moved.compareDocumentPosition(el)&4)&&Boolean(el.compareDocumentPosition(following)&4)&&
-   !moved.contains(el)&&!following.contains(el)&&!el.contains(moved)&&!el.contains(following)
-   // Unlike generic TP10 movement, the floral layout has real named native
-   // sections with only id attributes: they still count as intervening sections.);
+   !moved.contains(el)&&!following.contains(el)&&!el.contains(moved)&&!el.contains(following));
+   // Native floral sections use real id attributes and count as intervening.
   if(intervening.length)return fail("Outra seção aparece entre a seção movimentada e a segunda referência.");
  }
  if(plan.heading){
