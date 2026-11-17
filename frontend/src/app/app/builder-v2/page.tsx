@@ -44,6 +44,7 @@ import { applySiteMotionInstruction, hasMotionIntent, type SiteMotion } from "@/
 import {applyUniversalPaletteEdit} from "@/lib/builder-v2-universal-palette";
 import {isExplicitImageChangeRequest} from "@/lib/builder-v2-image-intent";
 import {isAutomotiveHeroPhotoIntent,applyAutomotiveHeroPhoto,automotiveMechanicWorkshopPhoto} from "@/lib/builder-v2-automotive-hero-photo";
+import {isExplicitFloriculturePeonyHeroIntent,applyVerifiedFloricultureHeroPhoto,verifiedPeonyBouquetPhoto} from "@/lib/builder-v2-floriculture-hero-photo";
 import {parseScopedSectionPhotoRequest,isSingleSectionImageIntent,canonicalPhotoSection,curatedRealSectionPhoto,applyUniversalSectionPhoto} from "@/lib/builder-v2-universal-section-photo";
 import {institutionalImageIntent,planInstitutionalImageEdit,restoreInstitutionalSectionImages,type HeroComposition,type MediaLayout} from "@/lib/builder-v2-institutional-images";
 import {isScopedBannerCopyRequest,applyHeroBannerCopy,type HeroBannerCopy} from "@/lib/builder-v2-hero-banner-edits";
@@ -521,7 +522,7 @@ export default function BuilderV2() {
     return root&&win?captureUniversalRegressionSentinels(root,win,before,after,changedIds):[];
   }
   const pendingBackgroundVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;color:string;solution?:EditorSolutionMemory|null;reuse?:{sourceEventId:string;technique:string};trace?:EditorSubmissionTrace|null}|null>(null);
-  const pendingHeroPhotoVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;src:string;before:Site;trace?:EditorSubmissionTrace|null}|null>(null);
+  const pendingHeroPhotoVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;src:string;before:Site;strategy?:"floriculture-hero-photo";trace?:EditorSubmissionTrace|null}|null>(null);
   const pendingSectionPhotoVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;src:string;solution?:EditorSolutionMemory|null;trace?:EditorSubmissionTrace|null}|null>(null);
   const pendingMoveVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;contract:UniversalPreviewMoveContract;solution?:EditorSolutionMemory|null;reuse?:{sourceEventId:string;technique:string};trace?:EditorSubmissionTrace|null}|null>(null);
   const pendingUniversalVisualProofRef=useRef<{prompt:string;niche:string;variant:string;contract:UniversalVisualProof;siteAfter:Site;regressionSentinels:RegressionSentinel[];strategy?:string;solution?:EditorSolutionMemory|null;reuse?:{sourceEventId:string;technique:string};trace?:EditorSubmissionTrace|null}|null>(null);
@@ -602,12 +603,12 @@ export default function BuilderV2() {
       const photo=heroPhotos.length===1?heroPhotos[0]:undefined;
       if(site.universalHeroImageOverride===pending.src&&photo?.getAttribute("src")===pending.src&&photo.complete&&photo.naturalWidth>0){
         pendingHeroPhotoVisualReviewRef.current=null;window.clearInterval(timer);
-        recordEditorLearningEvent(pending.niche,pending.prompt,"applied","automotive-hero-photo-visual-verified",pending.variant,null,undefined,pending.trace);
+        recordEditorLearningEvent(pending.niche,pending.prompt,"applied",pending.strategy==="floriculture-hero-photo"?"floriculture-hero-photo-visual-verified":"automotive-hero-photo-visual-verified",pending.variant,null,undefined,pending.trace);
         captureReviewCandidate();
         setMessages(previous=>[...previous,{role:"assistant",text:"Fotografia principal substituída e confirmada na prévia. As demais imagens e seções foram preservadas. Avalie antes de aprovar."}]);
       }else if(++checks>=30){
         pendingHeroPhotoVisualReviewRef.current=null;window.clearInterval(timer);
-        recordEditorLearningEvent(pending.niche,pending.prompt,"rejected","automotive-hero-photo-visual-unverified",pending.variant,null,undefined,pending.trace,undefined,"dom-photo-absent");
+        recordEditorLearningEvent(pending.niche,pending.prompt,"rejected",pending.strategy==="floriculture-hero-photo"?"floriculture-hero-photo-visual-unverified":"automotive-hero-photo-visual-unverified",pending.variant,null,undefined,pending.trace,undefined,"dom-photo-absent");
         captureReviewCandidate();
         setSite(pending.before);
         setMessages(previous=>[...previous,{role:"assistant",text:"A imagem principal não foi comprovada na prévia. Alteração revertida, nenhuma imagem aprovada foi substituída."}]);
@@ -1482,6 +1483,46 @@ export default function BuilderV2() {
         setSite(premiumBackground.site);setInstruction("");setGenerationError("");
         setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",
           text:"Comando reconhecido como alteração de cor da seção Coleções Florais. Conferindo o fundo na prévia real antes de registrar sucesso no aprendizado."}]);
+        return;
+      }
+      // Real internet image replacements are image edits, not attachment
+      // requests. The verified premium Hero adapter handles this exact subject
+      // before generic AI route ranking; other niches remain unchanged.
+      const floralHero=site.briefingLayoutVariant==="01"&&
+        /floricultur/i.test([site.niche||"",selectedNiche||""].join(" "))&&
+        isExplicitFloriculturePeonyHeroIntent(prompt);
+      if(floralHero&&!reference&&!institutionalFiles.length&&!propertyFiles.length){
+        const result=applyVerifiedFloricultureHeroPhoto(site,verifiedPeonyBouquetPhoto);
+        if(!result.ok){
+          setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:result.error}]);
+          setInstruction("");
+          return;
+        }
+        setBusy(true);
+        const loaded=await new Promise<boolean>(resolve=>{
+          const image=new window.Image();
+          const timeout=window.setTimeout(()=>{image.onload=null;image.onerror=null;resolve(false);},9000);
+          image.onload=()=>{window.clearTimeout(timeout);resolve(image.naturalWidth>0);};
+          image.onerror=()=>{window.clearTimeout(timeout);resolve(false);};
+          image.src=verifiedPeonyBouquetPhoto;
+        });
+        setBusy(false);
+        if(!loaded){
+          recordEditorLearningEvent(site.niche||"",prompt,"rejected","floriculture-hero-photo-image-unavailable",site.briefingLayoutVariant||"01",undefined,undefined,activeSubmissionTraceRef.current);
+          captureReviewCandidate();
+          setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"A fotografia selecionada não carregou. Nenhuma imagem foi alterada; tente novamente."}]);
+          return;
+        }
+        recordVersion(site,"Antes da troca isolada da fotografia principal da Floricultura");
+        setRedoHistory([]);setHistory(prev=>[...prev.slice(-19),site]);
+        pendingHeroPhotoVisualReviewRef.current={
+          prompt,niche:site.niche||"Floricultura",variant:"01",
+          strategy:"floriculture-hero-photo",src:verifiedPeonyBouquetPhoto,
+          before:site,trace:activeSubmissionTraceRef.current
+        };
+        setSite(result.site);setInstruction("");setGenerationError("");
+        setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",
+          text:"Fotografia real de peônias rosas e brancas selecionada. Verificando sua exibição na capa antes de registrar a edição como aplicada."}]);
         return;
       }
       const compound=splitUniversalInstructions(prompt).length>1;

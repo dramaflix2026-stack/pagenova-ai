@@ -67,8 +67,8 @@
       "path": "src/components/builder-v2-site.tsx",
       "blobSha": "39f70209f2e11a82b84923c43d28eae10e4c344a",
       "approvedBindingRevision": {
-        "sha": "275cbfca6ad51c3252a6e950491f397980415c48",
-        "reason": "Explicit user approval 2026-11-17: preserve TP6 Floricultura approved layouts, while correcting user-reported Test 02 failure in Model 01 by binding the rendered #produtos background to its verified universal section style; Models 02/03 unchanged."
+        "sha": "4f835d6c3c2e817dc9a6aa84d1b6e7cbbf18a32f",
+        "reason": "Explicit user Test 03 request, 2026-11-17: bind only TP6 Floricultura Model 01 Hero to audited real internet peony photograph override. Preserve all approved layout, Model 02/03, Editor Universal and ML feedback requirements."
       }
     },
     {

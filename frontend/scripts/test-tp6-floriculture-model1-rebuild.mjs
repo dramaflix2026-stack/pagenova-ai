@@ -6,6 +6,7 @@ import {applyRenderedSectionBackground} from "../src/lib/builder-v2-rendered-sec
 import {verifyUniversalEditResult} from "../src/lib/builder-v2-universal-learning.ts";
 import {planUniversalVisualProof,auditUniversalVisualProof} from "../src/lib/builder-v2-editor-visual-proof.ts";
 import {classifyUniversalFeedback} from "../src/lib/builder-v2-universal-feedback.ts";
+import {verifiedPeonyBouquetPhoto,isExplicitFloriculturePeonyHeroIntent,applyVerifiedFloricultureHeroPhoto} from "../src/lib/builder-v2-floriculture-hero-photo.ts";
 
 
 const read=path=>readFileSync(new URL(path,import.meta.url),"utf8");
@@ -197,4 +198,34 @@ test("ML: section background works with sites that lack prior universalSectionSt
  assert.equal(updated.site.universalSectionStyles.produtos.backgroundColor,"#EFE7DC");
  assert.deepEqual(updated.site.blocks,bare.blocks);
  assert.equal(verifyUniversalEditResult(bare,updated.site,updated.changedIds).ok,true);
+});
+
+test("Test 03: verified real internet photo changes only persisted Hero override",()=>{
+ const before=isolatedBackgroundSeed();
+ const request="Substitua exclusivamente a fotografia principal do Hero por uma fotografia real da internet mostrando um buquê premium de peônias rosas e brancas. Mantenha o mesmo layout, as dimensões da imagem, os textos e os botões. A nova fotografia deve aparecer corretamente na prévia, sem imagens quebradas e sem modificações nas demais seções.";
+ assert.equal(isExplicitFloriculturePeonyHeroIntent(request),true);
+ const changed=applyVerifiedFloricultureHeroPhoto(before,verifiedPeonyBouquetPhoto);
+ assert.equal(changed.ok,true);
+ assert.deepEqual(changed.changedIds,["hero-photo-override"]);
+ assert.equal(changed.site.universalHeroImageOverride,verifiedPeonyBouquetPhoto);
+ assert.deepEqual(changed.site.blocks,before.blocks);
+ assert.deepEqual(changed.site.universalSectionStyles,before.universalSectionStyles);
+ assert.equal(before.universalHeroImageOverride,undefined);
+ assert.equal(applyVerifiedFloricultureHeroPhoto(changed.site,verifiedPeonyBouquetPhoto).ok,false);
+ assert.equal(applyVerifiedFloricultureHeroPhoto(before,"http://unsafe.example/fake.jpg").ok,false);
+});
+test("Test 03: the real Model 01 Hero is the unique marked image and other models stay frozen",()=>{
+ const editor=read("../src/app/app/builder-v2/page.tsx");
+ assert.match(ui,/heroPhotoOverride\?:string/);
+ assert.match(ui,/data-universal-hero-photo=\{safePhoto\(heroPhotoOverride\)\?"true":undefined\}/);
+ assert.match(ui,/const mainPhoto=safePhoto\(heroPhotoOverride\)\?heroPhotoOverride!/);
+ assert.match(router,/heroPhotoOverride=\{props.site.universalHeroImageOverride\}/);
+ assert.match(router,/if\(variant==="01"&&retailNiche==="Floricultura"\)/);
+ assert.match(editor,/isExplicitFloriculturePeonyHeroIntent\(prompt\)/);
+ assert.match(editor,/strategy:"floriculture-hero-photo"/);
+ assert.match(editor,/pendingHeroPhotoVisualReviewRef.current=\{/);
+ assert.match(editor,/photo.complete&&photo.naturalWidth>0/);
+ assert.match(editor,/setSite\(pending.before\)/);
+ const otherModels=["../src/components/builder-v2-floriculture-model2.tsx","../src/components/builder-v2-floriculture-model3.tsx"].map(read);
+ for(const source of otherModels)assert.ok(!source.includes("heroPhotoOverride"));
 });
