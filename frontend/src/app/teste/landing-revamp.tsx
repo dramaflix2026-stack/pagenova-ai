@@ -180,6 +180,17 @@ export function LandingRevamp() {
   return ()=>{rail.removeEventListener("scroll",onScroll);window.removeEventListener("resize",onScroll);if(raf)cancelAnimationFrame(raf);};
  },[]);
 
+ useEffect(()=>{
+  const scope=document.querySelector<HTMLElement>(".pnr-pricing");
+  if(!scope)return;
+  if(!("IntersectionObserver" in window)){scope.classList.add("pnr-motion-visible");return;}
+  const observer=new IntersectionObserver(entries=>{
+   for(const entry of entries)if(entry.isIntersecting){scope.classList.add("pnr-motion-visible");observer.disconnect();break;}
+  },{threshold:.08});
+  observer.observe(scope);
+  return ()=>observer.disconnect();
+ },[]);
+
  const t=translations[lang];
  const switchLang=(value:Lang)=>{
   setLang(value);setMenu(false);setLangOpen(false);
@@ -263,7 +274,7 @@ export function PageNovaTrustSections({language="pt"}:{language?:Lang}){
  const t=translations[language];
  const [openFaq,setOpenFaq]=useState<number|null>(0);
  return <div className="pnr-page pnr-shared-trust"><section className="pnr-section pnr-trust" id="garantia">
-    <div className="pnr-guarantee pnr-guarantee-full-art"><picture className="pnr-guarantee-responsive-art"><source media="(max-width: 767px)" srcSet="/images/file_000000004cb8820eabffff5a047418ea.webp"/><img className="pnr-guarantee-full-image" src="/images/garantia-pagenova-original.webp" alt="Garantia incondicional de 7 dias PageNova AI" loading="lazy" decoding="async" /></picture><div className="pnr-guarantee-mobile" aria-label="Garantia de sete dias"><div className="pnr-guarantee-mobile-shield" aria-hidden="true" /><div className="pnr-guarantee-mobile-copy"><span>COMPRE SEM RISCO</span><h3>Garantia incondicional de <em>7 dias.</em></h3><p>Garantia de sete dias para sua contratação, conforme os termos de reembolso publicados junto ao checkout.</p></div></div></div>
+    <div className="pnr-guarantee pnr-guarantee-full-art"><span className="pnr-guarantee-shield-aura" aria-hidden="true"/><picture className="pnr-guarantee-responsive-art"><source media="(max-width: 767px)" srcSet="/images/file_000000004cb8820eabffff5a047418ea.webp"/><img className="pnr-guarantee-full-image" src="/images/garantia-pagenova-original.webp" alt="Garantia incondicional de 7 dias PageNova AI" loading="lazy" decoding="async" /></picture><div className="pnr-guarantee-mobile" aria-label="Garantia de sete dias"><div className="pnr-guarantee-mobile-shield" aria-hidden="true" /><div className="pnr-guarantee-mobile-copy"><span>COMPRE SEM RISCO</span><h3>Garantia incondicional de <em>7 dias.</em></h3><p>Garantia de sete dias para sua contratação, conforme os termos de reembolso publicados junto ao checkout.</p></div></div></div>
     <div className="pnr-faq" id="faq"><div className="pnr-faq-intro"><p className="pnr-overline">{t.faqTag}</p><h2>{t.faqTitle} <em>{t.faqHi}</em></h2><p>{t.faqDesc}</p></div><div className="pnr-faq-items">{t.faqs.map((item:FAQ,i)=><div key={i} className={"pnr-faq-item"+(openFaq===i?" opened":"")}><button type="button" aria-expanded={openFaq===i} onClick={()=>setOpenFaq(openFaq===i?null:i)}>{item.q}<ChevronDown size={17}/></button>{openFaq===i&&<p>{item.a}</p>}</div>)}</div></div>
    </section></div>;
 }
