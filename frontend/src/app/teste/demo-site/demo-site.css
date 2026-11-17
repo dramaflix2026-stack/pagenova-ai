@@ -1,0 +1,395 @@
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f7f6f2;color:#171b16;font-family:Arial,Helvetica,sans-serif}.atelier-site{--accent:#d7ee78;--ink:#171b16;--paper:#f7f6f2;--subtle:#73766f;background:var(--paper);color:var(--ink);min-height:100vh}.atelier-site.atelier-premium{--accent:#c2ff79;--ink:#eff9e8;--paper:#0e1b13;--subtle:#a8bca9}.atelier-nav{height:74px;padding:0 5%;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid color-mix(in srgb,var(--ink) 15%,transparent);position:sticky;top:0;background:var(--paper);z-index:10}.atelier-logo{font-size:25px;letter-spacing:-.09em;font-weight:950;text-decoration:none;color:var(--ink)}.atelier-logo span{color:#89b54b}.atelier-nav nav{display:flex;gap:26px}.atelier-nav a:not(.atelier-logo){color:var(--ink);font-size:12px;text-decoration:none;font-weight:650}.atelier-nav nav a:hover{opacity:.6}.atelier-nav-cta{padding:12px 18px;border-radius:30px;background:var(--accent);color:#142016!important}.atelier-hero{display:grid;grid-template-columns:54% 46%;min-height:485px}.atelier-hero-text{padding:65px 6% 25px 9%;display:flex;flex-direction:column;align-items:flex-start}.atelier-eyebrow{font-size:10px;letter-spacing:.16em;font-weight:800;display:flex;align-items:center;gap:10px}.atelier-eyebrow i{width:8px;height:8px;background:#9fca5a;border-radius:50%}.atelier-hero h1{font-size:clamp(36px,5.1vw,75px);letter-spacing:-.065em;line-height:1.02;max-width:650px;margin:28px 0 20px;font-weight:850}.atelier-hero p{font-size:14px;line-height:1.7;max-width:360px;color:var(--subtle);margin:0 0 27px}.atelier-button{display:inline-flex;gap:24px;background:var(--accent);color:#142016;text-decoration:none;border-radius:30px;padding:15px 19px;font-weight:750;font-size:12px}.atelier-button span{font-size:16px}.atelier-hero-foot{margin-top:auto;padding-top:35px;display:flex;justify-content:space-between;width:100%;font-size:9px;letter-spacing:.1em;color:var(--subtle)}.atelier-hero-visual{position:relative;min-height:360px;background:#b4b1a8 url("https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1400&q=85") center/cover}.atelier-hero-visual:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.53),transparent 55%)}.atelier-photo-caption{position:absolute;z-index:1;bottom:25px;left:25px;color:white;display:grid;gap:5px}.atelier-photo-caption span{font-size:9px;letter-spacing:.13em}.atelier-photo-caption strong{font-size:19px}.atelier-work,.atelier-services,.atelier-benefits{padding:70px 6%}.atelier-section-heading>span,.atelier-about>span,.atelier-contact>span{font-size:10px;letter-spacing:.14em;font-weight:750;color:var(--subtle)}.atelier-section-heading h2,.atelier-about h2,.atelier-contact h2{font-size:clamp(30px,4vw,52px);line-height:1.1;letter-spacing:-.05em;margin:14px 0}.atelier-section-heading p{max-width:450px;font-size:13px;color:var(--subtle);line-height:1.6}.atelier-projects{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:30px}.atelier-projects article>div:last-child{display:flex;justify-content:space-between;gap:12px;padding:14px 0;font-size:11px}.atelier-projects article span{color:var(--subtle)}.atelier-project-image{height:240px;background-size:cover;background-position:center}.atelier-project-one{background-image:url("https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80")}.atelier-project-two{background-image:url("https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=80")}.atelier-services{background:color-mix(in srgb,var(--ink) 5%,var(--paper))}.atelier-services-grid,.atelier-benefits-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:30px}.atelier-services-grid article,.atelier-benefits-grid article{padding:23px;border:1px solid color-mix(in srgb,var(--ink) 15%,transparent);min-height:135px}.atelier-services-grid span,.atelier-benefits-grid span{font-size:10px;color:var(--subtle)}.atelier-services-grid h3,.atelier-benefits-grid h3{font-size:19px;letter-spacing:-.04em}.atelier-services-grid b{font-weight:400}.atelier-benefits{background:var(--accent);color:#18251a}.atelier-benefits .atelier-section-heading>span,.atelier-benefits-grid span{color:#47633c}.atelier-benefits-grid article{border-color:#68875c}.atelier-about{padding:85px 9%;display:grid;grid-template-columns:1fr 2fr;gap:10px 35px}.atelier-about h2{margin:0}.atelier-about p{grid-column:2;color:var(--subtle);line-height:1.8;font-size:14px;max-width:500px}.atelier-contact{padding:75px 9%;background:#182a1d;color:#f2ffec}.atelier-contact h2{max-width:700px}.atelier-contact p{color:#b4c8b4}.atelier-contact a{display:inline-block;margin-top:14px;background:#c2ff79;color:#142016;padding:14px 20px;border-radius:25px;text-decoration:none;font-size:12px;font-weight:800}.atelier-footer{padding:26px 6%;display:flex;justify-content:space-between;gap:20px;font-size:11px;color:var(--subtle)}.atelier-footer strong{color:var(--ink);font-size:16px}@media(max-width:720px){.atelier-nav{height:62px}.atelier-nav nav{gap:10px}.atelier-nav nav a{font-size:10px!important}.atelier-nav-cta{display:none}.atelier-hero{grid-template-columns:1fr}.atelier-hero-text{padding:42px 7% 25px;min-height:365px}.atelier-hero h1{font-size:clamp(36px,9vw,56px)}.atelier-hero-visual{min-height:260px}.atelier-work,.atelier-services,.atelier-benefits{padding:45px 7%}.atelier-projects{gap:12px}.atelier-project-image{height:150px}.atelier-services-grid,.atelier-benefits-grid{grid-template-columns:1fr}.atelier-about{display:block;padding:50px 7%}.atelier-about p{margin-top:20px}.atelier-contact{padding:55px 7%}.atelier-footer{flex-wrap:wrap}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+
+/* Demo-site visual QA: photography, compact composition, and polished responsive hierarchy. */
+.atelier-site{font-family:var(--font-poppins,"Poppins"),Arial,Helvetica,sans-serif}
+.atelier-nav{height:66px;padding-inline:4%;gap:15px}
+.atelier-nav nav{gap:clamp(10px,1.9vw,24px);align-items:center}
+.atelier-nav-cta{white-space:nowrap}
+.atelier-hero{grid-template-columns:minmax(0,53%) minmax(0,47%);min-height:390px}
+.atelier-hero-text{padding:44px 6% 20px 7%}
+.atelier-hero h1{font-size:clamp(34px,4.3vw,62px);line-height:1.04;letter-spacing:-.055em;margin:22px 0 15px}
+.atelier-hero p{font-size:clamp(11px,1.15vw,14px);line-height:1.65;margin-bottom:21px}
+.atelier-hero-visual{min-height:390px;background:#a6ada1;isolation:isolate;overflow:hidden}
+.atelier-photo{display:block;width:100%;height:100%;object-fit:cover;object-position:center;position:absolute;inset:0;transition:transform .65s ease}
+.atelier-hero-visual:hover .atelier-photo,.atelier-project-image:hover .atelier-photo{transform:scale(1.035)}
+.atelier-hero-visual:after{z-index:0}
+.atelier-photo-caption{z-index:1}
+.atelier-work,.atelier-services,.atelier-benefits{padding:44px 5% 48px}
+.atelier-section-heading h2{font-size:clamp(26px,3.4vw,42px)}
+.atelier-section-heading p{margin:8px 0 0}
+.atelier-projects{margin-top:22px;gap:15px}
+.atelier-project-image{position:relative;height:clamp(150px,19vw,260px);overflow:hidden;background:#8c9d88}
+.atelier-project-one{background:#8c9d88}.atelier-project-two{background:#aaa79e}
+.atelier-projects article>div:last-child{align-items:center;line-height:1.4}
+.atelier-services-grid,.atelier-benefits-grid{margin-top:20px}
+.atelier-services-grid article,.atelier-benefits-grid article{min-height:120px;padding:18px;display:flex;flex-direction:column;align-items:flex-start}
+.atelier-services-grid h3,.atelier-benefits-grid h3{font-size:clamp(14px,1.8vw,20px);line-height:1.3;margin:16px 0 8px}
+.atelier-services-grid b{margin-top:auto;color:#719b43}
+.atelier-about{padding:58px 7%;grid-template-columns:1fr 1.7fr}
+.atelier-about h2{font-size:clamp(26px,3.5vw,45px)}
+.atelier-contact{padding:57px 7%}
+.atelier-contact h2{font-size:clamp(28px,4vw,48px)}
+.atelier-footer{align-items:center}
+@media(max-width:800px){
+ .atelier-nav{padding-inline:4%;height:58px}
+ .atelier-nav nav{gap:clamp(8px,1.8vw,15px)}
+ .atelier-nav nav a{font-size:10px!important}
+ .atelier-nav-cta{padding:9px 11px;font-size:10px!important}
+ .atelier-hero{min-height:360px}
+ .atelier-hero-text{padding:35px 6% 18px}
+ .atelier-hero h1{font-size:clamp(32px,5.3vw,46px)}
+ .atelier-hero-visual{min-height:360px}
+ .atelier-hero-foot{font-size:8px}
+}
+@media(max-width:560px){
+ .atelier-nav{height:60px;flex-wrap:nowrap;gap:8px}
+ .atelier-logo{font-size:21px}
+ .atelier-nav nav{gap:10px;overflow-x:auto}
+ .atelier-nav nav a{font-size:9px!important;white-space:nowrap}
+ .atelier-nav-cta{display:none}
+ .atelier-hero{display:flex;flex-direction:column}
+ .atelier-hero-text{min-height:0;padding:38px 7% 30px}
+ .atelier-hero h1{font-size:clamp(35px,9vw,52px)}
+ .atelier-hero-visual{min-height:250px}
+ .atelier-hero-foot{padding-top:25px}
+ .atelier-projects{grid-template-columns:1fr}
+ .atelier-project-image{height:210px}
+ .atelier-services-grid,.atelier-benefits-grid{grid-template-columns:1fr}
+ .atelier-services-grid article,.atelier-benefits-grid article{min-height:90px}
+ .atelier-about{display:block;padding:45px 7%}
+ .atelier-about p{margin-top:18px}
+ .atelier-contact{padding:50px 7%}
+}
+@media(prefers-reduced-motion:reduce){.atelier-photo{transition:none}}
+
+
+/* ATELIER editorial v2: intentional hierarchy, depth and refined responsive cards */
+.atelier-site{--line:color-mix(in srgb,var(--ink) 13%,transparent)}
+.atelier-work{padding:58px 5% 66px;background:var(--paper)}
+.atelier-work .atelier-section-heading{position:relative;padding-left:19px;border-left:2px solid #a6cb69}
+.atelier-work .atelier-section-heading h2{font-size:clamp(31px,4vw,53px);font-weight:750;letter-spacing:-.065em;margin:11px 0 9px}
+.atelier-work .atelier-section-heading p{max-width:490px}
+.atelier-projects{gap:21px;margin-top:28px}
+.atelier-project-card{background:color-mix(in srgb,var(--ink) 4%,var(--paper));border:1px solid var(--line);padding:8px;border-radius:15px;overflow:hidden;transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease}
+.atelier-project-card:hover{transform:translateY(-3px);border-color:#8cb766;box-shadow:0 16px 36px rgba(0,0,0,.13)}
+.atelier-project-image{height:clamp(170px,22vw,285px);border-radius:9px;overflow:hidden}
+.atelier-project-card .atelier-project-info{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:17px 11px 13px}
+.atelier-project-info>div{display:flex;flex-direction:column;gap:7px;min-width:0}
+.atelier-project-info small{font-size:9px;letter-spacing:.13em;color:var(--subtle);font-weight:750}
+.atelier-project-info strong{font-size:clamp(13px,1.55vw,18px);letter-spacing:-.035em;line-height:1.3}
+.atelier-project-info em{font-style:normal;font-weight:450;color:var(--subtle)}
+.atelier-project-info>span{display:grid;place-items:center;flex-shrink:0;width:32px;height:32px;border-radius:50%;background:#c2ff79;color:#122318;font-size:17px}
+.atelier-services{background:color-mix(in srgb,var(--ink) 4%,var(--paper));padding:62px 5% 72px}
+.atelier-services .atelier-section-heading{display:flex;align-items:end;justify-content:space-between;gap:18px;border-bottom:1px solid var(--line);padding-bottom:18px}
+.atelier-services .atelier-section-heading h2{font-size:clamp(30px,3.8vw,48px);margin-bottom:0}
+.atelier-services-grid{gap:13px;margin-top:25px}
+.atelier-services-grid article{position:relative;min-height:215px;padding:23px;border:1px solid var(--line);border-radius:12px;background:var(--paper);transition:border-color .25s ease,transform .25s ease,background .25s ease}
+.atelier-services-grid article:hover{border-color:#a5d36e;transform:translateY(-3px);background:color-mix(in srgb,#9bcf6b 7%,var(--paper))}
+.atelier-services-grid article>span{display:flex;align-items:center;gap:8px;color:#9acb6b;font-weight:800;letter-spacing:.1em}
+.atelier-services-grid article>span:before{content:"✳";font-size:20px;line-height:1}
+.atelier-services-grid h3{font-size:clamp(17px,1.9vw,24px);margin:23px 0 8px;letter-spacing:-.04em;max-width:240px}
+.atelier-services-grid article p{font-size:11px;line-height:1.7;color:var(--subtle);margin:0 0 20px;max-width:240px}
+.atelier-services-grid b{position:absolute;right:19px;top:18px;display:grid;place-items:center;width:29px;height:29px;border:1px solid var(--line);border-radius:50%;font-size:15px}
+.atelier-about{display:grid;grid-template-columns:minmax(0,42%) minmax(0,58%);padding:0;min-height:370px;gap:0;background:color-mix(in srgb,var(--ink) 2%,var(--paper))}
+.atelier-about-visual{position:relative;min-height:370px;overflow:hidden;background:#4c584b}
+.atelier-about-visual:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.45),transparent 55%)}
+.atelier-about-visual span{position:absolute;left:24px;bottom:22px;z-index:1;font-size:9px;letter-spacing:.15em;color:white;font-weight:750}
+.atelier-about-content{padding:58px 9% 45px}
+.atelier-about-content>span{font-size:10px;letter-spacing:.15em;font-weight:800;color:#a5d879}
+.atelier-about-content h2{font-size:clamp(31px,3.8vw,51px);letter-spacing:-.065em;line-height:1.08;margin:22px 0 19px;max-width:490px}
+.atelier-about-content p{font-size:clamp(12px,1.2vw,15px);line-height:1.8;color:var(--subtle);max-width:470px;margin:0}
+.atelier-about-metrics{display:flex;gap:35px;border-top:1px solid var(--line);margin-top:32px;padding-top:19px}
+.atelier-about-metrics div{display:flex;flex-direction:column;gap:4px}
+.atelier-about-metrics strong{font-size:30px;line-height:1;letter-spacing:-.06em;color:var(--ink)}
+.atelier-about-metrics small{font-size:10px;color:var(--subtle)}
+.atelier-contact{position:relative;isolation:isolate;overflow:hidden;padding:72px 8% 78px;background:#192c20}
+.atelier-contact:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 83% 46%,rgba(180,255,122,.15),transparent 34%);z-index:-1}
+.atelier-contact-content{position:relative;z-index:1;max-width:700px}
+.atelier-contact-content>span{color:#b9e994;font-size:10px;letter-spacing:.17em;font-weight:800}
+.atelier-contact h2{font-size:clamp(35px,5.4vw,71px);font-weight:750;letter-spacing:-.065em;line-height:1.07;max-width:650px;margin:20px 0}
+.atelier-contact p{font-size:14px;line-height:1.6}
+.atelier-contact a{display:inline-flex;align-items:center;gap:25px;border-radius:50px;margin-top:22px;padding:16px 22px;transition:transform .2s ease,box-shadow .2s ease}
+.atelier-contact a:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(194,255,121,.15)}
+.atelier-contact a b{font-size:17px;font-weight:500}
+.atelier-contact-orb{position:absolute;right:7%;top:50%;transform:translateY(-50%);width:210px;height:210px;border:1px solid rgba(194,255,121,.3);border-radius:50%;display:grid;place-items:center;font-size:95px;color:#c2ff79;opacity:.58;box-shadow:0 0 0 30px rgba(194,255,121,.025),0 0 0 60px rgba(194,255,121,.018)}
+.atelier-footer{background:#0e1811;color:#afc1af;padding:25px 6%;border-top:1px solid rgba(255,255,255,.08)}
+.atelier-footer strong{color:#f4f9ee;letter-spacing:-.06em;font-size:20px}
+.atelier-footer span{font-size:10px}
+@media(max-width:800px){
+ .atelier-work{padding:44px 5% 55px}
+ .atelier-projects{gap:12px}
+ .atelier-project-image{height:clamp(145px,23vw,220px)}
+ .atelier-project-card .atelier-project-info{padding:12px 7px 9px}
+ .atelier-project-info strong{font-size:12px}
+ .atelier-project-info em{display:block}
+ .atelier-project-info>span{width:27px;height:27px}
+ .atelier-services{padding:45px 5% 55px}
+ .atelier-services-grid article{min-height:205px;padding:17px}
+ .atelier-services-grid h3{font-size:17px}
+ .atelier-about{grid-template-columns:40% 60%;min-height:320px}
+ .atelier-about-visual{min-height:320px}
+ .atelier-about-content{padding:39px 7% 30px}
+ .atelier-about-content h2{font-size:clamp(27px,4.1vw,38px)}
+ .atelier-contact-orb{width:130px;height:130px;font-size:62px;right:5%}
+}
+@media(max-width:560px){
+ .atelier-projects{grid-template-columns:1fr;gap:17px}
+ .atelier-project-image{height:220px}
+ .atelier-project-info strong{font-size:16px}
+ .atelier-project-info em{display:inline}
+ .atelier-services .atelier-section-heading{display:block}
+ .atelier-services-grid{grid-template-columns:1fr}
+ .atelier-services-grid article{min-height:165px}
+ .atelier-about{display:flex;flex-direction:column}
+ .atelier-about-visual{min-height:230px}
+ .atelier-about-content{padding:40px 7%}
+ .atelier-contact{padding:54px 7% 65px}
+ .atelier-contact-orb{width:100px;height:100px;font-size:48px;right:-40px;opacity:.2}
+ .atelier-contact h2{font-size:clamp(34px,8vw,49px)}
+ .atelier-footer{padding:22px 6%;gap:12px}
+}
+@media(prefers-reduced-motion:reduce){.atelier-project-card,.atelier-services-grid article,.atelier-contact a{transition:none}}
+
+
+/* QA fix: project card contrast and illustrated studio metrics. Scope to demo only. */
+.atelier-site .atelier-projects .atelier-project-card{
+ background:#17291d!important;color:#f3f9ef!important;border:1px solid rgba(171,219,155,.24)!important;
+ box-shadow:0 8px 22px rgba(0,0,0,.10);
+}
+.atelier-site .atelier-projects .atelier-project-card .atelier-project-info{
+ background:#17291d!important;color:#f3f9ef!important;min-height:86px;
+ display:flex;align-items:center;justify-content:space-between;
+}
+.atelier-site .atelier-projects .atelier-project-card .atelier-project-info>div{min-width:0;flex:1}
+.atelier-site .atelier-projects .atelier-project-card .atelier-project-info small{
+ color:#a7d394!important;font-size:9px;font-weight:800;letter-spacing:.10em;
+}
+.atelier-site .atelier-projects .atelier-project-card .atelier-project-info strong{
+ color:#f8fff4!important;display:block!important;font-size:clamp(14px,1.55vw,19px)!important;
+ font-weight:800!important;line-height:1.35!important;opacity:1!important;
+}
+.atelier-site .atelier-projects .atelier-project-card .atelier-project-info strong em{
+ color:#c6d8c4!important;font-style:normal;font-weight:450!important;opacity:1!important;
+}
+.atelier-site .atelier-projects .atelier-project-card .atelier-project-info>span{
+ background:#baff80!important;color:#102217!important;flex-shrink:0;
+}
+.atelier-site .atelier-about-metrics{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 12px;
+ border-top:1px solid rgba(171,219,155,.2);margin-top:26px;padding-top:17px;
+}
+.atelier-site .atelier-about-metrics>div{
+ padding:12px 13px 14px;border:1px solid rgba(171,219,155,.2);
+ background:rgba(149,216,123,.045);border-radius:9px;min-width:0;
+}
+.atelier-site .atelier-about-metrics strong{
+ font-size:clamp(25px,3vw,38px);font-weight:850;letter-spacing:-.06em;color:#baff80!important;
+}
+.atelier-site .atelier-about-metrics small{font-size:10px;line-height:1.45;color:#c6d8c4!important}
+.atelier-site .atelier-metrics-note{
+ grid-column:1/-1;font-size:9px;letter-spacing:.03em;color:#8ea68e;
+ margin-top:9px;text-align:right;
+}
+@media(max-width:800px){
+ .atelier-site .atelier-projects .atelier-project-card .atelier-project-info{min-height:92px}
+ .atelier-site .atelier-projects .atelier-project-card .atelier-project-info strong{font-size:13px!important}
+ .atelier-site .atelier-about-metrics{gap:8px}
+ .atelier-site .atelier-about-metrics>div{padding:10px}
+}
+@media(max-width:560px){
+ .atelier-site .atelier-projects .atelier-project-card .atelier-project-info strong{font-size:16px!important}
+ .atelier-site .atelier-about-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+
+/* AI-added differentiators: premium editorial treatment, not neon block. */
+.atelier-site .atelier-benefits{
+ background:#13231a!important;color:#f1f8ef!important;
+ padding:58px 5% 65px!important;
+ border-top:1px solid rgba(185,236,158,.14);
+ border-bottom:1px solid rgba(185,236,158,.14);
+}
+.atelier-site .atelier-benefits-heading{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr);align-items:end;gap:25px;margin-bottom:28px}
+.atelier-site .atelier-benefits-eyebrow{display:flex;align-items:center;gap:9px;color:#baff80!important;font-size:9px;letter-spacing:.16em;font-weight:800}
+.atelier-site .atelier-benefits-eyebrow i{width:7px;height:7px;border-radius:50%;background:#baff80;box-shadow:0 0 13px rgba(186,255,128,.35)}
+.atelier-site .atelier-benefits-heading h2{color:#f5fff1!important;font-size:clamp(29px,3.8vw,49px);font-weight:750;letter-spacing:-.06em;line-height:1.12;margin:16px 0 0}
+.atelier-site .atelier-benefits-heading>p{color:#aabfaf!important;font-size:12px;line-height:1.75;max-width:310px;margin:0}
+.atelier-site .atelier-benefits-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin:0!important}
+.atelier-site .atelier-benefits-grid article{
+ min-width:0;min-height:222px;padding:21px!important;
+ display:flex;flex-direction:column;align-items:stretch;
+ background:#1a3022!important;color:#f5fff1!important;
+ border:1px solid rgba(176,231,156,.19)!important;border-radius:12px!important;
+ transition:transform .22s ease,border-color .22s ease,background .22s ease;
+}
+.atelier-site .atelier-benefits-grid article:hover{transform:translateY(-3px);border-color:rgba(186,255,128,.6)!important;background:#203a29!important}
+.atelier-site .atelier-benefit-top{display:flex;align-items:start;justify-content:space-between}
+.atelier-site .atelier-benefit-symbol{width:43px;height:43px;border-radius:11px;display:grid;place-items:center;background:rgba(186,255,128,.10);color:#baff80;font-size:25px;line-height:1}
+.atelier-site .atelier-benefit-number{color:#78957e;font-size:10px;font-weight:800;letter-spacing:.1em}
+.atelier-site .atelier-benefits-grid h3{font-size:clamp(16px,1.9vw,22px);line-height:1.2;letter-spacing:-.035em;color:#f5fff1!important;margin:21px 0 10px!important;font-weight:750}
+.atelier-site .atelier-benefits-grid article p{font-size:11px;line-height:1.7;color:#b4c8b7;margin:0 0 20px}
+.atelier-site .atelier-benefit-rule{margin-top:auto;width:37px;height:2px;background:#baff80;border-radius:4px}
+@media(max-width:800px){
+ .atelier-site .atelier-benefits{padding:43px 5% 49px!important}
+ .atelier-site .atelier-benefits-heading{gap:15px;margin-bottom:22px}
+ .atelier-site .atelier-benefits-grid{gap:9px}
+ .atelier-site .atelier-benefits-grid article{padding:15px!important;min-height:240px}
+ .atelier-site .atelier-benefits-grid h3{font-size:16px}
+ .atelier-site .atelier-benefits-grid article p{font-size:10px}
+}
+@media(max-width:560px){
+ .atelier-site .atelier-benefits-heading{grid-template-columns:1fr;gap:12px}
+ .atelier-site .atelier-benefits-heading>p{max-width:100%}
+ .atelier-site .atelier-benefits-grid{grid-template-columns:1fr}
+ .atelier-site .atelier-benefits-grid article{min-height:160px}
+}
+@media(prefers-reduced-motion:reduce){.atelier-site .atelier-benefits-grid article{transition:none}}
+
+
+/* ATELIER 3.0 — coherent editorial system for a full demo website.
+   Scoped to the isolated /teste/demo-site document. */
+.atelier-site{--atelier-deep:#14251a;--atelier-forest:#1d3425;--atelier-cream:#f7f6f2;--atelier-lime:#c8f58c;--atelier-muted:#5e6a5d;overflow:hidden}
+.atelier-site .atelier-nav{height:68px;padding:0 5.3%;border-bottom:1px solid rgba(26,46,32,.12);backdrop-filter:blur(14px);background:color-mix(in srgb,var(--paper) 94%,transparent);box-shadow:0 3px 18px rgba(20,37,26,.025)}
+.atelier-site .atelier-logo{font-size:26px;letter-spacing:-.09em;font-weight:950}
+.atelier-site .atelier-nav nav{gap:clamp(12px,2.2vw,30px)}
+.atelier-site .atelier-nav nav a{font-size:11px;font-weight:700;position:relative}
+.atelier-site .atelier-nav nav a:after{content:"";height:1px;background:#77a14e;position:absolute;left:0;bottom:-6px;width:0;transition:width .2s}
+.atelier-site .atelier-nav nav a:hover:after{width:100%}
+.atelier-site .atelier-nav-cta{border-radius:7px;padding:12px 18px;background:var(--accent);font-weight:800;transition:transform .2s}
+.atelier-site .atelier-nav-cta:hover{transform:translateY(-2px)}
+.atelier-site .atelier-hero{grid-template-columns:53% 47%;min-height:480px;border-bottom:1px solid rgba(26,46,32,.1)}
+.atelier-site .atelier-hero-text{padding:62px 7% 28px 9%;justify-content:center}
+.atelier-site .atelier-hero h1{font-size:clamp(36px,5vw,70px);line-height:1.04;letter-spacing:-.065em;max-width:610px;margin:28px 0 23px;text-wrap:balance}
+.atelier-site .atelier-hero p{font-size:clamp(12px,1.4vw,15px);max-width:420px;line-height:1.75}
+.atelier-site .atelier-button{border-radius:8px;padding:16px 19px;gap:34px;align-items:center;transition:transform .2s,box-shadow .2s}
+.atelier-site .atelier-button:hover{transform:translateY(-2px);box-shadow:0 9px 22px rgba(74,111,49,.15)}
+.atelier-site .atelier-hero-visual{min-height:480px}
+.atelier-site .atelier-photo-caption{bottom:27px;left:28px}
+.atelier-site .atelier-photo-caption strong{font-size:clamp(18px,2.5vw,30px);letter-spacing:-.045em}
+.atelier-site .atelier-work{padding:68px 6% 77px}
+.atelier-site .atelier-work .atelier-section-heading{border-left:2px solid #8eaf6c;padding-left:20px}
+.atelier-site .atelier-work .atelier-section-heading h2{font-size:clamp(34px,4.4vw,58px);letter-spacing:-.06em}
+.atelier-site .atelier-projects{gap:19px;margin-top:33px}
+.atelier-site .atelier-projects .atelier-project-card{border-radius:10px!important;padding:7px!important}
+.atelier-site .atelier-project-image{border-radius:6px;height:clamp(175px,25vw,330px)}
+.atelier-site .atelier-project-card .atelier-project-info{padding:19px 13px 15px!important}
+.atelier-site .atelier-project-info strong{font-size:clamp(15px,1.7vw,22px)!important}
+.atelier-site .atelier-services{padding:70px 6% 79px;background:#efeee9}
+.atelier-site .atelier-services .atelier-section-heading{align-items:center}
+.atelier-site .atelier-services .atelier-section-heading h2{font-size:clamp(32px,4.2vw,54px);letter-spacing:-.06em}
+.atelier-site .atelier-services-grid{gap:14px}
+.atelier-site .atelier-services-grid article{border-radius:8px;background:#f8f7f3;min-height:230px;padding:25px}
+.atelier-site .atelier-services-grid article>span{font-size:11px}
+.atelier-site .atelier-services-grid h3{font-size:clamp(18px,2vw,25px);line-height:1.17;margin-top:30px}
+.atelier-site .atelier-services-grid article p{font-size:12px;line-height:1.7}
+.atelier-site .atelier-benefits{padding:66px 6% 74px!important}
+.atelier-site .atelier-benefits-heading{grid-template-columns:1.1fr .9fr}
+.atelier-site .atelier-benefits-grid article{min-height:205px!important}
+.atelier-site .atelier-benefits-grid h3{font-size:clamp(17px,1.85vw,23px)}
+.atelier-site .atelier-about{grid-template-columns:46% 54%;min-height:440px;background:#f2f1eb;color:#17271b}
+.atelier-site .atelier-about-visual{min-height:440px}
+.atelier-site .atelier-about-content{padding:62px 8% 47px}
+.atelier-site .atelier-about-content h2{font-size:clamp(31px,4vw,55px);line-height:1.12;max-width:450px}
+.atelier-site .atelier-about-content p{color:#566257;line-height:1.8}
+.atelier-site .atelier-about-metrics{border-top:1px solid rgba(30,52,37,.17)}
+.atelier-site .atelier-about-metrics>div{background:#1b3323!important;border:1px solid #2c4933!important;border-radius:8px;padding:16px 17px}
+.atelier-site .atelier-about-metrics strong{color:#c8f58c!important;font-size:clamp(27px,3.3vw,42px)}
+.atelier-site .atelier-about-metrics small{color:#d5e3d3!important;font-size:11px}
+.atelier-site .atelier-metrics-note{color:#5d6c60!important}
+.atelier-site .atelier-contact{background:#172b1e;padding:82px 6% 90px;min-height:390px;isolation:isolate}
+.atelier-site .atelier-contact:before{background:radial-gradient(circle at 80% 50%,rgba(176,239,120,.12),transparent 37%)}
+.atelier-site .atelier-contact-inner{max-width:1050px;position:relative;z-index:2}
+.atelier-site .atelier-contact-top{display:flex;align-items:center;justify-content:space-between;gap:15px}
+.atelier-site .atelier-contact-top>span{font-size:10px;font-weight:800;letter-spacing:.15em;color:#c8f58c}
+.atelier-site .atelier-contact-availability{display:flex;align-items:center;gap:8px;color:#b8d2b2!important}
+.atelier-site .atelier-contact-availability i{width:7px;height:7px;border-radius:50%;background:#c8f58c;box-shadow:0 0 12px rgba(200,245,140,.5)}
+.atelier-site .atelier-contact h2{font-size:clamp(35px,5vw,67px);line-height:1.08;letter-spacing:-.06em;max-width:840px;text-wrap:balance;margin:34px 0 28px;color:#f7fbf2}
+.atelier-site .atelier-contact-bottom{display:flex;align-items:center;justify-content:space-between;gap:30px;border-top:1px solid rgba(213,240,207,.18);padding-top:22px}
+.atelier-site .atelier-contact-bottom p{margin:0;color:#c5d6c5;font-size:14px}
+.atelier-site .atelier-contact-bottom a{display:inline-flex;align-items:center;justify-content:space-between;gap:22px;flex-shrink:0;margin:0;border-radius:8px;background:#c8f58c;color:#132319;padding:15px 19px;font-weight:800}
+.atelier-site .atelier-contact-decor{position:absolute;right:-10px;bottom:-110px;font-size:clamp(210px,33vw,480px);line-height:1;letter-spacing:-.12em;font-weight:950;color:rgba(200,245,140,.055);pointer-events:none;z-index:0}
+.atelier-site .atelier-footer{display:block;background:#0e1a13;color:#f0f6eb;padding:40px 6% 20px}
+.atelier-site .atelier-footer-main{display:flex;justify-content:space-between;gap:35px;align-items:start;padding-bottom:36px}
+.atelier-site .atelier-footer-main strong{font-size:clamp(28px,4vw,48px);line-height:1;letter-spacing:-.09em;color:#f4faee}
+.atelier-site .atelier-footer-main strong span{color:#b9ec7b}
+.atelier-site .atelier-footer-main p{font-size:12px;line-height:1.6;color:#9db39f;margin:12px 0 0}
+.atelier-site .atelier-footer-main nav{display:flex;gap:20px;flex-wrap:wrap}
+.atelier-site .atelier-footer a{color:#e5f1e2;text-decoration:none;font-size:11px;font-weight:650}
+.atelier-site .atelier-footer a:hover{color:#c8f58c}
+.atelier-site .atelier-footer-bottom{display:flex;align-items:center;justify-content:space-between;gap:15px;border-top:1px solid rgba(255,255,255,.12);padding-top:18px}
+.atelier-site .atelier-footer-bottom span{color:#95aa97;font-size:10px}
+@media(max-width:800px){
+ .atelier-site .atelier-hero{min-height:380px}
+ .atelier-site .atelier-hero-text{padding:42px 6% 24px}
+ .atelier-site .atelier-hero h1{font-size:clamp(34px,5.3vw,48px)}
+ .atelier-site .atelier-hero-visual{min-height:380px}
+ .atelier-site .atelier-work{padding:49px 5% 58px}
+ .atelier-site .atelier-services{padding:50px 5% 58px}
+ .atelier-site .atelier-services-grid article{min-height:225px;padding:17px}
+ .atelier-site .atelier-about{min-height:350px;grid-template-columns:40% 60%}
+ .atelier-site .atelier-about-visual{min-height:350px}
+ .atelier-site .atelier-about-content{padding:38px 7%}
+ .atelier-site .atelier-about-content h2{font-size:clamp(27px,4.2vw,38px)}
+ .atelier-site .atelier-contact{padding:60px 6% 67px;min-height:320px}
+ .atelier-site .atelier-contact h2{font-size:clamp(33px,5vw,48px)}
+ .atelier-site .atelier-contact-decor{font-size:260px;bottom:-70px}
+}
+@media(max-width:560px){
+ .atelier-site .atelier-nav{height:60px;padding-inline:4%}
+ .atelier-site .atelier-nav nav{gap:10px}
+ .atelier-site .atelier-hero{display:flex;flex-direction:column}
+ .atelier-site .atelier-hero-text{padding:40px 7% 28px}
+ .atelier-site .atelier-hero h1{font-size:clamp(36px,9vw,53px)}
+ .atelier-site .atelier-hero-visual{min-height:285px}
+ .atelier-site .atelier-projects{grid-template-columns:1fr}
+ .atelier-site .atelier-project-image{height:220px}
+ .atelier-site .atelier-services-grid{grid-template-columns:1fr}
+ .atelier-site .atelier-services-grid article{min-height:170px}
+ .atelier-site .atelier-benefits-heading{grid-template-columns:1fr}
+ .atelier-site .atelier-about{display:flex;flex-direction:column}
+ .atelier-site .atelier-about-visual{min-height:245px}
+ .atelier-site .atelier-about-content{padding:42px 7%}
+ .atelier-site .atelier-contact{padding:50px 7% 60px}
+ .atelier-site .atelier-contact-top{align-items:start;flex-direction:column}
+ .atelier-site .atelier-contact h2{font-size:clamp(34px,8vw,47px)}
+ .atelier-site .atelier-contact-bottom{flex-direction:column;align-items:start;gap:22px}
+ .atelier-site .atelier-contact-decor{font-size:190px;right:-25px;bottom:-35px}
+ .atelier-site .atelier-footer{padding:35px 7% 20px}
+ .atelier-site .atelier-footer-main{flex-direction:column;gap:26px}
+ .atelier-site .atelier-footer-bottom{flex-wrap:wrap}
+}
+@media(prefers-reduced-motion:reduce){.atelier-site .atelier-button,.atelier-site .atelier-nav-cta{transition:none}}
+
+
+/* Contrast regression fix: services section always uses ink on warm paper,
+   including when the interactive demo toggles its visual theme. */
+.atelier-site .atelier-services{
+ background:#efeee9!important;color:#17251b!important;
+}
+.atelier-site .atelier-services .atelier-section-heading,
+.atelier-site .atelier-services .atelier-section-heading h2{
+ color:#17251b!important;opacity:1!important;
+}
+.atelier-site .atelier-services .atelier-section-heading>span{
+ color:#526854!important;opacity:1!important;
+}
+.atelier-site .atelier-services-grid article{
+ background:#faf9f5!important;color:#17251b!important;
+ border:1px solid #d5d9cf!important;
+}
+.atelier-site .atelier-services-grid article h3{
+ color:#19271c!important;opacity:1!important;font-weight:750!important;
+}
+.atelier-site .atelier-services-grid article p{
+ color:#566459!important;opacity:1!important;
+}
+.atelier-site .atelier-services-grid article>span{
+ color:#648f46!important;opacity:1!important;
+}
+.atelier-site .atelier-services-grid article b{
+ color:#365b2b!important;border-color:#cbd6c3!important;
+}
+.atelier-site .atelier-services-grid article:hover{
+ background:#f4f7ed!important;border-color:#83a966!important;
+}

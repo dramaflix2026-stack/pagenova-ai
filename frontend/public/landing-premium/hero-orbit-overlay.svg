@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1002 611">
+  <style>
+    .orbit{offset-path:path('M 342 23 C 242 26 111 70 59 159 C 2 244 13 337 80 419 C 141 505 267 559 403 586 C 581 618 739 580 860 532 C 928 504 968 493 1002 476');offset-distance:0%;offset-rotate:0deg;animation:travel 8s linear infinite}
+    @keyframes travel{to{offset-distance:100%}}
+    @media(prefers-reduced-motion:reduce){.orbit{display:none}}
+  </style>
+  <defs>
+    <path id="route" d="M 342 23 C 242 26 111 70 59 159 C 2 244 13 337 80 419 C 141 505 267 559 403 586 C 581 618 739 580 860 532 C 928 504 968 493 1002 476"/>
+    <radialGradient id="light">
+      <stop stop-color="#b5ff80" stop-opacity=".82"/>
+      <stop offset=".2" stop-color="#9dff65" stop-opacity=".63"/>
+      <stop offset=".5" stop-color="#69ff4b" stop-opacity=".25"/>
+      <stop offset="1" stop-color="#50f64a" stop-opacity="0"/>
+    </radialGradient>
+    <mask id="clip" maskUnits="userSpaceOnUse" x="0" y="0" width="1002" height="611">
+      <use href="#route" stroke="white" fill="none" stroke-width="5"/>
+    </mask>
+  </defs>
+  <g mask="url(#clip)"><circle class="orbit" r="100" fill="url(#light)" opacity=".78"/></g>
+</svg>

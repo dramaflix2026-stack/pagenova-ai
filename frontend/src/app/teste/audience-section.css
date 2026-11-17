@@ -1,0 +1,18 @@
+.pn5-section{font-family:inherit}
+.pn5-halo{background:radial-gradient(ellipse at 50% 30%,#95ff5a10,transparent 62%)}
+.pn5-card{isolation:isolate;transform:translateZ(0);transition:border-color .35s,box-shadow .35s}
+.pn5-card:focus-visible{outline:2px solid #b6ff69;outline-offset:3px}
+.pn5-card:hover,.pn5-card:focus-visible{border-color:#b6ff6988;box-shadow:0 20px 70px #0008}
+.pn5-photo{background:linear-gradient(125deg,#284631,#111a15 70%)}
+.pn5-photo img{display:block;width:100%;height:100%;object-fit:cover;filter:saturate(.88) contrast(1.08);transform:scale(1.02);transition:transform .9s cubic-bezier(.2,.75,.2,1),filter .6s}
+.pn5-card:hover .pn5-photo img,.pn5-card:focus-visible .pn5-photo img{transform:scale(1.08);filter:saturate(1.02) contrast(1.07)}
+.pn5-shade{background:linear-gradient(0deg,#061009fc 0%,#061009eb 23%,#0610094a 70%,#06100980 100%)}
+.pn5-glint{opacity:0;transform:translateX(-65%);background:linear-gradient(95deg,transparent 30%,#a7ff8c18 50%,transparent 70%);transition:opacity .4s,transform .9s}
+.pn5-card:hover .pn5-glint,.pn5-card:focus-visible .pn5-glint{opacity:1;transform:translateX(70%)}
+.pn5-arrow{transition:color .3s,background .3s,border-color .3s}
+.pn5-card:hover .pn5-arrow,.pn5-card:focus-visible .pn5-arrow{background:#b6ff69;border-color:#b6ff69;color:#10200b}
+@media(max-width:639px){.pn5-card{min-height:270px;padding:18px;border-radius:17px}
+.pn5-card h3{font-size:clamp(26px,7vw,34px)}
+.pn5-shade{background:linear-gradient(0deg,#061009fd 0%,#061009e8 36%,#06100955 77%,#06100973 100%)}
+}
+@media(prefers-reduced-motion:reduce){.pn5-card,.pn5-photo img,.pn5-glint,.pn5-arrow{transition:none!important;transform:none!important}}

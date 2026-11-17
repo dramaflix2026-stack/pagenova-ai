@@ -1,0 +1,331 @@
+/* PageNova AI – Landing de homologação
+ * Correção de isolamento: globals.css contém seletor genérico
+ * main :is([class*="card"]) que injeta FUNDO BRANCO e ::before.
+ * Cada seletor abaixo é intencionalmente mais específico.
+ * Esta folha altera apenas a rota /teste, não o builder ou a produção.
+ */
+.pnr-page {
+  --pnr-accent: #adff69;
+  --pnr-bg: #06120b;
+  --pnr-card: #0b1c12;
+  --pnr-line: rgba(163,255,104,.30);
+  background: #06120b;
+  color: #f5fff3;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.pnr-page main { background:#06120b; }
+.pnr-page main :is(.pnr-product,.pnr-style-card,.pnr-audience-card,.pnr-price-card) {
+  position:relative;
+  overflow:hidden;
+  color:#f5fff3;
+  background:linear-gradient(147deg,#14281b 0%,#0a1b11 56%,#07150c 100%);
+  border:1px solid rgba(161,255,107,.27);
+  box-shadow:0 15px 35px rgba(0,0,0,.26),inset 0 1px rgba(232,255,214,.055);
+  transform:translateZ(0);
+  transition:transform .24s ease,border-color .24s ease,box-shadow .24s ease;
+}
+/* Remove the old white glass overlay, on normal and hover states */
+.pnr-page main :is(.pnr-product,.pnr-style-card,.pnr-audience-card,.pnr-price-card)::before {
+  content:none !important;
+  display:none !important;
+  background:none !important;
+}
+.pnr-page main :is(.pnr-product,.pnr-style-card,.pnr-audience-card,.pnr-price-card):hover {
+  transform:translateY(-5px);
+  border-color:rgba(175,255,99,.78);
+  box-shadow:0 16px 36px rgba(0,0,0,.34),0 0 27px rgba(133,255,75,.18),inset 0 1px rgba(255,255,255,.06);
+}
+.pnr-page :is(.pnr-price-card,.pnr-audience-card) :is(h3,strong,p,small,span,li) {
+  text-shadow:none;
+}
+/* Smooth continuous canvas – no horizontal black/green seams */
+.pnr-page .pnr-header {
+  background:linear-gradient(90deg,#0a2111,#06170d 48%,#102b16);
+  border-bottom:1px solid rgba(143,255,86,.18);
+}
+.pnr-page .pnr-hero {
+  background:
+    radial-gradient(ellipse 42% 82% at 74% 48%,rgba(68,178,54,.20),transparent 77%),
+    radial-gradient(ellipse 45% 55% at 9% 55%,rgba(47,148,30,.13),transparent 76%),
+    linear-gradient(180deg,#06160a,#06150b 78%,#06120b 100%);
+  border-bottom:0;
+  padding-top:27px;
+  min-height:540px;
+}
+.pnr-page .pnr-hero::before{display:none;}
+.pnr-page .pnr-hero-ring::before {
+  left:58%;top:42px;width:480px;height:390px;
+  opacity:.64;filter:drop-shadow(0 0 11px rgba(149,255,82,.65));
+  border-color:rgba(149,255,82,.83);
+}
+.pnr-page .pnr-hero-inner {
+  max-width:1400px;min-height:428px;
+  grid-template-columns:minmax(0,53%) minmax(0,47%);
+}
+.pnr-page .pnr-hero-copy{max-width:700px;padding-bottom:18px;}
+.pnr-page .pnr-hero h1 {
+  font-size:clamp(43px,3.73vw,69px);
+  letter-spacing:-.057em;line-height:1.08;max-width:680px;
+  margin-top:18px;
+}
+.pnr-page .pnr-hero-desc{max-width:525px;margin-top:20px;font-size:clamp(13px,1.05vw,16px);}
+.pnr-page .pnr-actions{margin-top:25px;}
+.pnr-page .pnr-btn {font-weight:750;letter-spacing:-.015em;}
+.pnr-page .pnr-btn:focus-visible,.pnr-page a:focus-visible,.pnr-page button:focus-visible {
+  outline:2px solid #c4ff9a;outline-offset:4px;
+}
+.pnr-page .pnr-hero-art{height:455px;align-self:end;overflow:visible;}
+.pnr-page .pnr-person{
+  width:102%;height:100%;right:-2%;bottom:0;
+  max-width:none;object-fit:contain;object-position:center bottom;
+  filter:contrast(1.08) saturate(1.05);
+  -webkit-mask-image:
+    linear-gradient(90deg,transparent 0%,#000 14%,#000 91%,transparent 100%),
+    linear-gradient(0deg,transparent 0%,#000 12%,#000 100%);
+  -webkit-mask-composite:source-in;
+  mask-image:
+    linear-gradient(90deg,transparent 0%,#000 14%,#000 91%,transparent 100%),
+    linear-gradient(0deg,transparent 0%,#000 12%,#000 100%);
+  mask-composite:intersect;
+}
+.pnr-page .pnr-hero-art::after {background:linear-gradient(90deg,#06150b 0%,transparent 15%,transparent 91%,#06150b70 100%);}
+.pnr-page .pnr-portrait-glow{filter:blur(22px);opacity:.5;}
+.pnr-page .pnr-benefits {
+  max-width:1280px;min-height:70px;
+  border-top:1px solid rgba(181,255,133,.17);
+}
+.pnr-page .pnr-benefits>div{font-size:11px;gap:11px;}
+/* Unite all sections in one green-black stage */
+.pnr-page :is(.pnr-solutions,.pnr-styles,.pnr-audiences,.pnr-pricing) {
+  background-color:transparent;
+  background-image:none;
+}
+.pnr-page .pnr-solutions{padding-top:40px;padding-bottom:35px;}
+.pnr-page .pnr-styles{padding-top:25px;padding-bottom:45px;}
+.pnr-page .pnr-audiences{padding-top:27px;padding-bottom:60px;}
+.pnr-page .pnr-pricing{
+  padding-top:66px;padding-bottom:36px;
+  background:radial-gradient(ellipse 68% 68% at 50% 42%,rgba(54,117,42,.14),transparent 83%);
+}
+.pnr-page .pnr-section-heading{max-width:1260px;margin-bottom:30px;}
+.pnr-page .pnr-section-heading h2{letter-spacing:-.055em;line-height:1.14;}
+.pnr-page .pnr-overline{font-weight:850;}
+/* Product trio */
+.pnr-page main .pnr-product {
+  min-height:90px;padding:17px 20px;
+  border-radius:17px;
+  background:linear-gradient(115deg,rgba(17,49,23,.96),rgba(6,25,13,.98));
+}
+.pnr-page main .pnr-product-lime{
+  border-color:#a6ff65b0;
+  box-shadow:inset 0 0 20px #7fff3921,0 0 26px #69ff3540,0 15px 30px #0005;
+}
+.pnr-page main .pnr-product-aqua:hover{border-color:#72ffdb;}
+.pnr-page main .pnr-product-violet:hover{border-color:#caafff;}
+.pnr-page .pnr-product-icon{background:#a7ff7017;border-color:#a7ff7055;}
+.pnr-page .pnr-product-text strong{color:#f7fff3;font-size:15px;}
+.pnr-page .pnr-product-text small{color:#c3d6c6;line-height:1.44;}
+.pnr-page .pnr-product-text .pnr-status{color:#d1aeff;}
+/* Cards showing the already-approved six images, keep original images intact */
+.pnr-page main .pnr-style-card {
+  background:#081b11;
+  border-radius:17px;
+  border-color:rgba(174,255,109,.48);
+  box-shadow:0 19px 35px #0009,0 0 0 1px #7cff350b;
+}
+.pnr-page .pnr-style-grid{width:min(1410px,100%);gap:16px;}
+.pnr-page .pnr-style-card picture{display:block;}
+.pnr-page .pnr-style-card img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;filter:contrast(1.035) saturate(1.07);}
+.pnr-page .pnr-footnote{color:#9fb79e;}
+/* Audiences: fully dark premium cards; global CSS formerly turned these WHITE */
+.pnr-page main .pnr-audience-card {
+  min-height:138px;
+  padding:20px 20px 19px;
+  border-radius:17px;
+  border-color:rgba(165,255,101,.40);
+  background:
+    radial-gradient(ellipse at 0% 0%,rgba(56,145,57,.19),transparent 66%),
+    linear-gradient(150deg,#13251a,#07170e 80%);
+  box-shadow:0 15px 28px #0006,inset 0 1px #e5ffd70b;
+}
+.pnr-page main .pnr-audience-card:nth-child(2){background:radial-gradient(circle at 0% 0%,#1e4c2836,transparent 63%),#091b10;}
+.pnr-page main .pnr-audience-card:nth-child(3){background:radial-gradient(circle at 0% 0%,#305b282b,transparent 63%),#0a1b12;}
+.pnr-page main .pnr-audience-card:nth-child(4){background:radial-gradient(circle at 0% 0%,#235a383c,transparent 63%),#091a12;}
+.pnr-page .pnr-audience-card strong{color:#f8fff5;font-size:15px;line-height:1.25;}
+.pnr-page .pnr-audience-card p{color:#c1d4c5;font-size:11px;}
+.pnr-page .pnr-audience-icon{color:#b6ff72;background:#aaff5b17;border-color:#aaff5b52;}
+.pnr-page .pnr-audience-arrow{color:#a9ff62;}
+/* Pricing must be dark and legible in every card, on hover and focus */
+.pnr-page .pnr-price-grid{max-width:1360px;gap:16px;align-items:stretch;padding-top:10px;}
+.pnr-page main .pnr-price-card {
+  min-height:468px;
+  padding:23px 21px 19px;
+  background:
+    radial-gradient(ellipse 85% 28% at 50% 0%,rgba(86,172,61,.15),transparent 100%),
+    linear-gradient(160deg,#12291a,#091b11 68%,#07170d);
+  border:1px solid rgba(172,255,123,.38);
+  border-radius:21px;
+  box-shadow:inset 0 1px rgba(250,255,235,.09),0 18px 38px rgba(0,0,0,.39);
+}
+.pnr-page main .pnr-price-card.is-featured {
+  background:
+    radial-gradient(ellipse 130% 60% at 44% -16%,rgba(134,255,72,.23),transparent 75%),
+    linear-gradient(159deg,#184321,#0b2616 65%,#06180e);
+  border-color:#afff68;
+  box-shadow:0 0 0 1px #a6ff5d49,0 0 42px #81ff3c38,inset 0 0 42px #b4ff5b14;
+}
+.pnr-page .pnr-price-top h3{color:#f9fff4;font-size:16px;}
+.pnr-page .pnr-price-top small{color:#b1c8b5;}
+.pnr-page .pnr-price-number{margin-top:11px;border-bottom:1px solid rgba(218,255,202,.2);}
+.pnr-page .pnr-price-number span{color:#bed5c1;}
+.pnr-page .pnr-price-number strong{color:#f7fff3;font-size:clamp(44px,3.6vw,60px);line-height:1.03;}
+.pnr-page .pnr-price-card.is-featured .pnr-price-number strong{color:#acff65;text-shadow:0 0 23px #80ff3c38;}
+.pnr-page .pnr-price-details>span{color:#c0ff9d;font-weight:850;}
+.pnr-page .pnr-price-details li{color:#e4f3e6;font-size:12px;}
+.pnr-page .pnr-price-details li svg{color:#b0ff69;}
+.pnr-page .pnr-price-button{
+  background:#1b3222;color:#eaf5e9;
+  border-color:#e2ffbc48;min-height:47px;
+  opacity:1;cursor:not-allowed;
+}
+.pnr-page .pnr-price-button.primary{color:#102009;background:#afff64;border-color:#caff95;}
+.pnr-page .pnr-price-pending{color:#9ebaa3;opacity:1;}
+.pnr-page .pnr-featured-label{color:#092309;font-size:9px;font-weight:900;}
+/* Guarantee + FAQ: matching cards with detailed green highlights */
+.pnr-page .pnr-trust{
+  width:min(1435px,100%);
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+  padding-top:43px;padding-bottom:54px;
+}
+.pnr-page .pnr-guarantee,.pnr-page .pnr-faq{
+  background:
+    radial-gradient(ellipse 80% 85% at 10% 100%,rgba(51,154,45,.26),transparent 80%),
+    linear-gradient(140deg,#09210f,#081810 82%);
+  border:1px solid rgba(169,255,98,.49);
+  box-shadow:inset 0 0 35px rgba(135,255,66,.055),0 15px 34px rgba(0,0,0,.2);
+  border-radius:20px;
+}
+.pnr-page .pnr-guarantee{gap:15px;min-height:240px;}
+.pnr-page .pnr-guarantee-copy h2{font-size:clamp(25px,2.15vw,34px);}
+.pnr-page .pnr-guarantee-copy p:last-child{font-size:12px;color:#d5e3d3;}
+.pnr-page .pnr-shield{color:#b2ff72;filter:drop-shadow(0 0 13px rgba(166,255,66,.5));}
+.pnr-page .pnr-seal{border:3px solid #baff6d;box-shadow:0 0 0 5px #b8ff6330,0 0 20px #94ff4265;}
+.pnr-page .pnr-faq{grid-template-columns:39% 61%;gap:10px;}
+.pnr-page .pnr-faq-item{background:rgba(7,27,14,.89);border-color:rgba(156,255,99,.24);}
+.pnr-page .pnr-faq-item button{color:#f0fff0;font-size:11px;}
+.pnr-page .pnr-faq-item p{color:#bfcebf;}
+/* An actual premium footer, visually connected to the page */
+.pnr-page .pnr-footer {
+  background:
+    radial-gradient(ellipse 38% 95% at -5% 100%,rgba(59,195,24,.22),transparent 76%),
+    radial-gradient(ellipse 40% 95% at 107% 110%,rgba(79,208,42,.21),transparent 78%),
+    linear-gradient(180deg,#092011,#06160b 94%);
+  border-top:1px solid #adff6552;
+  box-shadow:inset 0 15px 30px #a6ff5411;
+  padding:44px 25px 22px;
+}
+.pnr-page .pnr-footer-inner{grid-template-columns:2.1fr repeat(4,1fr);gap:35px;}
+.pnr-page .pnr-footer-brand p{color:#c5d7c6;font-size:12px;}
+.pnr-page .pnr-footer-column a{color:#bfcebf;}
+.pnr-page .pnr-footer-column a:hover{color:#b8ff83;}
+.pnr-page .pnr-socials span{
+  min-width:36px;text-align:center;border-color:#b0ff655e;
+  color:#efffea;background:#13281a;font-weight:700;
+}
+@media (max-width:1100px) {
+  .pnr-page .pnr-hero h1{font-size:clamp(38px,4.7vw,54px);}
+  .pnr-page .pnr-hero-art{height:405px;}
+  .pnr-page .pnr-price-grid{gap:12px;}
+  .pnr-page main .pnr-price-card{padding:20px 14px 17px;}
+  .pnr-page .pnr-price-number strong{font-size:48px;}
+  .pnr-page .pnr-guarantee{padding:20px 15px;}
+  .pnr-page .pnr-footer-inner{gap:16px;}
+}
+@media (max-width:800px) {
+  .pnr-page .pnr-hero{padding-top:34px;min-height:0;}
+  .pnr-page .pnr-hero-inner{grid-template-columns:1fr;min-height:0;}
+  .pnr-page .pnr-hero-copy{padding-bottom:0;}
+  .pnr-page .pnr-hero h1{font-size:clamp(39px,6.8vw,60px);margin-inline:auto;}
+  .pnr-page .pnr-hero-desc{margin-left:auto;margin-right:auto;}
+  .pnr-page .pnr-hero-art{height:350px;}
+  .pnr-page .pnr-hero-ring::before{top:37%;left:31%;width:330px;height:320px;}
+  .pnr-page .pnr-audience-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .pnr-page .pnr-price-grid{grid-template-columns:repeat(2,minmax(0,1fr));max-width:720px;}
+  .pnr-page main .pnr-price-card{padding:22px 19px 17px;}
+  .pnr-page .pnr-trust{grid-template-columns:1fr;width:min(700px,100%);}
+  .pnr-page .pnr-footer-inner{grid-template-columns:2fr repeat(2,1fr);}
+}
+@media (max-width:650px) {
+  .pnr-page .pnr-hero{padding:27px 16px 0;}
+  .pnr-page .pnr-hero h1{font-size:clamp(36px,10.3vw,50px);}
+  .pnr-page .pnr-hero-art{height:275px;margin:15px auto 0;}
+  .pnr-page .pnr-person{width:105%;right:-2%;height:100%;}
+  .pnr-page .pnr-hero-ring::before{width:300px;height:265px;top:53%;left:24%;opacity:.38;}
+  .pnr-page .pnr-benefits{min-height:auto;}
+  .pnr-page .pnr-section{padding-left:16px;padding-right:16px;}
+  .pnr-page .pnr-solutions{padding-top:30px;padding-bottom:24px;}
+  .pnr-page .pnr-styles{padding-top:28px;padding-bottom:32px;}
+  .pnr-page .pnr-style-grid{grid-template-columns:1fr;max-width:440px;}
+  .pnr-page .pnr-style-card img{aspect-ratio:9/16;object-fit:cover;}
+  .pnr-page .pnr-audiences{padding-top:25px;padding-bottom:42px;}
+  .pnr-page main .pnr-audience-card{min-height:158px;padding:17px 13px;}
+  .pnr-page .pnr-audience-card strong{font-size:12px;}
+  .pnr-page .pnr-audience-card p{font-size:10px;}
+  .pnr-page .pnr-pricing{padding-top:51px;padding-bottom:22px;}
+  .pnr-page .pnr-price-grid{grid-template-columns:1fr;max-width:430px;gap:19px;}
+  .pnr-page main .pnr-price-card{min-height:362px;padding:22px 22px 18px;}
+  .pnr-page .pnr-price-number strong{font-size:54px;}
+  .pnr-page .pnr-price-details li{font-size:12px;}
+  .pnr-page .pnr-trust{padding-top:20px;padding-bottom:45px;}
+  .pnr-page .pnr-guarantee{padding:24px 15px;}
+  .pnr-page .pnr-faq{grid-template-columns:1fr;}
+  .pnr-page .pnr-footer-inner{grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;}
+  .pnr-page .pnr-footer-brand{grid-column:1/-1;}
+}
+@media (prefers-reduced-motion:reduce) {
+ .pnr-page main :is(.pnr-product,.pnr-style-card,.pnr-audience-card,.pnr-price-card) {
+   transition:none;
+ }
+}
+
+/* Protect premium footer from the legacy !important rules on body footer
+   and body footer > div:first-child in globals.css. */
+body .pnr-page footer.pnr-footer {
+  padding:44px 25px 22px !important;
+  border-top:1px solid rgba(174,255,95,.55) !important;
+  background:
+    radial-gradient(ellipse 38% 95% at -5% 100%,rgba(59,195,24,.22),transparent 76%),
+    radial-gradient(ellipse 40% 95% at 107% 110%,rgba(79,208,42,.21),transparent 78%),
+    linear-gradient(180deg,#092011,#06160b 94%) !important;
+}
+body .pnr-page footer.pnr-footer > .pnr-footer-inner {
+  max-width:1350px !important;
+  width:100% !important;
+  display:grid !important;
+  grid-template-columns:2.1fr repeat(4,minmax(0,1fr)) !important;
+  align-items:start !important;
+  gap:35px !important;
+}
+body .pnr-page footer.pnr-footer a{color:#d6e4d3 !important;}
+body .pnr-page footer.pnr-footer a:hover{color:#b8ff83 !important;}
+body .pnr-page footer.pnr-footer .pnr-footer-brand p{color:#c5d7c6 !important;}
+body .pnr-page footer.pnr-footer .pnr-footer-column strong{letter-spacing:0 !important;}
+@media(max-width:1100px){
+  body .pnr-page footer.pnr-footer > .pnr-footer-inner{gap:16px !important;}
+}
+@media(max-width:800px){
+  body .pnr-page footer.pnr-footer > .pnr-footer-inner{
+    grid-template-columns:2fr repeat(2,minmax(0,1fr)) !important;
+    gap:24px !important;
+  }
+}
+@media(max-width:650px){
+  body .pnr-page footer.pnr-footer{padding:34px 20px 18px !important;}
+  body .pnr-page footer.pnr-footer > .pnr-footer-inner{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:23px !important;
+  }
+  body .pnr-page footer.pnr-footer .pnr-footer-brand{grid-column:1/-1;}
+}
