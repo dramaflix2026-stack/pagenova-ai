@@ -23,7 +23,9 @@ ENV NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY}
 RUN node scripts/build-universal-utilities.mjs && node scripts/install-frigolog.mjs && npx next typegen
 RUN npx tsc --noEmit --pretty false --incremental false
 # Stream test and TypeScript failures directly to Railway build logs for diagnosis.
-RUN bash -o pipefail -c 'npm run build 2>&1 | tee /dev/stderr'
+# Keep the full output in the build layer; emit its tail even when a test fails.
+# This avoids losing the actual failure to Railway's high-volume log cap.
+RUN bash -c 'npm run build > /tmp/pagenova-frontend-build.log 2>&1; status=$?; echo "[PageNova frontend build] exit=$status"; tail -n 220 /tmp/pagenova-frontend-build.log; exit $status'
 # Build CRM only after the protected frontend template validation has completed.
 # The CRM sync-frigolog step updates the shared template file in the build layer.
 WORKDIR /workspace/modules/stavo-crm
