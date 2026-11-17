@@ -107,11 +107,11 @@ export function PageNovaParticleSphere({ language = "pt" }: { language?: "pt" | 
         emissionAccumulator -= spawnCount;
         for (let i = 0; i < spawnCount && sparks.length < 170; i++) {
           const spread = (Math.random() - 0.5);
-          const speed = 0.065 + Math.random() * 0.075;
+          const speed = 0.00065 + Math.random() * 0.0004;
           sparks.push({
             x: spread * 0.09, y: -0.88 + Math.random() * 0.03,
             vx: spread * (0.00010 + Math.random() * 0.00020),
-            vy: -speed / 16.67,
+            vy: -speed,
             age: 0, life: 1050 + Math.random() * 800,
             radius: 0.8 + Math.random() * 1.2,
             color: Math.floor(Math.random() * 3),
@@ -172,7 +172,7 @@ export function PageNovaParticleSphere({ language = "pt" }: { language?: "pt" | 
         if (spark.age >= spark.life) { sparks.splice(i, 1); continue; }
         spark.x += spark.vx * dt;
         spark.y += spark.vy * dt;
-        spark.vy += 0.0000019 * dt;
+        spark.vy += 0.0000011 * dt;
         const lifeLeft = 1 - spark.age / spark.life;
         const px = cx + spark.x * radius;
         const py = cy + spark.y * radius;
