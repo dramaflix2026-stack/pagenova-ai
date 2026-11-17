@@ -5,6 +5,7 @@ import {isFullSiteCreationBrief} from "@/lib/builder-v2-universal-plan";
 import {MAKEUP_RE,prepareTP1MakeupSite} from "@/lib/tp1-makeup-niche";
 import {applyUniversalNaturalLanguage,splitUniversalInstructions} from "@/lib/builder-v2-universal-language";
 import {summarizeUniversalEdit} from "@/lib/builder-v2-universal-operations";
+import {applyIsolatedHeroTitleEdit} from "@/lib/builder-v2-hero-title-edit";
 import {diagnoseUniversalEditFailure,verifyUniversalEditResult} from "@/lib/builder-v2-universal-learning";
 import {findUniversalPreviewSections,universalPreviewSectionSelectors} from "@/lib/builder-v2-universal-preview-sections";
 import {planUniversalPreviewMove,auditUniversalPreviewMove,type UniversalPreviewMoveContract} from "@/lib/builder-v2-universal-preview-postconditions";
@@ -75,7 +76,7 @@ const nichePhotoBase="https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object
 type Block = { id: string; type: "heading" | "paragraph" | "button" | "image"; text: string; color: string; align: "left" | "center" | "right"; cardTitleAlign?: "left" | "center" | "right"; src?: string; mobileSrc?: string; forCardId?: string; imageFit?: "contain" | "cover"; imagePosition?: string; userUploaded?: boolean; imageExplicit?: boolean; textExplicit?: boolean; section?: string; fontSize?: number; radius?: number; spacing?: number; href?: string; layout?: "hero" | "grid" | "split" | "banner" | "faq" | "gallery" | "standard"; background?: string; columns?: number };
 type MenuItem = {id:string;name:string;description:string;price:number;category:string;image?:string};
 type RestaurantData = {whatsapp:string;menu:MenuItem[]};
-type Site = { universalSectionEvents?:import("@/lib/builder-v2-universal-operations").UniversalSectionEvent[]; design?:import("@/lib/builder-v2-brief-contract").AdaptiveDesign; extras?:Record<string,unknown>; cinematic?: {mode:"static"|"cinematic"|"immersive-3d";desktopUrl?:string;mobileUrl?:string;posterUrl?:string;overlay?:number}; properties?:PropertyItem[]; realEstateWhatsapp?:string; kind?:SiteCategory; restaurant?:RestaurantData; restaurantContent?:{menuTitle?:string;menuSubtitle?:string;footerTitle?:string;footerCentered?:boolean;footerSpacious?:boolean}; templateId?: "institutional-complete" | "minimalist-sophisticated" | "prompt-adaptive"; briefingLayoutVariant?:"01"|"02"|"03"; title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; heroPresentation?: "immersive" | "split"; crmImported?:boolean; designPaletteApplied?:boolean; heroComposition?: HeroComposition; heroBannerCopy?: Record<string,HeroBannerCopy>; sectionMediaLayouts?: Record<string,MediaLayout>; sectionMediaManaged?: string[]; processImageCard?: boolean; processImageCardTitle?: string; processImageCardDescription?: string; motion?: SiteMotion; footer?: (SocialFooter & {cnpj?:string;address?:string;email?:string;showMenu?:boolean}) };
+type Site = { universalHeroHeadingBlockId?:string; universalSectionEvents?:import("@/lib/builder-v2-universal-operations").UniversalSectionEvent[]; design?:import("@/lib/builder-v2-brief-contract").AdaptiveDesign; extras?:Record<string,unknown>; cinematic?: {mode:"static"|"cinematic"|"immersive-3d";desktopUrl?:string;mobileUrl?:string;posterUrl?:string;overlay?:number}; properties?:PropertyItem[]; realEstateWhatsapp?:string; kind?:SiteCategory; restaurant?:RestaurantData; restaurantContent?:{menuTitle?:string;menuSubtitle?:string;footerTitle?:string;footerCentered?:boolean;footerSpacious?:boolean}; templateId?: "institutional-complete" | "minimalist-sophisticated" | "prompt-adaptive"; briefingLayoutVariant?:"01"|"02"|"03"; title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; heroPresentation?: "immersive" | "split"; crmImported?:boolean; designPaletteApplied?:boolean; heroComposition?: HeroComposition; heroBannerCopy?: Record<string,HeroBannerCopy>; sectionMediaLayouts?: Record<string,MediaLayout>; sectionMediaManaged?: string[]; processImageCard?: boolean; processImageCardTitle?: string; processImageCardDescription?: string; motion?: SiteMotion; footer?: (SocialFooter & {cnpj?:string;address?:string;email?:string;showMenu?:boolean}) };
 type SiteCategory = "institutional" | "restaurant" | "real-estate" | "catalog";
 const restaurantSegments = [
   {id:"pizzaria",name:"Pizzaria",description:"Pizzas, bordas, tamanhos e combos"},
@@ -1290,6 +1291,37 @@ export default function BuilderV2() {
         setSite(next);setInstruction("");setGenerationError("");
         recordEditorLearningEvent(site.niche||"",prompt,"applied","fitness-override",site.briefingLayoutVariant||"01");captureReviewCandidate();
         setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:summary}]);
+        return;
+      }
+    }
+    // An explicit hero-heading request must change a real renderer-bound block,
+    // not only JSON text that a protected visual template never consumes.
+    // The parser is shared and safe for future renderers; enable this path
+    // only for the template family where the DOM block binding is verified.
+    if(site.blocks.length&&site.templateId==="prompt-adaptive"&&
+       site.briefingLayoutVariant==="02"&&resolveBriefingFamily(site.niche||"")===9&&
+       !isFullSiteCreationBrief(prompt)){
+      const heroChange=applyIsolatedHeroTitleEdit(site,prompt);
+      if(heroChange){
+        setMessages(previous=>[...previous,{role:"user",text:prompt}]);
+        if(!heroChange.ok){
+          recordEditorLearningEvent(site.niche||"",prompt,"rejected","hero-title-unresolved",site.briefingLayoutVariant||"01");
+          setMessages(previous=>[...previous,{role:"assistant",text:heroChange.error}]);
+          return;
+        }
+        const proof=planUniversalVisualProof(site,heroChange.site,heroChange.changedIds);
+        if(!proof.ok){
+          recordEditorLearningEvent(site.niche||"",prompt,"rejected","hero-title-no-visual-proof",site.briefingLayoutVariant||"01");
+          setMessages(previous=>[...previous,{role:"assistant",text:proof.reason+" A edição não foi confirmada."}]);
+          return;
+        }
+        pendingUniversalVisualProofRef.current={trace:activeSubmissionTraceRef.current,
+          prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",
+          contract:proof.contract,siteAfter:heroChange.site};
+        recordVersion(site,"Antes de editar o título principal");
+        setHistory(previous=>[...previous.slice(-19),site]);setRedoHistory([]);
+        setSite(heroChange.site);setInstruction("");setGenerationError("");
+        setMessages(previous=>[...previous,{role:"assistant",text:"Título vinculado ao cabeçalho renderizado. Conferindo na prévia antes de registrar o resultado."}]);
         return;
       }
     }
