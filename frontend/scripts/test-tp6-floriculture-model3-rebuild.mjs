@@ -17,7 +17,7 @@ test("Floricultura M3 opt-in is limited to variant 03 and niche Floricultura",()
  assert.match(route,/return <TP6FloricultureModel3/);
  assert.match(route,/if\(variant==="02"\)/);
  assert.match(route,/return <TP6FloricultureModel2/);
- assert.match(route,/return <TP6FloricultureModel1/);
+ assert.match(route,/return <TP10UniversalCustomSections blocks=\{props.site.blocks\} sectionEvents=\{props.site.universalSectionEvents\} floriculture><TP6FloricultureModel1/);
  assert.match(route,/BuilderV2TP6Model3Hero/);
  assert.match(model1,/export function TP6FloricultureModel1/);
  assert.match(model2,/export function TP6FloricultureModel2/);

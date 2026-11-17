@@ -23,7 +23,7 @@ test("Floricultura M2 only is opted-in, all generic and approved M1/M3 branches 
  assert.match(site,/if\(variant==="03"\)/);
  assert.match(site,/BuilderV2TP6Model2Hero/);
  assert.match(site,/BuilderV2TP6Model3Hero/);
- assert.match(site,/return <TP6FloricultureModel1/);
+ assert.match(site,/return <TP10UniversalCustomSections blocks=\{props.site.blocks\} sectionEvents=\{props.site.universalSectionEvents\} floriculture><TP6FloricultureModel1/);
  assert.match(model1,/export function TP6FloricultureModel1/);
  const route=manifest.protectedFiles.find(e=>e.path==="src/components/builder-v2-site.tsx");
  assert.match(route.approvedBindingRevision.reason,/Explicit user approval 2026-11-17/);
