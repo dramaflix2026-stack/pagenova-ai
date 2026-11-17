@@ -67,8 +67,8 @@
       "path": "src/components/builder-v2-site.tsx",
       "blobSha": "39f70209f2e11a82b84923c43d28eae10e4c344a",
       "approvedBindingRevision": {
-        "sha": "25dfd3397462cd1fcfe21669e91561d89efd1fdb",
-        "reason": "Explicit user approval 2026-11-17: TP6 Floricultura Model 03 standalone redesign, preserving approved Models 01/02, generic retail, Universal Editor and learning bindings."
+        "sha": "45cd87a8297c12f1cc6bb4f47b0afbf1de635a9e",
+        "reason": "Explicit user approval 2026-11-17: TP6 Floricultura Model 03 redesign with TypeScript-safe generic routing, preserving Models 01/02, Universal Editor and learning."
       }
     },
     {
