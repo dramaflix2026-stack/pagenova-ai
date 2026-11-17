@@ -95,14 +95,14 @@ test("production Builder passes the trace to existing Supabase event, retaining 
  assert.match(page,/confirmCloudEditorLearningReview\(client,user\.id,event\.id,reviewed\)/);
  assert.match(page,/\.eq\("id",eventId\)\.eq\("user_id",userId\)\.eq\("review_status","pending"\)/);
 });
-test("all three asynchronous visual audit paths capture original submission, including failed audits",()=>{
+test("all four asynchronous visual audit paths capture original submission, including failed audits",()=>{
  const page=readFileSync(new URL("../src/app/app/builder-v2/page.tsx",import.meta.url),"utf8");
  const assignments=(page.match(/\.current=\{trace:activeSubmissionTraceRef\.current,/g)||[]).length;
  const successfulAudits=(page.match(/pending\.trace\)/g)||[]).length;
  const failedAudits=(page.match(/pending\.trace,undefined,/g)||[]).length;
- assert.equal(assignments,7);
- assert.equal(successfulAudits,3,"three successful visual pathways retain the original request");
- assert.equal(failedAudits,3,"three failed visual pathways retain request ID plus evidence");
+ assert.equal(assignments,8,"seven existing pending paths plus the new universal proof retain request IDs");
+ assert.equal(successfulAudits,4,"four successful visual pathways retain the original request");
+ assert.equal(failedAudits,4,"four failed visual pathways retain request ID plus evidence");
  assert.match(page,/capturedSubmission===undefined\?activeSubmissionTraceRef\.current:capturedSubmission/);
 });
 
