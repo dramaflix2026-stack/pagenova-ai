@@ -14,6 +14,9 @@ export function planUniversalPreviewMove<T extends UniversalSite>(before:T,after
  const incoming=(after.universalSectionEvents||[]).slice(oldEvents.length).filter(event=>event.action==="move");
  if(incoming.length!==1)return null;
  const move=incoming[0];
+ // A freshly added section carries a placement event, NOT a movement of an existing section.
+ // Its proof belongs to section-new, which checks the new heading, cards and placement.
+ if(!before.blocks.some(block=>block.section===move.section.id))return null;
  const anchor=move.after?.id||move.before?.id;
  if(!anchor||!move.section.id||anchor===move.section.id)return null;
  const sectionBlocks=after.blocks.filter(block=>block.section===move.section.id);
