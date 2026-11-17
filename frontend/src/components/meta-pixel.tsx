@@ -1,7 +1,8 @@
 "use client";
 
 import Script from "next/script";
-import { useEffect } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
 declare global {
   interface Window {
@@ -10,25 +11,56 @@ declare global {
   }
 }
 
-const META_PIXEL_ID = "1051066844418593";
+const LEGACY_PIXEL_ID = "1051066844418593";
+const PUBLIC_LANDING_PIXEL_ID = "2101736870240618";
+const PUBLIC_LANDING_ROUTES = new Set(["/", "/en", "/es"]);
 
-export function MetaPixel() {
+/**
+ * The existing pixel continues to track the legacy app. When the new
+ * marketing homepage is deliberately enabled, only that homepage and its
+ * EN/ES routes use the dedicated landing pixel. Use trackSingle so a SPA
+ * navigation never records a PageView in both Meta datasets.
+ */
+export function MetaPixel({ newLandingEnabled = false }: { newLandingEnabled?: boolean }) {
+  const pathname = usePathname() ?? "/";
+  const isNewMarketingPage = newLandingEnabled && PUBLIC_LANDING_ROUTES.has(pathname);
+  const pixelId = isNewMarketingPage ? PUBLIC_LANDING_PIXEL_ID : LEGACY_PIXEL_ID;
+  const [scriptReady, setScriptReady] = useState(false);
+  const initialized = useRef(new Set<string>());
+  const lastTrackedPage = useRef("");
+  const oldViewContentSent = useRef(false);
+
   useEffect(() => {
+    if (!scriptReady || typeof window.fbq !== "function") return;
+
+    if (!initialized.current.has(pixelId)) {
+      window.fbq("init", pixelId);
+      initialized.current.add(pixelId);
+    }
+
+    const pageKey = pixelId + ":" + pathname;
+    if (lastTrackedPage.current !== pageKey) {
+      window.fbq("trackSingle", pixelId, "PageView");
+      lastTrackedPage.current = pageKey;
+    }
+
+    if (pixelId !== LEGACY_PIXEL_ID || oldViewContentSent.current) return;
     const timer = window.setTimeout(() => {
-      window.fbq?.("track", "ViewContent", {
+      if (oldViewContentSent.current) return;
+      window.fbq?.("trackSingle", LEGACY_PIXEL_ID, "ViewContent", {
         content_name: "PageNova AI",
         content_category: "SaaS",
         value: 97,
         currency: "BRL",
       });
+      oldViewContentSent.current = true;
     }, 500);
-
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [scriptReady, pixelId, pathname]);
 
   return (
     <>
-      <Script id="meta-pixel" strategy="afterInteractive">
+      <Script id="pagenova-meta-pixel-bootstrap" strategy="afterInteractive" onReady={() => setScriptReady(true)}>
         {`
           !function(f,b,e,v,n,t,s)
           {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -39,18 +71,14 @@ export function MetaPixel() {
           s.parentNode.insertBefore(t,s)}
           (window, document,'script',
           'https://connect.facebook.net/en_US/fbevents.js');
-
-          fbq('init', '${META_PIXEL_ID}');
-          fbq('track', 'PageView');
         `}
       </Script>
-
       <noscript>
         <img
           height="1"
           width="1"
           style={{ display: "none" }}
-          src={`https://www.facebook.com/tr?id=${META_PIXEL_ID}&ev=PageView&noscript=1`}
+          src={`https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1`}
           alt=""
         />
       </noscript>
