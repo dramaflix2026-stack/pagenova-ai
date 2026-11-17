@@ -2769,13 +2769,14 @@ body .pnr-page.pnr-shared-footer footer.pnr-footer.pnr-footer-onesignal::after{
   object-position:center!important;transform:none!important;animation:none!important;
  }
 }
-/* Guarantee EN must have the same perceived badge scale as approved PT-BR.
-   The EN source is more tightly framed, so its wrapper must be narrower. */
+/* English guarantee: use the new uploaded 16:9 artwork, retain its native
+   proportions and match the visible shield scale in the approved PT-BR layout.
+   Single EN rule block; the PT, ES and mobile artwork remain untouched. */
 @media(min-width:768px){
  body .pnr-page.pnr-shared-trust .pnr-trust .pnr-guarantee-full-art.pnr-guarantee-english{
-  display:block!important;width:min(100%,820px)!important;
-  max-width:820px!important;margin:0 auto 12px!important;padding:0!important;
-  min-height:0!important;
+  display:block!important;width:min(100%,1050px)!important;
+  max-width:1050px!important;margin:0 auto 12px!important;
+  padding:0!important;min-height:0!important;
  }
  body .pnr-page.pnr-shared-trust .pnr-trust .pnr-guarantee-english .pnr-guarantee-responsive-art{
   display:block!important;position:relative!important;
@@ -2783,23 +2784,14 @@ body .pnr-page.pnr-shared-footer footer.pnr-footer.pnr-footer-onesignal::after{
  }
  body .pnr-page.pnr-shared-trust .pnr-trust .pnr-guarantee-english .pnr-guarantee-full-image{
   display:block!important;width:100%!important;height:auto!important;
-  max-width:100%!important;max-height:none!important;object-fit:contain!important;
+  max-width:100%!important;max-height:none!important;
+  object-fit:contain!important;object-position:center!important;
  }
+ /* The particles belong to the shield, not the text or the dark margin. */
  body .pnr-page.pnr-shared-trust .pnr-guarantee-english .pnr-shield-particle-field{
-  top:14%!important;left:15%!important;width:33%!important;height:64%!important;
- }
- body .pnr-page.pnr-shared-trust .pnr-guarantee-english .pnr-shield-particle{
-  animation-name:pnrShieldParticleEruptEnglish!important;
+  left:13%!important;top:7%!important;width:35%!important;height:70%!important;
  }
 }
-@keyframes pnrShieldParticleEruptEnglish{
- 0%,7%{opacity:0;transform:translate3d(0,0,0) scale(.3)}
- 16%{opacity:.87;transform:translate3d(0,-3px,0) scale(.9)}
- 36%{opacity:.8;transform:translate3d(calc(var(--particle-drift) * .12),calc(var(--particle-rise) * .10),0) scale(.85)}
- 65%{opacity:.58;transform:translate3d(calc(var(--particle-drift) * .3),calc(var(--particle-rise) * .23),0) scale(.6)}
- 88%,100%{opacity:0;transform:translate3d(calc(var(--particle-drift) * .45),calc(var(--particle-rise) * .35),0) scale(.2)}
-}
-
 /* English copy is longer: keep it on the same visual scale as the PT heading. */
 @media(min-width:651px){
  .pnr-page .pnr-styles.pnr-styles--en .pnr-section-heading{
