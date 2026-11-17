@@ -84,11 +84,16 @@ test("Dedicated components parse as TSX",()=>{
  }
 });
 
-test("Collection titles stay inside their cards, and footer wordmark has restrained sizing",()=>{
- assert.match(css,/\.pn-floral1-collection-name>div\{min-width:0;flex:1 1 auto/);
- assert.match(css,/\.pn-floral1-collection-name h3\{font:400 clamp\(18px,1\.9vw,27px\)/);
- assert.match(css,/\.pn-floral1-collection-name h3\{[^}]*white-space:normal;overflow-wrap:break-word/);
- assert.match(css,/\.pn-floral1-collection-name>strong\{flex:0 0 auto/);
+test("Collection captions have dedicated padding, readable typography and a non-overlapping arrow",()=>{
+ assert.match(css,/\.pn-floral1-collection-card\{display:flex;flex-direction:column;min-width:0;overflow:hidden/);
+ assert.match(css,/\.pn-floral1-collection-name\{position:relative;display:block;flex:1 1 auto;min-width:0;min-height:151px;padding:24px 28px 29px/);
+ assert.match(css,/\.pn-floral1-collection-name>div\{min-width:0;padding-right:20px/);
+ assert.match(css,/\.pn-floral1-collection-name h3\{font:400 clamp\(21px,1\.75vw,27px\)/);
+ assert.match(css,/\.pn-floral1-collection-name h3\{[^}]*word-break:normal;hyphens:none/);
+ assert.match(css,/\.pn-floral1-collection-name p\{color:#5e6d62;font-size:13px;line-height:1\.7/);
+ assert.match(css,/\.pn-floral1-collection-name>strong\{position:absolute;top:25px;right:22px/);
+ assert.match(css,/@media\(max-width:860px\)\{[\s\S]*\.pn-floral1-collection-name\{min-height:158px;padding:22px 18px 24px\}/);
+ assert.match(css,/@media\(max-width:590px\)\{[\s\S]*\.pn-floral1-collection-name\{min-height:133px;padding:23px 22px 26px\}/);
  assert.match(css,/\.pn-floral1-footer-wordmark,\.pn-floral1-wordmark\{font-size:clamp\(42px,6vw,98px\)/);
  assert.match(css,/\.pn-floral1-wordmark\{font-size:clamp\(36px,8\.2vw,58px\)/);
  assert.ok(!css.includes(".tp6m2-")&&!css.includes(".tp6m3-"),"no CSS changes to protected models 02 or 03");
