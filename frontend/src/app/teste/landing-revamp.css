@@ -226,3 +226,55 @@
 .pnr-page a.pnr-price-button{cursor:pointer;position:relative;z-index:3;text-decoration:none;pointer-events:auto}
 .pnr-page a.pnr-price-button:hover{filter:brightness(1.13);transform:translateY(-2px)}
 .pnr-page .pnr-price-button-soon{cursor:not-allowed!important;opacity:.66!important;background:#26362b!important;color:#c5d1c6!important;border:1px dashed #80a485!important;box-shadow:none!important}
+
+
+/* Guarantee badge: erupting emerald particles. Artwork and its baked-in copy remain unchanged. */
+.pnr-page .pnr-trust .pnr-guarantee-eruption{
+ position:absolute;left:13%;top:4%;width:28%;height:83%;z-index:4;
+ pointer-events:none;isolation:isolate;overflow:visible;mix-blend-mode:screen;
+}
+.pnr-page .pnr-trust .pnr-guarantee-eruption-core{
+ position:absolute;left:50%;top:49%;width:93%;aspect-ratio:1;transform:translate(-50%,-50%);
+ border-radius:50%;background:radial-gradient(circle,rgba(175,255,120,.24),rgba(78,255,75,.085) 44%,transparent 70%);
+ filter:blur(10px);animation:pnrShieldCoreSurge 5.8s ease-in-out infinite;
+}
+.pnr-page .pnr-trust .pnr-guarantee-eruption-ring{
+ position:absolute;left:50%;top:49%;width:62%;aspect-ratio:1;
+ border:1.5px solid rgba(190,255,120,.6);border-radius:50%;
+ box-shadow:0 0 13px rgba(117,255,61,.55),inset 0 0 12px rgba(117,255,61,.23);
+ animation:pnrShieldShockwave 5.8s cubic-bezier(.16,.55,.3,1) infinite;
+}
+.pnr-page .pnr-trust .pnr-guarantee-eruption-ring--second{animation-delay:-2.9s}
+.pnr-page .pnr-trust .pnr-guarantee-eruption-spark{
+ display:block;position:absolute;border-radius:50%;
+ background:#c5ff9c;
+ box-shadow:0 0 4px 2px rgba(175,255,91,.68),0 0 13px 3px rgba(80,255,59,.42);
+ opacity:0;will-change:transform,opacity;
+ animation:pnrShieldErupt ease-out infinite;
+}
+@keyframes pnrShieldErupt{
+ 0%,18%,100%{opacity:0;transform:translate3d(0,0,0) scale(.25)}
+ 22%{opacity:.97;transform:translate3d(0,0,0) scale(1.35)}
+ 52%{opacity:.8}
+ 79%{opacity:0;transform:translate3d(var(--spark-x),var(--spark-y),0) scale(.45)}
+}
+@keyframes pnrShieldShockwave{
+ 0%,8%,100%{opacity:0;transform:translate(-50%,-50%) scale(.55)}
+ 18%{opacity:.82}
+ 62%{opacity:0;transform:translate(-50%,-50%) scale(1.8)}
+}
+@keyframes pnrShieldCoreSurge{
+ 0%,12%,100%{opacity:.12;transform:translate(-50%,-50%) scale(.86)}
+ 22%,38%{opacity:.76;transform:translate(-50%,-50%) scale(1.12)}
+ 70%{opacity:.24;transform:translate(-50%,-50%) scale(.97)}
+}
+@media(max-width:767px){
+ .pnr-page .pnr-trust .pnr-guarantee-eruption{left:20%;top:7%;width:60%;height:36%}
+ .pnr-page .pnr-trust .pnr-guarantee-eruption-ring{width:50%}
+}
+@media(prefers-reduced-motion:reduce){
+ .pnr-page .pnr-trust .pnr-guarantee-eruption,
+ .pnr-page .pnr-trust .pnr-guarantee-eruption *{animation:none!important}
+ .pnr-page .pnr-trust .pnr-guarantee-eruption-spark,
+ .pnr-page .pnr-trust .pnr-guarantee-eruption-ring{display:none}
+}
