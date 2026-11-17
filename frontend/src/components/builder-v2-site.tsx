@@ -48,6 +48,7 @@ import { Template5AIFuturistHero } from "@/components/template5-ai-futurist-hero
 import { Template5AIFuturistSections } from "@/components/template5-ai-futurist-sections";
 import { Template6RetailHero } from "@/components/template6-retail-hero";
 import { TP6FloricultureModel1 } from "@/components/builder-v2-floriculture-model1";
+import { TP6FloricultureModel2 } from "@/components/builder-v2-floriculture-model2";
 import { Template8HospitalityHero } from "@/components/template8-hospitality-hero";
 import { BuilderV2TP8Model2Hero } from "@/components/builder-v2-tp8-model2-hero";
 import { BuilderV2TP8Model3 } from "@/components/builder-v2-tp8-model3";
@@ -460,6 +461,17 @@ function BuilderV2SiteContent(props:BuilderV2SiteProps){
    };
    return <TP6LayoutChooser site={props.site} publishedMode={props.publishedMode} onVariantChange={props.onVariantChange}>{variant=>{   if(variant==="03"){const photos=getTP6Model2InternetPhotos(retailNiche,"03");return <div data-tp6-family="retail" data-tp6-variant="03" data-tp6-floral={retailNiche==="Floricultura"?"true":undefined}><TP6RetailPolishStyles/><TP6RetailEditStyles edits={props.site.tp6RetailEdits}/><BuilderV2TP6Model3Hero brand={props.site.header?.brand||props.site.title||retailNiche} niche={retailNiche} headline={heading} description={intro} photos={photos} ctaHref={props.site.header?.ctaHref}/><BuilderV2TP6Model3AboutAndValues brand={props.site.header?.brand||props.site.title||retailNiche} niche={retailNiche} photos={photos} edits={props.site.tp6RetailEdits}/><BuilderV2TP6Model3GalleryAndJourney niche={retailNiche} photos={photos} ctaHref={props.site.header?.ctaHref} edits={props.site.tp6RetailEdits}/><BuilderV2TP6Model3ReviewsFAQ niche={retailNiche} brand={props.site.header?.brand||props.site.title||retailNiche} blocks={props.site.blocks} contactHref={props.site.header?.ctaHref} publishedMode={props.publishedMode} edits={props.site.tp6RetailEdits}/><BuilderV2TP6Model3ContactNewsletter niche={retailNiche} email={props.site.footer?.email} whatsapp={props.site.footer?.whatsapp} address={props.site.footer?.address}/><TP6RetailLocation address={props.site.footer?.address} whatsapp={props.site.footer?.whatsapp}/><BuilderV2TP6Model3StoreFooter brand={props.site.header?.brand||props.site.title||retailNiche} niche={retailNiche} email={props.site.footer?.email} whatsapp={props.site.footer?.whatsapp} address={props.site.footer?.address} cnpj={props.site.footer?.cnpj}/></div>;} if(variant==="02"){
      const photos=getTP6Model2InternetPhotos(retailNiche,"02");
+     // Approved on 2026-11-17: editorial Floricultura Model 02 only.
+     // Other TP6 niches, Model 01/03, Universal Editor and learning stay intact.
+     if(retailNiche==="Floricultura"){
+      return <TP6FloricultureModel2
+       brand={props.site.header?.brand||props.site.title||"Jardim de Âmbar — Atelier Floral"}
+       headline={heading} description={intro} photos={photos}
+       edits={props.site.tp6RetailEdits}
+       reviews={readTP6RealReviews(props.site.blocks,6)}
+       email={props.site.footer?.email} whatsapp={props.site.footer?.whatsapp}
+       address={props.site.footer?.address}/>;
+     }
      return <div data-tp6-family="retail" data-tp6-variant="02" data-tp6-floral={retailNiche==="Floricultura"?"true":undefined}><TP6RetailPolishStyles/><TP6RetailEditStyles edits={props.site.tp6RetailEdits}/><BuilderV2TP6Model2Hero brand={props.site.header?.brand||props.site.title||retailNiche} niche={retailNiche} headline={heading} description={intro} image={photos[0]} ctaHref={props.site.header?.ctaHref} photos={photos}/><BuilderV2TP6Model2Sections brand={props.site.header?.brand||props.site.title||retailNiche} niche={retailNiche} photos={photos} edits={props.site.tp6RetailEdits}/><BuilderV2TP6Model2GalleryAndJourney niche={retailNiche} photos={photos} ctaHref={props.site.header?.ctaHref} edits={props.site.tp6RetailEdits}/><BuilderV2TP6Model2TestimonialsAndFAQ niche={retailNiche} brand={props.site.header?.brand||props.site.title||retailNiche} blocks={props.site.blocks} contactHref={props.site.header?.ctaHref} publishedMode={props.publishedMode} edits={props.site.tp6RetailEdits}/><BuilderV2TP6Model2ContactNewsletter niche={retailNiche} photos={photos} email={props.site.footer?.email} whatsapp={props.site.footer?.whatsapp} address={props.site.footer?.address}/><TP6RetailLocation address={props.site.footer?.address} whatsapp={props.site.footer?.whatsapp}/><BuilderV2TP6Model2StoreInfoFooter brand={props.site.header?.brand||props.site.title||retailNiche} niche={retailNiche} email={props.site.footer?.email} whatsapp={props.site.footer?.whatsapp} address={props.site.footer?.address} cnpj={props.site.footer?.cnpj} publishedMode={props.publishedMode}/></div>;
    }
    // Approved TP6 Floricultura Model 01 only. No changes to models 02/03,
