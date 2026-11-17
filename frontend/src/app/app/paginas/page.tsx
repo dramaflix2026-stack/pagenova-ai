@@ -13,6 +13,7 @@ import { renderSitePreview, type SiteProject } from "@/lib/site-builder";
 import { SiteHoverPreview } from "@/components/site-hover-preview";
 
 type BuilderV2LibraryProject = {kind:"builder-v2-site";id:string;title:string;updatedAt:number;site:{title:string;blocks:unknown[];niche?:string;briefingLayoutVariant?:string}};
+type BuilderV2CloudProject={id:string;title:string;updatedAt:string};
 
 type CloneProject = {
   id: string;
@@ -119,6 +120,7 @@ export default function PagesPage() {
     useState<CloneProject[]>([]);
   const [sites, setSites] = useState<SiteProject[]>([]);
   const [studioSites,setStudioSites]=useState<BuilderV2LibraryProject[]>([]);
+  const [cloudStudioSites,setCloudStudioSites]=useState<BuilderV2CloudProject[]>([]);
 
   const [loaded, setLoaded] =
     useState(false);
@@ -159,6 +161,17 @@ export default function PagesPage() {
         .sort((a,b)=>b.updatedAt-a.updatedAt));
     }).catch(() => {setSites([]);setStudioSites([]);});
   }, []);
+
+  useEffect(()=>{
+    let active=true;
+    fetch("/api/builder-v2/draft",{cache:"no-store",credentials:"same-origin"})
+      .then(async response=>{
+        if(!response.ok)throw new Error("Cloud project listing unavailable");
+        const result:{projects?:BuilderV2CloudProject[]}=await response.json();
+        if(active)setCloudStudioSites((result.projects??[]).filter(project=>/^[a-zA-Z0-9_-]{12,80}$/.test(project.id)));
+      }).catch(()=>{if(active)setCloudStudioSites([]);});
+    return()=>{active=false;};
+  },[]);
 
   function openProject(
     project: CloneProject
@@ -274,7 +287,7 @@ export default function PagesPage() {
       />
 
       <main className="mx-auto max-w-7xl px-6 py-10 lg:px-10">
-        {studioSites.length > 0 && <section className="mb-10">
+        {(studioSites.length > 0 || cloudStudioSites.length > 0) && <section className="mb-10">
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
             <div><h2 className="text-xl font-bold text-white sm:text-2xl">Projetos do PageNova Studio</h2><p className="mt-1 text-sm text-white/45">Sites gerados com IA, salvos como rascunho para continuar a edição.</p></div>
             <Link href="/app/builder-v2" className="rounded-xl border border-emerald-400/30 px-4 py-2.5 text-sm font-semibold text-emerald-200">+ Gerar site com IA</Link>
@@ -284,6 +297,12 @@ export default function PagesPage() {
             <h3 className="mt-3 break-words text-lg font-bold text-white">{project.title||"Site sem título"}</h3>
             <p className="mt-2 text-sm text-white/50">{project.site.niche||"Site criado com inteligência artificial"} · {project.site.blocks.length} blocos</p>
             <p className="mt-2 text-xs text-white/40">Última alteração: {new Date(project.updatedAt).toLocaleString("pt-BR")}</p>
+            <Link href={"/app/builder-v2?project="+encodeURIComponent(project.id)} className="mt-5 flex justify-center rounded-xl bg-emerald-400 px-4 py-3 text-sm font-bold text-[#14220f]">Continuar editando</Link>
+          </article>)}{cloudStudioSites.filter(project=>!studioSites.some(local=>local.id===project.id)).map(project=><article key={project.id} className="rounded-[22px] border border-emerald-400/25 bg-[#142019] p-5">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-300">Studio · Nuvem</span>
+            <h3 className="mt-3 break-words text-lg font-bold text-white">{project.title||"Site sem título"}</h3>
+            <p className="mt-2 text-sm text-white/50">Rascunho sincronizado com sua conta PageNova.</p>
+            <p className="mt-2 text-xs text-white/40">Última sincronização: {new Date(project.updatedAt).toLocaleString("pt-BR")}</p>
             <Link href={"/app/builder-v2?project="+encodeURIComponent(project.id)} className="mt-5 flex justify-center rounded-xl bg-emerald-400 px-4 py-3 text-sm font-bold text-[#14220f]">Continuar editando</Link>
           </article>)}</div>
         </section>}
