@@ -13,7 +13,7 @@ type ProofTask =
  | {kind:'block-present';id:string}
  | {kind:'block-absent';id:string}
  | {kind:'section-absent';section:string}
- | {kind:'section-new';section:string;heading:string;cardTitles:string[];preceding?:string;following?:string}
+ | {kind:'section-new';section:string;heading:string;cardTitles:string[];cardImages?:string[];preceding?:string;following?:string}
  | {kind:'section-color';section:string;color:string;target:'background'|'heading'}
  | {kind:'cta-color';color:string};
 export type UniversalVisualProof={version:1;tasks:ProofTask[]};
@@ -57,11 +57,15 @@ export function planUniversalVisualProof(before:UniversalSite,after:UniversalSit
    const heading=blocks.find(b=>b.type==='heading');
    if(!heading?.text)return fail('Nova seção não possui título verificável.');
    const titles=blocks.filter(b=>b.type==='heading').slice(1).map(b=>b.text||'');
+   const teamImages=blocks.filter(b=>b.type==='paragraph'&&typeof b.src==='string').map(b=>b.src!);
+   if(teamImages.length>0&&(teamImages.length!==titles.length||teamImages.some(src=>!/^https:\/\//i.test(src))))
+    return fail('As fotos dos cards não estão completas e verificáveis.');
+   const placement=[...(after.universalSectionEvents||[])].reverse().find(event=>event.action==='move'&&event.section.id===section);
    const start=after.blocks.findIndex(b=>b.section===section);
    const end=after.blocks.findLastIndex(b=>b.section===section);
-   const preceding=after.blocks.slice(0,start).reverse().find(b=>b.section&&b.section!==section)?.section;
-   const following=after.blocks.slice(end+1).find(b=>b.section&&b.section!==section)?.section;
-   tasks.push({kind:'section-new',section,heading:heading.text,cardTitles:titles,...(preceding?{preceding}:{}),...(following?{following}:{})});continue;
+   const preceding=placement?.after?.id||(placement?undefined:after.blocks.slice(0,start).reverse().find(b=>b.section&&b.section!==section)?.section);
+   const following=placement?.before?.id||(placement?undefined:after.blocks.slice(end+1).find(b=>b.section&&b.section!==section)?.section);
+   tasks.push({kind:'section-new',section,heading:heading.text,cardTitles:titles,...(teamImages.length?{cardImages:teamImages}:{}),...(preceding?{preceding}:{}),...(following?{following}:{})});continue;
   }
   if(!current&&previous){
    if(previous.section&&!after.blocks.some(b=>b.section===previous.section)){
@@ -128,6 +132,13 @@ export function auditUniversalVisualProof(root:ParentNode,win:Pick<Window,'getCo
    if(normalize(target.querySelector('h1,h2,h3')?.textContent||'')!==normalize(task.heading))return fail('Título da nova seção não corresponde ao pedido.');
    const actualCards=Array.from(target.querySelectorAll('article')).map(el=>normalize(el.querySelector('h3,h4')?.textContent||''));
    if(actualCards.length!==task.cardTitles.length||actualCards.some((v,i)=>v!==normalize(task.cardTitles[i])))return fail('Quantidade ou títulos dos cards não conferem.');
+   if(task.cardImages?.length){
+    const cards=Array.from(target.querySelectorAll('article'));
+    if(cards.length!==task.cardImages.length||cards.some((card,i)=>{
+     const image=card.querySelector('img');
+     return !image||image.getAttribute('src')!==task.cardImages![i]||!image.complete||image.naturalWidth<=0;
+    }))return fail('Uma ou mais fotos dos cards não estão carregadas na prévia.');
+   }
    if(task.preceding){const previous=section(task.preceding);if(previous.length!==1||!(previous[0].compareDocumentPosition(target)&4))return fail('Nova seção não aparece após a seção de referência.');}
    if(task.following){const following=section(task.following);if(following.length!==1||!(target.compareDocumentPosition(following[0])&4))return fail('Nova seção não aparece antes da próxima seção.');}
    continue;
