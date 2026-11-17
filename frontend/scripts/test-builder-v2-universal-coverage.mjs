@@ -61,3 +61,15 @@ test("Delivery 14: few perfect samples never prove 98%; failed edits count as fa
  assert.equal(result.tasks[0].ratePercent,null);
  assert.equal(result.hasEvidenceFor98Percent,false);
 });
+
+test("Delivery 15: 399 audited pairs on text alone do NOT prove universal success",()=>{
+ const rows=Array.from({length:399},(_,i)=>row(i+1,"copy","Nicho "+(Math.floor(i/3)+1),"0"+(i%3+1)));
+ const result=auditUniversalCoverage(rows,true);
+ assert.equal(result.coveredNiches,133);
+ assert.equal(result.nichesWithThreeModels,133);
+ assert.equal(result.coveredNicheModelPairs,399);
+ assert.equal(result.hasFull399PairCoverage,true);
+ assert.equal(result.tasks[0].coveredPairs,399);
+ assert.equal(result.tasks.find(x=>x.task==="image").coveredPairs,0);
+ assert.equal(result.hasEvidenceFor98Percent,false);
+});
