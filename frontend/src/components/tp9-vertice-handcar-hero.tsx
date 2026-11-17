@@ -6,7 +6,7 @@ type Props={brand:string;niche:string;headline?:string;description?:string;image
 const defaultPhoto="https://images.unsplash.com/photo-1677230017871-f19937f21a8c?auto=format&fit=crop&w=1800&q=85";
 const fallbackPhoto="https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=1800&q=85";
 
-export function TP9VerticeHandcarHero({headline,description,image,contactHref}:Props){
+export function TP9VerticeHandcarHero({headline,description,contactHref}:Props){
  const [menuOpen,setMenuOpen]=useState(false);
  const cleanHeadline=(headline||"").trim().replace(/^v[ée]rtice\s+auto\s+center\s*[:\-–—|.]?\s*/i,"").trim();
  const title=cleanHeadline.length>8?cleanHeadline:"Performance e confiança para seu veículo.";
@@ -14,7 +14,7 @@ export function TP9VerticeHandcarHero({headline,description,image,contactHref}:P
  // This approved visual is intentionally authoritative for Vértice until an
  // explicitly user-edited hero override is wired into the universal editor.
  // Seed/CRM-generated image blocks must never reinsert the old composite.
- const photo=image&&/^https:\/\//i.test(image)?image:defaultPhoto;
+ const photo=defaultPhoto;
  const contact=contactHref&&(/^(https?:\/\/|mailto:|tel:)/i.test(contactHref)||contactHref==="#tp9-contato")?contactHref:"#tp9-orcamento";
  const external=/^https?:\/\//i.test(contact);
  const closeMenu=()=>setMenuOpen(false);
@@ -93,7 +93,7 @@ export function TP9VerticeHandcarHero({headline,description,image,contactHref}:P
    </div>
   </div>
   <div className="vh-photo">
-   <img data-universal-hero-photo="true" src={photo} alt="Fotografia ilustrativa de manutenção de veículo em oficina automotiva" fetchPriority="high" onError={e=>{if(e.currentTarget.src!==fallbackPhoto)e.currentTarget.src=fallbackPhoto;}}/>
+   <img src={photo} alt="Fotografia ilustrativa de manutenção de veículo em oficina automotiva" fetchPriority="high" onError={e=>{if(e.currentTarget.src!==fallbackPhoto)e.currentTarget.src=fallbackPhoto;}}/>
    <span className="vh-photo-accent" aria-hidden="true"/>
    <div className="vh-photo-info"><strong>SEU VEÍCULO, NOSSA ATENÇÃO.</strong><span>Revisão · Diagnóstico · Manutenção</span></div>
   </div>

@@ -59,18 +59,16 @@ test("TP9 section: cannot produce a duplicate new section on repeated command",(
  const again=applyUniversalNaturalLanguage(result.site,promptTeam);
  assert.ok(again&&!again.ok);
 });
-test("TP9 preview integration: three model heroes expose image-verification marker",()=>{
- const sources=[
- "../src/components/tp9-vertice-handcar-hero.tsx",
- "../src/components/builder-v2-tp9-model2-hero.tsx",
- "../src/components/template9-automotive-hero.tsx",
- "../src/components/builder-v2-tp9-model3.tsx",
- "../src/components/tp9-vertice-m3-approved.tsx"
- ];
- for(const source of sources){
-  const code=readFileSync(new URL(source,import.meta.url),"utf8");
-  assert.match(code,/data-universal-hero-photo="true"/,source);
- }
+test("TP9 preview/publication integration uses opt-in bridge outside frozen templates",()=>{
+ const bridge=readFileSync(new URL("../src/components/builder-v2-hero-photo-override.tsx",import.meta.url),"utf8");
+ const preview=readFileSync(new URL("../src/app/app/builder-v2/page.tsx",import.meta.url),"utf8");
+ const published=readFileSync(new URL("../src/app/site/[slug]/page.tsx",import.meta.url),"utf8");
+ for(const selector of [".tp9m2-heroimg","#tp9-inicio .vh-photo img",".pn-t9-hero img","#tp9m3-home > img",".tp9v3-hero .tp9v3-cover"])
+  assert.ok(bridge.includes(selector),selector);
+ assert.match(bridge,/data-universal-hero-photo/);
+ assert.match(preview,/<UniversalIsolatedHeroPhoto src=/);
+ assert.match(published,/<UniversalIsolatedHeroPhoto src=/);
+ assert.match(published,/automotive={publishedFamily===9}/);
 });
 test("TP9 custom sections: real template anchor aliases and preview-gated three photos",()=>{
  const wrapper=readFileSync(new URL("../src/components/tp10-universal-custom-sections.tsx",import.meta.url),"utf8");

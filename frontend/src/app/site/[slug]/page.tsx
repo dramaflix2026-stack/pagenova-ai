@@ -3,6 +3,7 @@ import {headers} from "next/headers";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { BuilderV2Site, type BuilderV2SiteData } from "@/components/builder-v2-site";
 import {TP10UniversalCustomSections} from "@/components/tp10-universal-custom-sections";
+import {UniversalIsolatedHeroPhoto} from "@/components/builder-v2-hero-photo-override";
 import {builderV2PublishedStyleCss} from "@/lib/builder-v2-published-style-parity";
 import {resolveBriefingFamily} from "@/lib/briefing-template-families";
 import {RealEstateTemplate} from "@/components/builder-v2-real-estate";
@@ -64,6 +65,8 @@ export default async function PublishedBuilderV2({params}:{params:Promise<{slug:
   // Published snapshots must consume the same persisted universal section styles
   // as the Builder preview; these edits are not necessarily native template props.
   const publicVisualCss=builderV2PublishedStyleCss(publishedSite);
+  const publishedFamily=resolveBriefingFamily(niche||"");
+  const publishedHeroPhoto=(publishedSite as BuilderV2SiteData & {universalHeroImageOverride?:string}).universalHeroImageOverride;
   const sectionStyles=(publishedSite as BuilderV2SiteData & {universalSectionStyles?:Record<string,unknown>}).universalSectionStyles;
   const sectionCss=sectionStyles&&typeof sectionStyles==="object"&&!Array.isArray(sectionStyles)
     ?Object.entries(sectionStyles as Record<string,unknown>).flatMap(([section,raw])=>{
@@ -76,5 +79,5 @@ export default async function PublishedBuilderV2({params}:{params:Promise<{slug:
       const tp9=/(?:^|[-_])(?:servicos|services)(?:$|[-_])/i.test(section)?" ,#tp9-servicos":"";
       return [...rules,`[data-section-id="${section}"],[data-universal-section="${section}"],section[id="${section}"]${tp9}{background-color:${bg}!important}`];
     }).join("\n"):"";
-  return <main className="min-h-screen overflow-x-hidden bg-white">{sectionCss&&<style>{sectionCss}</style>}{publicVisualCss&&<style>{publicVisualCss}</style>}{payload.site.kind==="real-estate"?<RealEstateTemplate properties={payload.site.properties||[]} whatsapp={payload.site.realEstateWhatsapp||""} footer={payload.site.footer}/>:restaurant&&publishedTemplateId==="prompt-adaptive"&&(payload.site.briefingLayoutVariant==="02"||payload.site.briefingLayoutVariant==="03")?<BuilderV2Site site={publishedSite} templateId="prompt-adaptive" selectedNiche={niche} publishedMode />:restaurant?(pizza?<PizzeriaTemplate site={restaurantSite} segment={niche||"Pizzaria"}/>:<RestaurantSegmentTemplate site={restaurantSite} segment={niche||"Restaurante"}/>):resolveBriefingFamily(niche||"")===10?<TP10UniversalCustomSections blocks={publishedSite.blocks} sectionEvents={publishedSite.universalSectionEvents}><BuilderV2Site site={publishedSite} templateId={publishedTemplateId} selectedNiche={niche} publishedMode /></TP10UniversalCustomSections>:<BuilderV2Site site={publishedSite} templateId={publishedTemplateId} selectedNiche={niche} publishedMode />}</main>;
+  return <main className="min-h-screen overflow-x-hidden bg-white">{sectionCss&&<style>{sectionCss}</style>}{publicVisualCss&&<style>{publicVisualCss}</style>}{payload.site.kind==="real-estate"?<RealEstateTemplate properties={payload.site.properties||[]} whatsapp={payload.site.realEstateWhatsapp||""} footer={payload.site.footer}/>:restaurant&&publishedTemplateId==="prompt-adaptive"&&(payload.site.briefingLayoutVariant==="02"||payload.site.briefingLayoutVariant==="03")?<BuilderV2Site site={publishedSite} templateId="prompt-adaptive" selectedNiche={niche} publishedMode />:restaurant?(pizza?<PizzeriaTemplate site={restaurantSite} segment={niche||"Pizzaria"}/>:<RestaurantSegmentTemplate site={restaurantSite} segment={niche||"Restaurante"}/>):[9,10].includes(publishedFamily||-1)?<TP10UniversalCustomSections blocks={publishedSite.blocks} sectionEvents={publishedSite.universalSectionEvents} automotive={publishedFamily===9}><UniversalIsolatedHeroPhoto src={publishedFamily===9?publishedHeroPhoto:undefined}><BuilderV2Site site={publishedSite} templateId={publishedTemplateId} selectedNiche={niche} publishedMode /></UniversalIsolatedHeroPhoto></TP10UniversalCustomSections>:<BuilderV2Site site={publishedSite} templateId={publishedTemplateId} selectedNiche={niche} publishedMode />}</main>;
 }
