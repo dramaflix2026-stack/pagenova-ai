@@ -377,6 +377,24 @@ function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction
    {title:"Portfólio de aprendizagem",description:"Propostas de registros e apresentações para acompanhar competências desenvolvidas ao longo dos estudos."}
   ];
  }
+ // Three sample team cards are deliberately labeled, not represented as verified employees.
+ // The photo URLs come from real automotive workshop photography, never AI portraits.
+ const teamCards=requestedCount===3&&/(?:nossa equipe|equipe|profissionais)/.test(normalized(name))
+  &&/fotografia|foto|imagem/.test(normalized(instruction))
+  &&/nome/.test(normalized(instruction))
+  &&/especialidade/.test(normalized(instruction));
+ const teamPhotoUrls=[
+  "https://images.unsplash.com/photo-1771340012319-0b4fca008b54?auto=format&fit=crop&w=900&q=82",
+  "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=900&q=82",
+  "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=900&q=82"
+ ];
+ if(!cards.length&&teamCards){
+  cards=[
+   {title:"João Silva (exemplo)",description:"Especialidade: revisão e manutenção preventiva. Profissional demonstrativo; substitua nome e fotografia pelos dados reais."},
+   {title:"Mariana Costa (exemplo)",description:"Especialidade: diagnóstico automotivo. Profissional demonstrativo; substitua nome e fotografia pelos dados reais."},
+   {title:"Rafael Martins (exemplo)",description:"Especialidade: freios e suspensão. Profissional demonstrativo; substitua nome e fotografia pelos dados reais."}
+  ];
+ }
  // An ordinary four-differential request should not require the user to supply card titles.
  // Use neutral, editable sample copy; never fabricate business-specific achievements.
  if(!cards.length&&/\b(?:quatro|4)\s+diferenciais\b/i.test(instruction)){
@@ -412,9 +430,9 @@ function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction
   :"Conheça as informações e orientações sobre "+name.toLowerCase()+", organizadas para uma leitura simples e objetiva.";
  const entries=aftercare
   ?[{type:"heading",text:title},{type:"paragraph",text:introduction},...cards.map(card=>({type:"paragraph",text:card.title+": "+card.description}))]
-  :[{type:"heading",text:title},...cards.flatMap(card=>[
+  :[{type:"heading",text:title},...cards.flatMap((card,index)=>[
     {type:"heading",text:card.title},
-    {type:"paragraph",text:card.description}
+    {type:"paragraph",text:card.description,...(teamCards?{src:teamPhotoUrls[index]}:{})}
    ])];
  const operations:UniversalOperation[]=recoverStale?[{action:"remove-section",sectionId:staleId}]:[];let afterId=previous.id;
  for(let i=0;i<entries.length;i++){
