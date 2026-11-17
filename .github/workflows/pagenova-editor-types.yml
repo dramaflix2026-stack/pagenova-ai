@@ -7,6 +7,13 @@ on:
       - "frontend/src/lib/builder-v2-editor-*.ts"
       - "frontend/scripts/test-builder-v2-editor-*.mjs"
       - ".github/workflows/pagenova-editor-types.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "frontend/src/app/app/builder-v2/page.tsx"
+      - "frontend/src/lib/builder-v2-editor-*.ts"
+      - "frontend/scripts/test-builder-v2-editor-*.mjs"
+      - ".github/workflows/pagenova-editor-types.yml"
   workflow_dispatch:
 
 permissions:
