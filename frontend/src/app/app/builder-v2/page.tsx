@@ -15,6 +15,7 @@ import {planUniversalVisualProof,auditUniversalVisualProof,type UniversalVisualP
 import {resolveUniversalSection} from "@/lib/builder-v2-universal-targets";
 import {classifyUniversalFeedback,inferUniversalFeedbackFailureCode} from "@/lib/builder-v2-universal-feedback";
 import {learnReviewedExecutionRoute} from "@/lib/builder-v2-universal-online-learning";
+import {assessPreventiveRouteGate} from "@/lib/builder-v2-preventive-route-gate";
 import {commitExactEditorReview,selectPendingEditorReview} from "@/lib/builder-v2-universal-review";
 import {beginEditorSubmissionTrace,nextEditorOperationTrace,isValidEditorOperationTrace,type EditorSubmissionTrace,type EditorOperationTrace} from "@/lib/builder-v2-editor-attempt-trace";
 import {captureSafeEditorInstruction,isSafeEditorInstruction,type SafeEditorInstruction} from "@/lib/builder-v2-editor-safe-instruction";
@@ -336,8 +337,9 @@ async function readApprovedEditorPatterns(niche:string){
   const {data:{user}}=await client.auth.getUser();
   if(!user)return [];
   const {data,error}=await client.from("builder_editor_learning_events")
-   .select("intent,target,strategy,niche,model,section_key,failure_code,review_status,execution_status").eq("user_id",user.id)
-   .in("review_status",["approved","rejected"]).order("created_at",{ascending:false}).limit(500);
+   // Include pending operations so incomplete submissions never appear fully approved.
+   .select("id,request_id,operation_index,submitted_at,created_at,reviewed_at,intent,target,strategy,niche,model,section_key,failure_code,review_status,execution_status").eq("user_id",user.id)
+   .order("created_at",{ascending:false}).limit(500);
   if(error){console.warn("[editor-learning] Approved retrieval failed",error.code,error.message);return [];}
   return data||[];
  }catch(error){console.warn("[editor-learning] Approved retrieval exception",error);return [];}
@@ -480,7 +482,7 @@ export default function BuilderV2() {
   const pendingBackgroundVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;color:string;solution?:EditorSolutionMemory|null;reuse?:{sourceEventId:string;technique:string};trace?:EditorSubmissionTrace|null}|null>(null);
   const pendingSectionPhotoVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;src:string;solution?:EditorSolutionMemory|null;trace?:EditorSubmissionTrace|null}|null>(null);
   const pendingMoveVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;contract:UniversalPreviewMoveContract;solution?:EditorSolutionMemory|null;reuse?:{sourceEventId:string;technique:string};trace?:EditorSubmissionTrace|null}|null>(null);
-  const pendingUniversalVisualProofRef=useRef<{prompt:string;niche:string;variant:string;contract:UniversalVisualProof;siteAfter:Site;solution?:EditorSolutionMemory|null;reuse?:{sourceEventId:string;technique:string};trace?:EditorSubmissionTrace|null}|null>(null);
+  const pendingUniversalVisualProofRef=useRef<{prompt:string;niche:string;variant:string;contract:UniversalVisualProof;siteAfter:Site;strategy?:string;solution?:EditorSolutionMemory|null;reuse?:{sourceEventId:string;technique:string};trace?:EditorSubmissionTrace|null}|null>(null);
   const [previewVisualAudit,setPreviewVisualAudit]=useState<string|null>(null);
   useEffect(()=>{
     const styles=(site as unknown as Record<string,unknown>).universalSectionStyles as Record<string,{backgroundColor?:string;headingColor?:string;textColor?:string}>|undefined;
@@ -622,7 +624,7 @@ export default function BuilderV2() {
         {ok:false,reason:"A prévia não está disponível para conferir a edição."};
       if(result.ok){
         pendingUniversalVisualProofRef.current=null;window.clearInterval(timer);
-        recordEditorLearningEvent(pending.niche,pending.prompt,"applied","universal-five-types-visual-verified",
+        recordEditorLearningEvent(pending.niche,pending.prompt,"applied",pending.strategy||"universal-five-types-visual-verified",
           pending.variant,pending.solution?{...pending.solution,verification:"visual"}:null,pending.reuse,pending.trace);
         captureReviewCandidate();
         setMessages(previous=>[...previous,{role:"assistant",text:"Edição confirmada na prévia real. As alterações solicitadas foram verificadas visualmente. Avalie antes de aprovar."}]);
@@ -632,7 +634,7 @@ export default function BuilderV2() {
         const evidence=root&&win&&!stale?tasks.includes("block-image")?"dom-photo-absent":
           tasks.some(kind=>kind==="block-color"||kind==="section-color"||kind==="cta-color")?"dom-color-mismatch":
           tasks.some(kind=>kind==="block-align"||kind==="section-new")?"dom-layout-mismatch":undefined:undefined;
-        recordEditorLearningEvent(pending.niche,pending.prompt,"rejected","universal-five-types-visual-postcondition-failed",
+        recordEditorLearningEvent(pending.niche,pending.prompt,"rejected",pending.strategy?.startsWith("ai-editor")?"ai-editor-visual-postcondition-failed":"universal-five-types-visual-postcondition-failed",
           pending.variant,null,undefined,pending.trace,undefined,evidence);
         captureReviewCandidate();
         setMessages(previous=>[...previous,{role:"assistant",text:"Edição NÃO confirmada na prévia: "+result.reason+" Não marque como aprovada; o motor registrou a falha."}]);
@@ -1367,6 +1369,11 @@ export default function BuilderV2() {
         niche:site.niche||"",model:site.briefingLayoutVariant||"01",
         family:String(resolveBriefingFamily(site.niche||"")||""),template:site.templateId,instruction:prompt
       });
+      const preventiveGate=assessPreventiveRouteGate(approvedPatterns,{
+        intent:inferredIntent,target:inferredTarget,niche:site.niche||"",
+        model:site.briefingLayoutVariant||"01",sectionKey:inferredSectionKey,
+        recordsComplete:approvedPatterns.length<500
+      });
       const relevantPatterns=approvedPatterns.filter(pattern=>
         pattern.intent===inferredIntent&&pattern.target===inferredTarget&&
         (!pattern.section_key||!inferredSectionKey||pattern.section_key===inferredSectionKey));
@@ -1420,13 +1427,14 @@ export default function BuilderV2() {
       const aiScore=preferredStrategy["ai-editor"]||0;
       const universalScore=preferredStrategy.universal||0;
       const learnedAiEligible=inferredIntent!=="other"&&!compound&&!hasAttachments&&!imageChange&&
+        preventiveGate.allowAiPromotion&&
         (onlinePolicy.route==="ai-editor"||(onlinePolicy.route==="none"&&aiScore>=2&&aiScore>universalScore&&universalScore<0));
       // Approved solution techniques must be offered BEFORE older, hard-coded
       // color shortcuts. Otherwise the shortcuts swallow the next edit and
       // the memory can never be genuinely reused (a misleading false success).
       // Only a single, explicit background request may use this early adapter.
       if(approvedTechnique?.technique==="section-background"&&!compound&&!hasAttachments&&!imageChange&&
-         !(onlinePolicy.route==="ai-editor"&&onlinePolicy.usedEvidence)){
+         !(onlinePolicy.route==="ai-editor"&&onlinePolicy.usedEvidence&&preventiveGate.allowAiPromotion)){
         const learnedBackground=applyApprovedSectionBackground(site,prompt,approvedTechnique);
         if(learnedBackground?.ok){
           const checked=verifyUniversalEditResult(site,learnedBackground.site,learnedBackground.changedIds);
@@ -1531,7 +1539,7 @@ export default function BuilderV2() {
       const approvedCopyCount=(preferredStrategy["scoped-copy"]||0)+(preferredStrategy["copy"]||0);
       const preferScopedCopy=inferredIntent==="copy"&&!compound&&!hasAttachments&&
         !!scopedCopy&&"intent" in scopedCopy&&scopedCopy.intent.generateText&&
-        approvedCopyCount>=2&&!preferUniversal&&approvedCopyCount>(preferredStrategy.universal||0);
+        approvedCopyCount>=2&&preventiveGate.allowScopedCopyPromotion&&!preferUniversal&&approvedCopyCount>(preferredStrategy.universal||0);
       // A learned AI route is eligible only when it has positive reviewed evidence
       // and beats a negatively scored universal route. Compound edits remain atomic.
       // A verified approved technique can rescue the deterministic parser when
@@ -1539,12 +1547,12 @@ export default function BuilderV2() {
       // AI/copy handler. Do not contradict strongly evidenced AI route decisions.
       const memoryRouteOverride=shouldRerouteUsingApprovedTechnique(approvedTechnique,{
         compound,hasAttachments,imageChange,preferScopedCopy,learnedAiEligible,
-        strongAiEvidence:onlinePolicy.route==="ai-editor"&&onlinePolicy.usedEvidence
+        strongAiEvidence:onlinePolicy.route==="ai-editor"&&onlinePolicy.usedEvidence&&preventiveGate.allowAiPromotion
       });
       // Reuse the *method* for explicit section-background requests, reading the
       // requested new color and section from THIS prompt. No old values replayed.
       const guidedBackground=approvedTechnique?.technique==="section-background"&&!compound&&!hasAttachments&&!imageChange&&
-        !(onlinePolicy.route==="ai-editor"&&onlinePolicy.usedEvidence)
+        !(onlinePolicy.route==="ai-editor"&&onlinePolicy.usedEvidence&&preventiveGate.allowAiPromotion)
         ?applyApprovedSectionBackground(site,prompt,approvedTechnique):null;
       const guidedBackgroundApplied=!!guidedBackground?.ok;
       const memoryUsedForExecution=memoryRouteOverride||guidedBackgroundApplied;
@@ -1558,6 +1566,10 @@ export default function BuilderV2() {
         intent:inferredIntent,target:inferredTarget,
         reviewedEvents:relevantPatterns.length,
         onlineRoute:onlinePolicy.route,onlineEvidence:onlinePolicy.usedEvidence,
+        preventiveAiAllowed:preventiveGate.allowAiPromotion,
+        preventiveScopedCopyAllowed:preventiveGate.allowScopedCopyPromotion,
+        preventiveReviewed:preventiveGate.reviewedRequests,
+        preventiveLegacy:preventiveGate.legacyEvents,
         learnedSuccessRates:Object.fromEntries(Object.entries(onlinePolicy.metrics).map(([route,v])=>[route,Number(v.mean.toFixed(3))])),
         scores:preferredStrategy,
         learnedPreference:preferUniversal?"universal":"none",
@@ -2276,7 +2288,7 @@ export default function BuilderV2() {
         if(visual?.ok){
           pendingUniversalVisualProofRef.current={trace:activeSubmissionTraceRef.current,
             prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",
-            contract:visual.contract,siteAfter:incoming};
+            contract:visual.contract,siteAfter:incoming,strategy:"ai-editor-visual-verified"};
         }else{
           recordEditorLearningEvent(site.niche||"",prompt,"rejected","ai-editor-visual-unverifiable",
             site.briefingLayoutVariant||"01",undefined,undefined,activeSubmissionTraceRef.current);
