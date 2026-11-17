@@ -10,7 +10,7 @@ COPY . .
 # Previously Next.js served committed, stale /public/stavo-crm bundles, so CRM
 # source fixes never reached production despite successful Railway deployments.
 WORKDIR /workspace/frontend
-RUN npm ci --no-audit --no-fund --loglevel=verbose --fetch-retries=2 --fetch-timeout=120000
+RUN npm ci --no-audit --no-fund --loglevel=warn --fetch-retries=2 --fetch-timeout=120000
 
 # Next.js embeds NEXT_PUBLIC_* variables into browser bundles at build time.
 ARG NEXT_PUBLIC_SUPABASE_URL
@@ -23,9 +23,8 @@ ENV NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY}
 RUN node scripts/build-universal-utilities.mjs && node scripts/install-frigolog.mjs && npx next typegen
 RUN npx tsc --noEmit --pretty false --incremental false
 # Stream test and TypeScript failures directly to Railway build logs for diagnosis.
-# Keep the full output in the build layer; emit its tail even when a test fails.
-# This avoids losing the actual failure to Railway's high-volume log cap.
-RUN bash -c 'npm run build > /tmp/pagenova-frontend-build.log 2>&1; status=$?; echo "[PageNova frontend build] exit=$status"; tail -n 220 /tmp/pagenova-frontend-build.log; exit $status'
+# Stream build test failures directly to Railway without duplicating or hiding output.
+RUN echo '[PageNova CI] Starting all mandatory frontend regressions and production Next.js build' && npm run build
 # Build CRM only after the protected frontend template validation has completed.
 # The CRM sync-frigolog step updates the shared template file in the build layer.
 WORKDIR /workspace/modules/stavo-crm
