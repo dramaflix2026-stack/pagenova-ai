@@ -17,6 +17,11 @@ ARG NEXT_PUBLIC_SUPABASE_URL
 ARG NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 ENV NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
 ENV NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY}
+# Isolate full TypeScript validation before Next.js production build.
+# Keep strict checking and all approved template gates enabled; emit the exact
+# compiler errors independently of Next.js / its worker process.
+RUN node scripts/build-universal-utilities.mjs && node scripts/install-frigolog.mjs && npx next typegen
+RUN npx tsc --noEmit --pretty false --incremental false
 # Stream test and TypeScript failures directly to Railway build logs for diagnosis.
 RUN bash -o pipefail -c 'npm run build 2>&1 | tee /dev/stderr'
 # Build CRM only after the protected frontend template validation has completed.
