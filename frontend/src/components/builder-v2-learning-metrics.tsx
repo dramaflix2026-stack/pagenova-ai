@@ -3,6 +3,8 @@ import {useEffect,useState} from "react";
 import {createClient as createSupabaseBrowserClient} from "@/lib/supabase/client";
 import {measureFirstRequests,type FirstRequestMetrics,type MeasuredEditorEvent} from "@/lib/builder-v2-first-request-metrics";
 import {evaluateStrategyEvidence,type StrategyEvidence,type StrategyEvent,type SourceReview,type SourceMemory,type ReuseEdge} from "@/lib/builder-v2-strategy-evidence";
+import {auditFamilyTransfers,type FamilyTransferAudit,type FamilySourceReview,type FamilySolutionMemory,type FamilyTargetReview} from "@/lib/builder-v2-family-transfer-audit";
+import type {ReuseEdge as AuditedFamilyReuseEdge} from "@/lib/builder-v2-learned-technique-quarantine";
 
 const PAGE=500;
 const MAX_ROWS=10000;
@@ -16,11 +18,14 @@ export function BuilderV2LearningMetrics({enabled=false}:{enabled?:boolean}){
  const [metrics,setMetrics]=useState<FirstRequestMetrics|null>(null);
  const [strategyEvidence,setStrategyEvidence]=useState<StrategyEvidence|null>(null);
  const [strategyError,setStrategyError]=useState("");
+ const [familyTransferAudit,setFamilyTransferAudit]=useState<FamilyTransferAudit|null>(null);
+ const [familyTransferError,setFamilyTransferError]=useState("");
  useEffect(()=>{
   if(!expanded||!enabled)return;
   let active=true;
   const load=async()=>{
    setLoading(true);setError("");setStrategyError("");setStrategyEvidence(null);
+   setFamilyTransferAudit(null);setFamilyTransferError("");
    try{
     const client=createSupabaseBrowserClient();
     const {data:{user},error:authError}=await client.auth.getUser();
@@ -46,7 +51,7 @@ export function BuilderV2LearningMetrics({enabled=false}:{enabled?:boolean}){
     const reuseEdges:ReuseEdge[]=[];
     for(let offset=0;offset<MAX_ROWS;offset+=PAGE){
      const {data,error:reuseError}=await client.from("builder_editor_learning_reuses")
-      .select("event_id,source_event_id,technique").eq("user_id",user.id)
+      .select("event_id,source_event_id,technique,created_at").eq("user_id",user.id)
       .order("created_at",{ascending:false}).order("event_id",{ascending:false})
       .range(offset,offset+PAGE-1);
      if(reuseError)throw new Error("Atribuições de aprendizado indisponíveis.");
@@ -71,10 +76,10 @@ export function BuilderV2LearningMetrics({enabled=false}:{enabled?:boolean}){
       const batch=ids.slice(start,start+100);
       const [reviews,memory]=await Promise.all([
        client.from("builder_editor_learning_events")
-        .select("id,review_status,execution_status,reviewed_at")
+        .select("id,niche,model,review_status,execution_status,reviewed_at")
         .eq("user_id",user.id).in("id",batch),
        client.from("builder_editor_solution_memories")
-        .select("event_id,schema_version,verification")
+        .select("event_id,schema_version,verification,context")
         .eq("user_id",user.id).in("event_id",batch)
       ]);
       if(reviews.error||memory.error)throw new Error("Não foi possível validar a origem das soluções.");
@@ -84,11 +89,27 @@ export function BuilderV2LearningMetrics({enabled=false}:{enabled?:boolean}){
      if(active)setStrategyEvidence(evaluateStrategyEvidence(
       events as StrategyEvent[],reuseEdges,sourceEvents,sourceMemories,complete
      ));
+     const targetIds=[...new Set(reuseEdges.map(row=>row.event_id))];
+     const targets:FamilyTargetReview[]=[];
+     for(let offset=0;offset<targetIds.length;offset+=100){
+      const batch=targetIds.slice(offset,offset+100);
+      const {data,error:targetError}=await client.from("builder_editor_learning_events")
+       .select("id,niche,model,section_key,request_id,operation_index,submitted_at,created_at,reviewed_at,review_status,execution_status")
+       .eq("user_id",user.id).in("id",batch);
+      if(targetError)throw new Error("Registros de destino de transferência indisponíveis.");
+      targets.push(...(data||[]) as FamilyTargetReview[]);
+     }
+     if(active)setFamilyTransferAudit(auditFamilyTransfers(reuseEdges as AuditedFamilyReuseEdge[],
+      sourceEvents as FamilySourceReview[],sourceMemories as FamilySolutionMemory[],targets,complete));
     }catch{
-     if(active)setStrategyError("A origem das técnicas reutilizadas não foi confirmada. Comparação indisponível.");
+     if(active){
+      setStrategyError("A origem das técnicas reutilizadas não foi confirmada. Comparação indisponível.");
+      setFamilyTransferAudit(null);
+      setFamilyTransferError("Não foi possível validar as transferências entre nichos.");
+     }
     }
    }catch(err){
-    if(active){setMetrics(null);setStrategyEvidence(null);setError(err instanceof Error?err.message:"Não foi possível medir este histórico.");}
+    if(active){setMetrics(null);setStrategyEvidence(null);setFamilyTransferAudit(null);setError(err instanceof Error?err.message:"Não foi possível medir este histórico.");}
    }finally{if(active)setLoading(false);}
   };
   void load();
@@ -161,6 +182,19 @@ export function BuilderV2LearningMetrics({enabled=false}:{enabled?:boolean}){
         "Há amostra para comparar, mas nenhuma estratégia demonstrou superioridade estatística.":
        "Comparação inconclusiva: é preciso ter pelo menos 30 solicitações verificadas por estratégia, com histórico completo."}</p>
       <p className="text-[11px] text-white/45">A atribuição exige aprovação anterior à solicitação e memória validada visualmente. “Sem reutilização registrada” não significa ausência de influência da IA. Não há sorteio experimental nem comprovação causal.</p>
+     </div>}
+    </div>
+    <div className="rounded-lg border border-white/15 p-3" aria-label="Entrega 12: transferência entre nichos">
+     <p className="font-semibold text-lime-300">Transferência entre nichos · Entrega 12</p>
+     <p className="mt-1 text-white/60">Monitoramento por técnica aprendida e nicho de destino, separado por conta.</p>
+     {familyTransferError&&<p role="status" className="mt-2 text-amber-200">{familyTransferError}</p>}
+     {familyTransferAudit&&<div className="mt-3 space-y-2">
+      <p className="text-white/80">Reutilizações registradas no mesmo nicho: <strong>{familyTransferAudit.recordedSameNiche}</strong>. Entre nichos: <strong>{familyTransferAudit.recordedCrossNiche}</strong>.</p>
+      <p className="text-white/70">Mesmo nicho, com evidência completa: {familyTransferAudit.verifiedSameNicheApproved} aprovadas · {familyTransferAudit.verifiedSameNicheRejected} reprovadas.</p>
+      <p className="text-white/70">Entre nichos, com evidência completa: {familyTransferAudit.verifiedCrossNicheApproved} aprovadas · {familyTransferAudit.verifiedCrossNicheRejected} reprovadas.</p>
+      <p className="text-white/60">Registros inconclusivos: {familyTransferAudit.unverifiable}; pendentes: {familyTransferAudit.pending}. Destinos bloqueados preventivamente: {familyTransferAudit.blockedDestinations.size}.</p>
+      {familyTransferAudit.recordedCrossNiche===0&&<p className="text-amber-200">Ainda não há reutilizações reais registradas entre nichos diferentes nesta conta.</p>}
+      <p className="text-[11px] leading-relaxed text-white/45">Aprovações históricas sem data da solicitação não contam como transferências comprovadas. Bloqueios são específicos da técnica, origem e destino. A meta de 98%–99% permanece não demonstrada.</p>
      </div>}
     </div>
     <p className="text-[11px] leading-relaxed text-white/45">Uma solicitação = um identificador de comando. Várias operações do mesmo comando contam uma vez e precisam ser avaliadas. Não inferimos que mensagens separadas sejam correções do mesmo trabalho; esta medição não comprova, sozinha, acerto na primeira tentativa de uma tarefa inteira nem efeito causal do aprendizado.</p>
