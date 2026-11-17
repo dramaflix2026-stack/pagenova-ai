@@ -2666,23 +2666,25 @@
     margin: 0 auto 16px !important;
   }
 }
-/* Crop only the English desktop artwork to the same horizontal band as PT-BR. */
+/* English uses the approved PT-BR responsive image behavior: display the
+   complete artwork at its intrinsic ratio, never crop text or the shield. */
 @media (min-width: 768px) {
   .pnr-page .pnr-trust .pnr-guarantee-english .pnr-guarantee-responsive-art {
     display: block !important;
     position: relative !important;
     width: 100% !important;
-    aspect-ratio: 2.9 / 1 !important;
     height: auto !important;
-    overflow: hidden !important;
+    aspect-ratio: auto !important;
+    overflow: visible !important;
   }
-  .pnr-page .pnr-trust .pnr-guarantee-english .pnr-guarantee-full-image {
+  .pnr-page .pnr-trust .pnr-guarantee-english .pnr-guarantee-responsive-art > .pnr-guarantee-full-image {
     display: block !important;
-    position: absolute !important;
-    inset: 0 !important;
+    position: static !important;
+    inset: auto !important;
     width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
+    height: auto !important;
+    max-height: none !important;
+    object-fit: contain !important;
     object-position: center !important;
   }
 }
