@@ -2580,3 +2580,36 @@
   animation:none!important;transition:none!important;transform:none!important;
  }
 }
+
+
+/* Regression fix: always render the original guarantee artwork on desktop.
+   Mobile artwork and its existing responsive treatment remain untouched. */
+@media (min-width: 768px) {
+  .pnr-page .pnr-trust .pnr-guarantee-full-art {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    min-height: 1px !important;
+  }
+  .pnr-page .pnr-trust .pnr-guarantee-responsive-art {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+  .pnr-page .pnr-trust .pnr-guarantee-responsive-art > .pnr-guarantee-full-image {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    object-fit: contain !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+  }
+  .pnr-page .pnr-trust .pnr-guarantee-mobile {
+    display: none !important;
+  }
+}
