@@ -40,16 +40,16 @@
 .pn-floral1-top>p{max-width:360px;color:#5e6d61;line-height:1.85;font-size:14px;margin:0 0 7px}
 .pn-floral1-collections{background:#f3eee6}
 .pn-floral1-collection-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(16px,2.1vw,34px)}
-.pn-floral1-collection-card{display:block;min-width:0}
+.pn-floral1-collection-card{display:flex;flex-direction:column;min-width:0;overflow:hidden;border-radius:12px;background:#fffcf7;box-shadow:0 14px 32px #18312519}
 .pn-floral1-collection-photo{position:relative;aspect-ratio:4/4.9;overflow:hidden;background:#e5dfd4}
 .pn-floral1-collection-photo img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .8s}
 .pn-floral1-collection-card:hover img{transform:scale(1.055)}
 .pn-floral1-collection-photo span{position:absolute;top:19px;left:19px;padding:9px 12px;background:#f5efe7ee;font-size:11px;letter-spacing:.1em}
-.pn-floral1-collection-name{display:flex;justify-content:space-between;align-items:flex-start;gap:9px;min-width:0;border-bottom:1px solid #8e978a6b;padding:17px 0 20px}
-.pn-floral1-collection-name>div{min-width:0;flex:1 1 auto;overflow-wrap:break-word}
-.pn-floral1-collection-name h3{font:400 clamp(18px,1.9vw,27px)/1.2 Georgia,serif;letter-spacing:-.02em;margin:0 0 8px;white-space:normal;overflow-wrap:break-word;hyphens:auto}
-.pn-floral1-collection-name p{color:#667168;font-size:12px;line-height:1.65;margin:0;white-space:normal;overflow-wrap:break-word}
-.pn-floral1-collection-name>strong{flex:0 0 auto;font-size:18px;font-weight:400;line-height:1.35}
+.pn-floral1-collection-name{position:relative;display:block;flex:1 1 auto;min-width:0;min-height:151px;padding:24px 28px 29px;background:#fffcf7;border-bottom:1px solid #d5d2c8}
+.pn-floral1-collection-name>div{min-width:0;padding-right:20px;overflow-wrap:normal}
+.pn-floral1-collection-name h3{font:400 clamp(21px,1.75vw,27px)/1.24 Georgia,serif;letter-spacing:-.022em;margin:0 0 12px;white-space:normal;overflow-wrap:normal;word-break:normal;hyphens:none}
+.pn-floral1-collection-name p{color:#5e6d62;font-size:13px;line-height:1.7;margin:0;white-space:normal;overflow-wrap:normal;word-break:normal}
+.pn-floral1-collection-name>strong{position:absolute;top:25px;right:22px;display:block;font-size:21px;font-weight:400;line-height:1.2;color:#335843}
 .pn-floral1-about{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);align-items:center;gap:clamp(45px,6vw,110px);background:#faf7f0}
 .pn-floral1-about-photos{position:relative;min-height:650px}
 .pn-floral1-about-large{display:block;width:79%;height:590px;object-fit:cover}
@@ -175,6 +175,9 @@
 .pn-floral1-about-large{height:480px}
 .pn-floral1-benefits-photo{height:450px}
 .pn-floral1-top{align-items:start;flex-direction:column;gap:15px}
+.pn-floral1-collection-name{min-height:158px;padding:22px 18px 24px}
+.pn-floral1-collection-name>strong{right:15px;top:21px}
+.pn-floral1-collection-name h3{font-size:21px}
 .pn-floral1-review-card{min-height:295px}
 .pn-floral1-reviews-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 .pn-floral1-steps{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -198,6 +201,9 @@
 .pn-floral1 h2{font-size:clamp(38px,10.5vw,58px)}
 .pn-floral1-collection-grid{grid-template-columns:1fr;gap:36px}
 .pn-floral1-collection-photo{aspect-ratio:4/4.1}
+.pn-floral1-collection-name{min-height:133px;padding:23px 22px 26px}
+.pn-floral1-collection-name>strong{right:19px;top:23px}
+.pn-floral1-collection-name h3{font-size:clamp(23px,6.3vw,29px)}
 .pn-floral1-about-photos{min-height:360px}
 .pn-floral1-about-large{height:320px;width:80%}
 .pn-floral1-about-small{height:175px;width:47%;border-width:7px}
