@@ -56,6 +56,22 @@ export function PageNovaParticleSphere({ language = "pt" }: { language?: "pt" | 
     let glow: CanvasGradient;
     const palette = ["#60df68", "#88ff70", "#c5ff91"];
     const alphaLevels = [0.43, 0.54, 0.65, 0.76];
+    // Controlled energy eruptions: independent lightweight sparks above the globe.
+    type Spark = {
+      x: number; y: number; vx: number; vy: number;
+      age: number; life: number; radius: number; color: number;
+    };
+    const sparks: Spark[] = [];
+    let elapsed = 0;
+    let nextEruption = 1800;
+    let emissionLeft = 0;
+    let emissionAccumulator = 0;
+    const launchEruption = () => {
+      emissionLeft = 700 + Math.random() * 400;
+      emissionAccumulator = 0;
+      nextEruption = elapsed + 6500 + Math.random() * 3500;
+    };
+
 
     const resize = () => {
       const rect = stage.getBoundingClientRect();
@@ -81,6 +97,27 @@ export function PageNovaParticleSphere({ language = "pt" }: { language?: "pt" | 
       const dt = lastTime ? Math.min(48, time - lastTime) : 16.67;
       lastTime = time;
       angle += dt * 0.000095;
+      elapsed += dt;
+      if (elapsed >= nextEruption && emissionLeft <= 0) launchEruption();
+      if (emissionLeft > 0) {
+        emissionLeft = Math.max(0, emissionLeft - dt);
+        emissionAccumulator += dt * 0.075;
+        // Cap live particles and frame emissions to avoid reintroducing stutter.
+        const spawnCount = Math.min(8, Math.floor(emissionAccumulator));
+        emissionAccumulator -= spawnCount;
+        for (let i = 0; i < spawnCount && sparks.length < 170; i++) {
+          const spread = (Math.random() - 0.5);
+          const speed = 0.065 + Math.random() * 0.075;
+          sparks.push({
+            x: spread * 0.09, y: -0.88 + Math.random() * 0.03,
+            vx: spread * (0.00010 + Math.random() * 0.00020),
+            vy: -speed / 16.67,
+            age: 0, life: 1050 + Math.random() * 800,
+            radius: 0.8 + Math.random() * 1.2,
+            color: Math.floor(Math.random() * 3),
+          });
+        }
+      }
       // Time-based exponential smoothing: same response at 30/60/120 Hz.
       const smooth = 1 - Math.exp(-dt / 85);
       tiltX += (targetX - tiltX) * smooth;
@@ -122,6 +159,34 @@ export function PageNovaParticleSphere({ language = "pt" }: { language?: "pt" | 
         for (let d = 0; d < 4; d++) {
           ctx.globalAlpha = alphaLevels[d];
           ctx.fill(batches[c * 4 + d]);
+        }
+      }
+      ctx.globalAlpha = 1;
+
+      // Small green plume with outward drift, gravity and transparent fade.
+      // Sparks are drawn in one path per color/fade group for low canvas overhead.
+      const sparkPaths = Array.from({ length: 9 }, () => new Path2D());
+      for (let i = sparks.length - 1; i >= 0; i--) {
+        const spark = sparks[i];
+        spark.age += dt;
+        if (spark.age >= spark.life) { sparks.splice(i, 1); continue; }
+        spark.x += spark.vx * dt;
+        spark.y += spark.vy * dt;
+        spark.vy += 0.0000019 * dt;
+        const lifeLeft = 1 - spark.age / spark.life;
+        const px = cx + spark.x * radius;
+        const py = cy + spark.y * radius;
+        const pr = Math.max(0.35, spark.radius * dotScale * (0.7 + 0.3 * lifeLeft));
+        const fade = Math.min(2, Math.floor((1 - lifeLeft) * 3));
+        const path = sparkPaths[spark.color * 3 + fade];
+        path.moveTo(px + pr, py);
+        path.arc(px, py, pr, 0, Math.PI * 2);
+      }
+      for (let color = 0; color < 3; color++) {
+        ctx.fillStyle = palette[color];
+        for (let fade = 0; fade < 3; fade++) {
+          ctx.globalAlpha = [0.88, 0.52, 0.19][fade];
+          ctx.fill(sparkPaths[color * 3 + fade]);
         }
       }
       ctx.globalAlpha = 1;
