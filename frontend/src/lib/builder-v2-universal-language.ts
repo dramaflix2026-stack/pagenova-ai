@@ -988,9 +988,9 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,ra
   // preceding clause. This is ONE scoped heading, not all headings/cards.
   // Resolve against this request's fresh move event; never use old events to
   // infer intent. The entire compound instruction remains atomic.
-  const quotedHeadingAlignment=actionableClause.match(/^(?:centralize|alinhe(?:\\s+ao\\s+centro)?)\\s+(?:somente\\s+|apenas\\s+)?(?:o\\s+)?t[ií]tulo\\s+["“']([^"”']{1,150})["”']\\s*[.!?]?$/i);
+  const quotedHeadingAlignment=actionableClause.match(/^(?:centralize|alinhe(?:\s+ao\s+centro)?)\s+(?:somente\s+|apenas\s+)?(?:o\s+)?t[ií]tulo\s+["“']([^"”']{1,150})["”']\s*[.!?]?$/i);
   if(quotedHeadingAlignment&&!contextualResult){
-   const normalizeHeading=(text:string)=>text.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").trim().toLowerCase().replace(/\\s+/g," ");
+   const normalizeHeading=(text:string)=>text.normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim().toLowerCase().replace(/\s+/g," ");
    const desiredTitle=normalizeHeading(quotedHeadingAlignment[1]);
    const initialEvents=site.universalSectionEvents||[];
    const moved=(current.universalSectionEvents||[]).slice(initialEvents.length).filter(event=>event.action==="move");
