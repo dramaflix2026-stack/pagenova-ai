@@ -36,7 +36,7 @@ export function PageNovaParticleSphere({ language = "pt" }: { language?: "pt" | 
         z,
         size: 0.65 + ((Math.sin(i * 18.319) + 1) * 0.5) * 0.80,
         phase: i * 2.39996,
-        color: i % 11 === 0 ? "#c5ff91" : i % 4 === 0 ? "#88ff70" : "#60df68",
+        colorIndex: i % 11 === 0 ? 2 : i % 4 === 0 ? 1 : 0,
       };
     });
 
@@ -53,35 +53,43 @@ export function PageNovaParticleSphere({ language = "pt" }: { language?: "pt" | 
     let targetY = 0;
     let angle = 0;
     let lastTime = 0;
+    let glow: CanvasGradient;
+    const palette = ["#60df68", "#88ff70", "#c5ff91"];
+    const alphaLevels = [0.43, 0.54, 0.65, 0.76];
 
     const resize = () => {
       const rect = stage.getBoundingClientRect();
       width = Math.max(1, rect.width);
       height = Math.max(1, rect.height);
-      pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+      // Avoid rendering a huge high-DPI backing canvas on laptops.
+      pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
       canvas.width = Math.round(width * pixelRatio);
       canvas.height = Math.round(height * pixelRatio);
       canvas.style.width = width + "px";
       canvas.style.height = height + "px";
       ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+      const cx = width / 2, cy = height / 2;
+      const radius = Math.min(width, height) * (230 / 700);
+      glow = ctx.createRadialGradient(cx, cy, radius * 0.05, cx, cy, radius * 1.27);
+      glow.addColorStop(0, "rgba(72,215,84,0.075)");
+      glow.addColorStop(0.67, "rgba(38,147,61,0.048)");
+      glow.addColorStop(1, "rgba(0,0,0,0)");
     };
 
     const draw = (time: number) => {
       if (disposed || !visible) { running = false; return; }
-      const dt = lastTime ? Math.min(40, time - lastTime) : 16;
+      const dt = lastTime ? Math.min(48, time - lastTime) : 16.67;
       lastTime = time;
-      angle += dt * 0.000095; // ~66 seconds per full rotation
-      tiltX += (targetX - tiltX) * 0.038;
-      tiltY += (targetY - tiltY) * 0.038;
+      angle += dt * 0.000095;
+      // Time-based exponential smoothing: same response at 30/60/120 Hz.
+      const smooth = 1 - Math.exp(-dt / 85);
+      tiltX += (targetX - tiltX) * smooth;
+      tiltY += (targetY - tiltY) * smooth;
 
       ctx.clearRect(0, 0, width, height);
       const cx = width / 2;
       const cy = height / 2;
       const radius = Math.min(width, height) * (230 / 700);
-      const glow = ctx.createRadialGradient(cx, cy, radius * 0.05, cx, cy, radius * 1.27);
-      glow.addColorStop(0, "rgba(72,215,84,0.075)");
-      glow.addColorStop(0.67, "rgba(38,147,61,0.048)");
-      glow.addColorStop(1, "rgba(0,0,0,0)");
       ctx.fillStyle = glow;
       ctx.beginPath();
       ctx.arc(cx, cy, radius * 1.28, 0, Math.PI * 2);
@@ -91,23 +99,30 @@ export function PageNovaParticleSphere({ language = "pt" }: { language?: "pt" | 
       const pitch = -0.16 + tiltX;
       const cyaw = Math.cos(yaw), syaw = Math.sin(yaw);
       const cpitch = Math.cos(pitch), spitch = Math.sin(pitch);
-
+      const dotScale = Math.min(width, height) / 700;
+      // Batch draw calls: 12 path fills instead of 2,400 individual fills.
+      // This avoids expensive canvas state changes per particle.
+      const batches = Array.from({ length: 12 }, () => new Path2D());
       for (const p of points) {
         const xx = p.x * cyaw + p.z * syaw;
         const zz = p.z * cyaw - p.x * syaw;
         const yy = p.y * cpitch - zz * spitch;
         const depth = p.y * spitch + zz * cpitch;
-        // Real sphere projection, depth-aware brightness and size.
         const perspective = 1 + depth * 0.035;
         const px = cx + xx * radius * perspective;
         const py = cy + yy * radius * perspective;
-        const twinkle = 0.86 + 0.14 * Math.sin(time * 0.00115 + p.phase);
-        const opacity = (0.37 + (depth + 1) * 0.20) * twinkle;
-        ctx.globalAlpha = opacity;
-        ctx.fillStyle = p.color;
-        ctx.beginPath();
-        ctx.arc(px, py, Math.max(0.4, p.size * (Math.min(width, height) / 700) * (0.94 + 0.10 * depth)), 0, Math.PI * 2);
-        ctx.fill();
+        const twinkle = 0.92 + 0.08 * Math.sin(time * 0.00115 + p.phase);
+        const dotRadius = Math.max(0.4, p.size * dotScale * (0.94 + 0.10 * depth) * twinkle);
+        const depthBand = Math.min(3, Math.max(0, Math.floor((depth + 1) * 2)));
+        batches[p.colorIndex * 4 + depthBand].moveTo(px + dotRadius, py);
+        batches[p.colorIndex * 4 + depthBand].arc(px, py, dotRadius, 0, Math.PI * 2);
+      }
+      for (let c = 0; c < 3; c++) {
+        ctx.fillStyle = palette[c];
+        for (let d = 0; d < 4; d++) {
+          ctx.globalAlpha = alphaLevels[d];
+          ctx.fill(batches[c * 4 + d]);
+        }
       }
       ctx.globalAlpha = 1;
       frame = window.requestAnimationFrame(draw);
