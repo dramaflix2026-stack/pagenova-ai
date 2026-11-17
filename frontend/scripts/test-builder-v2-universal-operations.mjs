@@ -1692,7 +1692,10 @@ test("builder only logs success for moved sections after visual confirmation",()
  assert.ok(page.includes("pendingMoveVisualReviewRef.current={trace:activeSubmissionTraceRef.current,prompt"));
  assert.ok(page.includes('recordEditorLearningEvent(pending.niche,pending.prompt,"applied","universal-move-visual-verified"'));
  assert.ok(page.includes('recordEditorLearningEvent(pending.niche,pending.prompt,"rejected","universal-move-visual-postcondition-failed"'));
- assert.ok(page.includes("if(!movementPlan&&!pendingLearnedVisual){recordEditorLearningEvent("));
+ // Section moves keep their own verifier; other edits now require rendered proof.
+ assert.ok(page.includes("const needsUniversalProof=!movementPlan&&!guidedBackgroundApplied"));
+ assert.ok(page.includes("if(universalProof?.ok)pendingUniversalVisualProofRef.current="));
+ assert.ok(!page.includes("if(!movementPlan&&!pendingLearnedVisual){recordEditorLearningEvent("));
  assert.ok(page.includes("if(pendingLearnedVisual)pendingBackgroundVisualReviewRef.current="));
 });
 
