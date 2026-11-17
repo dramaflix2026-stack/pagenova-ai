@@ -5,10 +5,11 @@
  */
 import type {EditorSolutionMemory,SolutionDelta} from "./builder-v2-universal-solution-memory.ts";
 import {resolveBriefingFamily} from "./briefing-template-families.ts";
+import {destinationFamilyTransferKey} from "./builder-v2-family-transfer-audit.ts";
 export type ReviewedSolutionCase={
  event_id:string;intent:string;target:string;section_key?:string|null;strategy:string;
  review_status:string;execution_status:string;
- verification:"model"|"visual";context:EditorSolutionMemory["context"];deltas:SolutionDelta[];blockedTechniques?:string[];
+ verification:"model"|"visual";context:EditorSolutionMemory["context"];deltas:SolutionDelta[];blockedTechniques?:string[];blockedTransferDestinations?:string[];
 };
 export type SolutionRoutingContext={
  intent:string;target:string;sectionKey?:string;niche:string;model:string;family:string;template?:string;
@@ -97,6 +98,10 @@ export function selectApprovedExecutionTechnique(records:readonly ReviewedSoluti
    if(!d||typeof d!=="object"||!compatibleSection(d,context))continue;
    const technique=actionRelevant(d,context);
    if(!technique||(transfer&&!portableFamilyTechniques.has(technique))||item.blockedTechniques?.includes(technique))continue;
+    // Scope transfer quarantine to source technique + destination niche/model/section.
+    // A destination failure must not poison a valid same-niche solution.
+    if(transfer&&item.blockedTransferDestinations?.includes(
+      destinationFamilyTransferKey(item.event_id,technique,context.niche,context.model,context.sectionKey||"")))continue;
    const score=(sameNiche?10:4)+(sameFamily?2:0)+(item.verification==="visual"?3:0)+(!!item.section_key?1:0);
    matches.push({sourceEventId:item.event_id,technique,score,verification:item.verification,
     scope:transfer?"family":"niche",...(sameFamily?{familyId:requestedFamily!}:{})});
