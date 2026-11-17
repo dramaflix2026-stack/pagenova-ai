@@ -2775,3 +2775,46 @@ body .pnr-page.pnr-shared-footer footer.pnr-footer.pnr-footer-onesignal::before,
 body .pnr-page.pnr-shared-footer footer.pnr-footer.pnr-footer-onesignal::after{
  content:none!important;display:none!important;
 }
+
+/* English-only fidelity fixes: source banners are ultra-wide, so use contain
+   in the approved 16:9 frame instead of cover-cropping their left-hand copy. */
+@media(min-width:651px){
+ .pnr-page .pnr-styles .pnr-style-card--en picture{
+  position:relative!important;display:flex!important;align-items:center!important;
+  justify-content:center!important;width:100%!important;aspect-ratio:16/9!important;
+  overflow:hidden!important;background-color:#06140c!important;
+ }
+ .pnr-page .pnr-styles .pnr-style-card--en picture img{
+  position:relative!important;display:block!important;width:100%!important;
+  height:100%!important;aspect-ratio:auto!important;max-width:100%!important;
+  max-height:100%!important;object-fit:contain!important;
+  object-position:center center!important;transform:none!important;
+ }
+}
+/* English guarantee has text baked into a wide desktop artwork.
+   Keep every word in frame, normalize its apparent size to the other languages. */
+@media(min-width:768px){
+ body .pnr-page.pnr-shared-trust .pnr-trust .pnr-guarantee-full-art.pnr-guarantee-english{
+  width:min(100%,840px)!important;max-width:840px!important;
+  margin:0 auto 28px!important;padding:0!important;
+ }
+ body .pnr-page.pnr-shared-trust .pnr-trust .pnr-guarantee-english .pnr-guarantee-responsive-art,
+ body .pnr-page.pnr-shared-trust .pnr-trust .pnr-guarantee-english .pnr-guarantee-full-image{
+  display:block!important;width:100%!important;height:auto!important;
+  max-height:none!important;object-fit:contain!important;object-position:center!important;
+ }
+ /* Particle plume stays close to the shield instead of drifting into the preceding section. */
+ body .pnr-page.pnr-shared-trust .pnr-guarantee-english .pnr-shield-particle-field{
+  top:4%!important;left:15%!important;width:33%!important;height:76%!important;
+ }
+ body .pnr-page.pnr-shared-trust .pnr-guarantee-english .pnr-shield-particle{
+  animation-name:pnrShieldParticleEruptEnglish!important;
+ }
+}
+@keyframes pnrShieldParticleEruptEnglish{
+ 0%,7%{opacity:0;transform:translate3d(0,0,0) scale(.3)}
+ 16%{opacity:.85;transform:translate3d(0,-4px,0) scale(.9)}
+ 36%{opacity:.78;transform:translate3d(calc(var(--particle-drift) * .13),calc(var(--particle-rise) * .12),0) scale(.85)}
+ 65%{opacity:.56;transform:translate3d(calc(var(--particle-drift) * .35),calc(var(--particle-rise) * .30),0) scale(.6)}
+ 88%,100%{opacity:0;transform:translate3d(calc(var(--particle-drift) * .55),calc(var(--particle-rise) * .42),0) scale(.2)}
+}
