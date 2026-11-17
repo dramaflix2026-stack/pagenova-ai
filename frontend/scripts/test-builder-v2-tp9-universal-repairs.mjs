@@ -5,6 +5,7 @@ import {isAutomotiveHeroPhotoIntent,applyAutomotiveHeroPhoto,automotiveMechanicW
 import {applyUniversalNaturalLanguage} from "../src/lib/builder-v2-universal-language.ts";
 import {planUniversalPreviewMove} from "../src/lib/builder-v2-universal-preview-postconditions.ts";
 import {planUniversalVisualProof} from "../src/lib/builder-v2-editor-visual-proof.ts";
+import {verifyUniversalEditResult} from "../src/lib/builder-v2-universal-learning.ts";
 
 const promptPhoto="Substitua somente a imagem principal da primeira seção por uma fotografia real de um mecânico trabalhando em um veículo dentro de uma oficina automotiva moderna. Preserve o texto, os botões, as cores e todas as outras imagens.";
 const promptTeam='Adicione uma nova seção chamada "Nossa Equipe" imediatamente antes da seção de contato, contendo três cards com fotografia, nome e especialidade de cada profissional. Utilize identidade visual compatível com o site. Não duplique nenhuma seção e mantenha o rodapé na última posição.';
@@ -53,11 +54,52 @@ test("TP9 section: creates three photographic demo personnel before contact with
  assert.equal(newTask.cardTitles.length,3);
  assert.equal(newTask.cardImages.length,3);
 });
-test("TP9 section: cannot produce a duplicate new section on repeated command",()=>{
- const result=applyUniversalNaturalLanguage(site,promptTeam);
- assert.ok(result?.ok);
- const again=applyUniversalNaturalLanguage(result.site,promptTeam);
- assert.ok(again&&!again.ok);
+test("TP9 section: repeat rescues existing invisible section by asserting position, never duplicating",()=>{
+ const first=applyUniversalNaturalLanguage(site,promptTeam);
+ assert.ok(first?.ok);
+ const again=applyUniversalNaturalLanguage(first.site,promptTeam);
+ assert.ok(again?.ok,JSON.stringify(again));
+ assert.equal(again.site.blocks.filter(x=>x.section==="custom-nossa-equipe").length,7);
+ assert.equal(new Set(again.site.blocks.map(b=>b.id)).size,again.site.blocks.length);
+ assert.equal(planUniversalPreviewMove(first.site,again.site)?.sectionId,"custom-nossa-equipe");
+ assert.equal(planUniversalPreviewMove(first.site,again.site)?.cardPhotos?.length,3);
+ assert.equal(verifyUniversalEditResult(first.site,again.site,again.changedIds).ok,true);
+});
+test("TP9 section: recover prior generic ghost without overwriting other sections",()=>{
+ const first=applyUniversalNaturalLanguage(site,promptTeam);
+ assert.ok(first?.ok);
+ const genericTitles=["Nossa Equipe","Informações essenciais","Cuidados e recomendações","Próximos passos"];
+ const genericTexts=["Conheça os principais pontos e orientações relacionados à nossa equipe.","Observe as orientações adequadas ao seu contexto e esclareça dúvidas com a equipe responsável.","Entre em contato para receber informações complementares e definir os próximos passos."];
+ let titleIndex=0,paragraphIndex=0;
+ const ghost={...first.site,blocks:first.site.blocks.map(b=>{
+  if(b.section!=="custom-nossa-equipe")return b;
+  if(b.type==="heading")return {...b,text:genericTitles[titleIndex++]};
+  if(b.type==="paragraph"){const {src,...other}=b;return {...other,text:genericTexts[paragraphIndex++]};}
+  return b;
+ })};
+ const recovered=applyUniversalNaturalLanguage(ghost,promptTeam);
+ assert.ok(recovered?.ok,JSON.stringify(recovered));
+ const cards=recovered.site.blocks.filter(x=>x.section==="custom-nossa-equipe");
+ assert.equal(cards.length,7);
+ assert.equal(cards.filter(x=>x.type==="paragraph"&&x.src).length,3);
+ assert.equal(cards.filter(x=>x.type==="heading").length,4);
+ assert.equal(recovered.site.blocks.at(-1).section,"footer");
+ assert.deepEqual(recovered.site.blocks.filter(x=>!x.section.startsWith("custom-")),site.blocks);
+ const plan=planUniversalPreviewMove(ghost,recovered.site);
+ assert.equal(plan?.cardPhotos?.length,3);
+ assert.equal(plan?.direction,"before");
+ assert.equal(verifyUniversalEditResult(ghost,recovered.site,recovered.changedIds).ok,true);
+});
+test("TP9 section: protects individually edited existing personnel details",()=>{
+ const first=applyUniversalNaturalLanguage(site,promptTeam);
+ assert.ok(first?.ok);
+ const customized={...first.site,blocks:first.site.blocks.map(b=>
+  b.section==="custom-nossa-equipe"&&b.type==="heading"&&b.text?.includes("(exemplo)")?
+   {...b,text:"Ana Lima — técnica",textExplicit:true}:b
+ )};
+ const result=applyUniversalNaturalLanguage(customized,promptTeam);
+ assert.ok(result&&!result.ok);
+ assert.deepEqual(customized.blocks.filter(b=>b.section==="custom-nossa-equipe").length,7);
 });
 test("TP9 preview/publication integration uses opt-in bridge outside frozen templates",()=>{
  const bridge=readFileSync(new URL("../src/components/builder-v2-hero-photo-override.tsx",import.meta.url),"utf8");
