@@ -56,22 +56,47 @@ export function PageNovaParticleSphere({ language = "pt" }: { language?: "pt" | 
     let glow: CanvasGradient;
     const palette = ["#60df68", "#88ff70", "#c5ff91"];
     const alphaLevels = [0.43, 0.54, 0.65, 0.76];
-    // Controlled energy eruptions: independent lightweight sparks above the globe.
+    // Five independent emission zones, rotating naturally through the visible globe.
+    // Emitters are on the silhouette; avoid simultaneous continuous fireworks.
     type Spark = {
       x: number; y: number; vx: number; vy: number;
       age: number; life: number; radius: number; color: number;
     };
-    const sparks: Spark[] = [];
-    let elapsed = 0;
-    let nextEruption = 1800;
-    let emissionLeft = 0;
-    let emissionAccumulator = 0;
-    const launchEruption = () => {
-      emissionLeft = 700 + Math.random() * 400;
-      emissionAccumulator = 0;
-      nextEruption = elapsed + 6500 + Math.random() * 3500;
+    type Zone = {
+      x: number; y: number; dx: number; dy: number;
+      nextAt: number; activeUntil: number; emitRate: number; accumulator: number;
+      power: number;
     };
-
+    const sources = [
+      { x: 0, y: -0.94, dx: 0, dy: -1 },
+      { x: -0.55, y: -0.78, dx: -0.50, dy: -0.86 },
+      { x: 0.55, y: -0.78, dx: 0.50, dy: -0.86 },
+      { x: -0.92, y: -0.25, dx: -0.93, dy: -0.36 },
+      { x: 0.92, y: -0.25, dx: 0.93, dy: -0.36 },
+    ];
+    const zones: Zone[] = sources.map((source, i) => ({
+      ...source,
+      nextAt: 1700 + i * 1150 + Math.random() * 1350,
+      activeUntil: 0,
+      emitRate: 0,
+      accumulator: 0,
+      power: 1,
+    }));
+    const sparks: Spark[] = [];
+    const maxSparks = 170;
+    let elapsed = 0;
+    let lastEmissionAt = -3000;
+    const interval = (min: number, max: number) => min + Math.random() * (max - min);
+    const activate = (zone: Zone) => {
+      // Most eruptions are delicate; occasionally a stronger one appears.
+      const strong = Math.random() < 0.1;
+      zone.power = strong ? 1.65 : interval(0.7, 1.05);
+      zone.emitRate = (strong ? 0.095 : 0.047) * zone.power;
+      zone.activeUntil = elapsed + (strong ? interval(700, 1000) : interval(380, 700));
+      zone.accumulator = 0;
+      zone.nextAt = elapsed + interval(4800, 10000);
+      lastEmissionAt = elapsed;
+    };
 
     const resize = () => {
       const rect = stage.getBoundingClientRect();
@@ -98,22 +123,27 @@ export function PageNovaParticleSphere({ language = "pt" }: { language?: "pt" | 
       lastTime = time;
       angle += dt * 0.000095;
       elapsed += dt;
-      if (elapsed >= nextEruption && emissionLeft <= 0) launchEruption();
-      if (emissionLeft > 0) {
-        emissionLeft = Math.max(0, emissionLeft - dt);
-        emissionAccumulator += dt * 0.075;
-        // Cap live particles and frame emissions to avoid reintroducing stutter.
-        const spawnCount = Math.min(8, Math.floor(emissionAccumulator));
-        emissionAccumulator -= spawnCount;
-        for (let i = 0; i < spawnCount && sparks.length < 170; i++) {
-          const spread = (Math.random() - 0.5);
-          const speed = 0.00065 + Math.random() * 0.0004;
+      for (const zone of zones) {
+        if (elapsed >= zone.nextAt && elapsed >= zone.activeUntil) {
+          // Brief spacing between activations prevents simultaneous bursts.
+          if (elapsed - lastEmissionAt > 900) activate(zone);
+          else zone.nextAt = elapsed + interval(650, 1400);
+        }
+        if (elapsed >= zone.activeUntil) continue;
+        zone.accumulator += dt * zone.emitRate;
+        const spawn = Math.min(6, Math.floor(zone.accumulator), maxSparks - sparks.length);
+        zone.accumulator -= Math.max(0, spawn);
+        for (let i = 0; i < spawn; i++) {
+          const lateral = (Math.random() - 0.5) * 0.00032;
+          const speed = interval(0.00048, 0.00082) * zone.power;
           sparks.push({
-            x: spread * 0.09, y: -0.88 + Math.random() * 0.03,
-            vx: spread * (0.00010 + Math.random() * 0.00020),
-            vy: -speed,
-            age: 0, life: 1050 + Math.random() * 800,
-            radius: 0.8 + Math.random() * 1.2,
+            x: zone.x + interval(-0.025, 0.025),
+            y: zone.y + interval(-0.012, 0.012),
+            vx: zone.dx * speed - zone.dy * lateral,
+            vy: zone.dy * speed + zone.dx * lateral - 0.00006,
+            age: 0,
+            life: interval(850, 1550),
+            radius: interval(0.8, 1.9),
             color: Math.floor(Math.random() * 3),
           });
         }
@@ -172,7 +202,8 @@ export function PageNovaParticleSphere({ language = "pt" }: { language?: "pt" | 
         if (spark.age >= spark.life) { sparks.splice(i, 1); continue; }
         spark.x += spark.vx * dt;
         spark.y += spark.vy * dt;
-        spark.vy += 0.0000011 * dt;
+        spark.vy += 0.00000065 * dt;
+        spark.vx *= Math.exp(-dt / 1800);
         const lifeLeft = 1 - spark.age / spark.life;
         const px = cx + spark.x * radius;
         const py = cy + spark.y * radius;
