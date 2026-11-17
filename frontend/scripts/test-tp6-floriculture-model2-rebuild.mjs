@@ -58,7 +58,8 @@ test("Three photographed steps and four niche-specific benefits, no generic reta
 });
 test("Six functional FAQ entries and a mobile hamburger",()=>{
  assert.match(ui,/const FAQs=\[/);
- assert.equal((ui.match(/\["(?:Como|Vocês|Quais|Posso) /g)||[]).length,6);
+ const faqSource=ui.split("const FAQs=[")[1]?.split("] as const;")[0]||"";
+ assert.equal((faqSource.match(/\["(?:Como|Vocês|Quais|Posso) /g)||[]).length,6);
  assert.match(ui,/aria-expanded=\{faqOpen===i\}/);
  assert.match(ui,/setFaqOpen\(faqOpen===i\?null:i\)/);
  assert.match(ui,/aria-expanded=\{menuOpen\}/);
