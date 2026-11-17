@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, BarChart3, Blocks, BriefcaseBusiness, Building2, Check, ChevronDown, CircleHelp, Clapperboard, Code2, Crown, Globe2, Layers3, LayoutTemplate, Menu, MonitorSmartphone, Play, Rocket, ShieldCheck, ShoppingBag, Sparkles, Store, Target, Users, WandSparkles, X, Zap } from "lucide-react";
 import { PremiumAiDemo } from "./premium-ai-demo";
@@ -11,29 +11,6 @@ import "./landing-stability.css";
 import "./landing-hero-premium.css";
 
 type Lang = "pt" | "en" | "es";
-// Small deterministic, CSS-only emerald energy bursts over the approved guarantee badge.
-const guaranteeSparks = Array.from({length:28},(_,i)=>{
- const a=(i*137.508+17)*Math.PI/180;
- const distance=44+(i%6)*13;
- return {
-  x:Math.cos(a)*distance,
-  y:Math.sin(a)*distance*.8-12,
-  delay:-((i*0.293)%5.6),
-  duration:2.05+(i%5)*.24,
-  size:i%7===0?4:2+(i%3),
- };
-});
-function GuaranteeShieldEruption(){
- return <span className="pnr-guarantee-eruption" aria-hidden="true">
-   <span className="pnr-guarantee-eruption-core"/>
-   <span className="pnr-guarantee-eruption-ring pnr-guarantee-eruption-ring--first"/>
-   <span className="pnr-guarantee-eruption-ring pnr-guarantee-eruption-ring--second"/>
-   {guaranteeSparks.map((p,i)=><span key={i} className="pnr-guarantee-eruption-spark" style={{left:`${50+(i%7-3)*3.5}%`,top:`${48+(i%5-2)*5}%`,width:p.size,height:p.size,animationDelay:`${p.delay}s`,animationDuration:`${p.duration}s`,["--spark-x" as string]:`${p.x}px`,["--spark-y" as string]:`${p.y}px`} as CSSProperties}/>)}
-  </span>;
-}
-
-// Original PT-BR artwork is immutable. Uploaded EN/ES assets are matched
-// to each style and viewport using their exact GitHub filenames.
 const localizedStyleImages: Record<Lang, Record<"institucional" | "cinematografico" | "3d-imersivo", {desktop:string;mobile:string}>> = {
  pt: {
   institucional: {desktop:"/gallery-styles/institucional-desktop.webp",mobile:"/gallery-styles/institucional-mobile.webp"},
@@ -316,7 +293,7 @@ export function PageNovaTrustSections({language="pt"}:{language?:Lang}){
  const t=translations[language];
  const [openFaq,setOpenFaq]=useState<number|null>(0);
  return <div className="pnr-page pnr-shared-trust"><section className="pnr-section pnr-trust" id="garantia">
-    <div className={"pnr-guarantee pnr-guarantee-full-art"+(language==="en"?" pnr-guarantee-english":"")}><span className="pnr-guarantee-shield-aura" aria-hidden="true"/><picture className="pnr-guarantee-responsive-art"><source media="(max-width: 767px)" srcSet={language==="en"?"/images/en/garantia-7-dias-en-mobile.png":"/images/file_000000004cb8820eabffff5a047418ea.webp"}/><img className="pnr-guarantee-full-image" src={language==="en"?"/images/en/garantia-7-dias-en-desktop.png":"/images/garantia-pagenova-original.webp"} alt="Garantia incondicional de 7 dias PageNova AI" loading="lazy" decoding="async" /><GuaranteeShieldEruption/></picture><div className="pnr-guarantee-mobile" aria-label="Garantia de sete dias"><div className="pnr-guarantee-mobile-shield" aria-hidden="true" /><div className="pnr-guarantee-mobile-copy"><span>COMPRE SEM RISCO</span><h3>Garantia incondicional de <em>7 dias.</em></h3><p>Garantia de sete dias para sua contratação, conforme os termos de reembolso publicados junto ao checkout.</p></div></div></div>
+    <div className={"pnr-guarantee pnr-guarantee-full-art"+(language==="en"?" pnr-guarantee-english":"")}><span className="pnr-guarantee-shield-aura" aria-hidden="true"/><picture className="pnr-guarantee-responsive-art"><source media="(max-width: 767px)" srcSet={language==="en"?"/images/en/garantia-7-dias-en-mobile.png":"/images/file_000000004cb8820eabffff5a047418ea.webp"}/><img className="pnr-guarantee-full-image" src={language==="en"?"/images/en/garantia-7-dias-en-desktop.png":"/images/garantia-pagenova-original.webp"} alt="Garantia incondicional de 7 dias PageNova AI" loading="lazy" decoding="async" /></picture><div className="pnr-guarantee-mobile" aria-label="Garantia de sete dias"><div className="pnr-guarantee-mobile-shield" aria-hidden="true" /><div className="pnr-guarantee-mobile-copy"><span>COMPRE SEM RISCO</span><h3>Garantia incondicional de <em>7 dias.</em></h3><p>Garantia de sete dias para sua contratação, conforme os termos de reembolso publicados junto ao checkout.</p></div></div></div>
     <div className="pnr-faq" id="faq"><div className="pnr-faq-intro"><p className="pnr-overline">{t.faqTag}</p><h2>{t.faqTitle} <em>{t.faqHi}</em></h2><p>{t.faqDesc}</p></div><div className="pnr-faq-items">{t.faqs.map((item:FAQ,i)=><div key={i} className={"pnr-faq-item"+(openFaq===i?" opened":"")}><button type="button" aria-expanded={openFaq===i} onClick={()=>setOpenFaq(openFaq===i?null:i)}>{item.q}<ChevronDown size={17}/></button>{openFaq===i&&<p>{item.a}</p>}</div>)}</div></div>
    </section></div>;
 }
