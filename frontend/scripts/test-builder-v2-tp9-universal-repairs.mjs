@@ -98,8 +98,15 @@ test("TP9 section: protects individually edited existing personnel details",()=>
    {...b,text:"Ana Lima — técnica",textExplicit:true}:b
  )};
  const result=applyUniversalNaturalLanguage(customized,promptTeam);
- assert.ok(result&&!result.ok);
- assert.deepEqual(customized.blocks.filter(b=>b.section==="custom-nossa-equipe").length,7);
+ assert.ok(result?.ok,JSON.stringify(result));
+ // A complete, customized team must only be re-anchored; never replace the name.
+ assert.equal(result.site.blocks.find(b=>b.text==="Ana Lima — técnica")?.textExplicit,true);
+ assert.equal(result.site.blocks.filter(b=>b.section==="custom-nossa-equipe").length,7);
+ assert.equal(planUniversalPreviewMove(customized,result.site)?.cardPhotos?.length,3);
+ const incomplete={...customized,blocks:customized.blocks.map(b=>b.section==="custom-nossa-equipe"&&b.type==="paragraph"&&b.src?
+  {...b,src:undefined,text:"Detalhes personalizados pelo usuário.",textExplicit:true}:b)};
+ const refused=applyUniversalNaturalLanguage(incomplete,promptTeam);
+ assert.ok(refused&&!refused.ok);
 });
 test("TP9 preview/publication integration uses opt-in bridge outside frozen templates",()=>{
  const bridge=readFileSync(new URL("../src/components/builder-v2-hero-photo-override.tsx",import.meta.url),"utf8");
