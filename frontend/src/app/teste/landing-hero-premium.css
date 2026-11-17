@@ -2024,3 +2024,84 @@
   opacity:.68!important;cursor:not-allowed!important;
  }
 }
+
+
+/* Landing mobile premium polish: visible language selection, richer pricing, seamless orb. */
+.pnr-page .pnr-mobile-flag-switch{display:none}
+@media(max-width:767px){
+ .pnr-page .pnr-header .pnr-nav{display:flex!important;align-items:center!important;gap:8px!important}
+ .pnr-page .pnr-header .pnr-brand{min-width:0!important;flex:1 1 auto!important}
+ .pnr-page .pnr-header .pnr-brand img{max-width:min(100%,148px)!important;height:auto!important}
+ .pnr-page .pnr-header .pnr-mobile-flag-switch{
+  display:flex!important;align-items:center;justify-content:center;gap:3px;
+  flex:0 0 auto;margin-left:auto;z-index:71;
+ }
+ .pnr-page .pnr-header .pnr-mobile-flag-switch button{
+  display:grid;place-items:center;width:32px;height:35px;padding:3px;
+  border:1px solid transparent;border-radius:9px;background:transparent;
+  cursor:pointer;opacity:.67;transition:opacity .2s,background .2s,border-color .2s,transform .2s;
+ }
+ .pnr-page .pnr-header .pnr-mobile-flag-switch button.is-active{
+  opacity:1;background:rgba(159,255,104,.11);border-color:rgba(164,255,104,.68);
+ }
+ .pnr-page .pnr-header .pnr-mobile-flag-switch button:active{transform:scale(.93)}
+ .pnr-page .pnr-header .pnr-mobile-flag-switch svg{width:24px!important;height:19px!important}
+ .pnr-page .pnr-header .pnr-menu-toggle{flex:0 0 auto!important;margin-left:0!important}
+ .pnr-page .pnr-pricing .pnr-price-card{
+  position:relative!important;overflow:hidden!important;
+  background:radial-gradient(ellipse at 7% 0%,rgba(143,255,108,.18),transparent 62%),linear-gradient(155deg,#14351f 0%,#06170e 95%)!important;
+  border-color:rgba(172,255,124,.44)!important;
+  box-shadow:inset 0 1px 0 rgba(220,255,201,.15),0 12px 32px rgba(0,0,0,.27),0 0 26px rgba(119,255,94,.045)!important;
+  transition:transform .28s ease,border-color .28s ease,box-shadow .28s ease!important;
+ }
+ .pnr-page .pnr-pricing .pnr-price-card:active{
+  transform:scale(.988)!important;border-color:#aaff70!important;
+  box-shadow:0 0 30px rgba(139,255,91,.17)!important;
+ }
+ .pnr-page .pnr-pricing .pnr-price-card.is-featured{
+  background:radial-gradient(ellipse at 15% 0%,rgba(153,255,103,.26),transparent 65%),linear-gradient(155deg,#1a4828,#081d10 90%)!important;
+  box-shadow:inset 0 1px rgba(221,255,199,.25),0 0 28px rgba(148,255,96,.14),0 16px 34px rgba(0,0,0,.25)!important;
+ }
+ .pnr-page .pnr-pricing .pnr-price-icon{
+  background:linear-gradient(135deg,rgba(165,255,99,.23),rgba(80,180,96,.07))!important;
+  border:1px solid rgba(161,255,105,.28)!important;
+  box-shadow:inset 0 1px rgba(190,255,154,.1),0 0 18px rgba(120,255,95,.07)!important;
+ }
+ .pnr-page .pnr-pricing .pnr-price-button:not(:disabled){
+  transition:transform .2s ease,background .2s ease,box-shadow .2s ease!important;
+ }
+ .pnr-page .pnr-pricing .pnr-price-button:not(:disabled):active{transform:scale(.975)}
+ .pnr-page .pnr-pricing .pnr-price-card.is-featured .pnr-price-button{
+  box-shadow:0 0 24px rgba(165,255,105,.17)!important;
+ }
+ .pnr-page .pnr-orb-section{
+  position:relative!important;overflow:hidden!important;
+  background:linear-gradient(180deg,#03110a 0%,#04150c 48%,#0a2415 83%,#102e1b 100%)!important;
+  border-bottom:0!important;
+ }
+ .pnr-page .pnr-orb-section::before{
+  content:""!important;position:absolute!important;inset:20% -20% 0!important;
+  background:radial-gradient(ellipse at 50% 57%,rgba(61,160,69,.14),transparent 58%)!important;
+  pointer-events:none!important;z-index:0!important;
+ }
+ .pnr-page .pnr-orb-copy,.pnr-page .pnr-orb-stage{position:relative;z-index:1}
+ .pnr-page .pnr-orb-stage{isolation:auto!important;overflow:visible!important}
+ .pnr-page .pnr-orb-art{
+  mix-blend-mode:screen!important;
+  animation:pnr-orb-float 8s ease-in-out infinite,pnr-orb-breathe 6s ease-in-out infinite!important;
+ }
+ .pnr-page .pnr-footer.pnr-footer-onesignal{
+  border-top-color:rgba(140,255,106,.16)!important;
+ }
+}
+@media(max-width:360px){
+ .pnr-page .pnr-header .pnr-brand img{max-width:115px!important}
+ .pnr-page .pnr-header .pnr-mobile-flag-switch button{width:28px!important}
+ .pnr-page .pnr-header .pnr-mobile-flag-switch svg{width:22px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .pnr-page .pnr-pricing .pnr-price-card,
+ .pnr-page .pnr-pricing .pnr-price-button,
+ .pnr-page .pnr-mobile-flag-switch button{transition:none!important}
+ .pnr-page .pnr-orb-art{animation:none!important}
+}
