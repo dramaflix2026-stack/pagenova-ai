@@ -256,7 +256,7 @@ export function LandingRevamp() {
    </section>
    <section id="estilos" className="pnr-section pnr-styles">
     <header className="pnr-section-heading"><p className="pnr-overline">{t.stylesTag}</p><h2>{t.stylesTitle} <em>{t.stylesHi}</em></h2><p>{t.stylesDesc}</p></header>
-    <div className="pnr-style-grid" data-motion-scope="styles">{(["institucional","cinematografico","3d-imersivo"] as const).map((id,i)=><div className="pnr-style-card" key={id}><picture><source media="(max-width: 650px)" srcSet={localizedStyleImages[lang][id].mobile}/><img src={localizedStyleImages[lang][id].desktop} alt={t.types[i]} width="1600" height="900" loading="lazy" decoding="async"/></picture></div>)}</div>
+    <div className="pnr-style-grid" data-motion-scope="styles">{(["institucional","cinematografico","3d-imersivo"] as const).map((id,i)=><div className={"pnr-style-card"+(lang==="en"?" pnr-style-card--en":"")} key={id}><picture style={lang==="en"?{backgroundImage:`url("${localizedStyleImages.en[id].desktop}")`,backgroundSize:"cover",backgroundPosition:"center"}:undefined}><source media="(max-width: 650px)" srcSet={localizedStyleImages[lang][id].mobile}/><img src={localizedStyleImages[lang][id].desktop} alt={t.types[i]} width="1600" height="900" loading="lazy" decoding="async"/></picture></div>)}</div>
     <p className="pnr-footnote">{t.stylesNote}</p>
    </section>
    <section id="publicos" className="pnr-section pnr-audiences">
