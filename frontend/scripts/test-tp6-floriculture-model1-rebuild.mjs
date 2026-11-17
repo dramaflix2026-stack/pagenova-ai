@@ -418,3 +418,40 @@ test("Test 05: the live preview must verify the two anchors; no state-only appli
  assert.match(planner,/intervening.length/);
  assert.match(planner,/win.getComputedStyle\(heading\).textAlign/);
 });
+
+
+test("ML Test 02: runtime targets and production CHECK migration stay in sync",()=>{
+ const classifier=read("../src/lib/builder-v2-universal-feedback.ts");
+ const declaration=classifier.match(/export type UniversalFeedbackTarget=([^;]+);/)?.[1];
+ assert.ok(declaration,"Missing runtime feedback target type");
+ const clientTargets=[...declaration.matchAll(/"([a-z-]+)"/g)].map(match=>match[1]).sort();
+ const migration=read("../supabase/migrations/20261117205909_builder_editor_learning_collections_target_fix_20261117.sql");
+ const check=migration.match(/CHECK\s*\(\s*target\s+IN\s*\(([\s\S]+?)\)\s*\)/i)?.[1];
+ assert.ok(check,"Database migration missing target CHECK");
+ const dbTargets=[...check.matchAll(/'([a-z-]+)'/g)].map(match=>match[1]).sort();
+ assert.deepEqual(dbTargets,clientTargets,"Browser and Supabase must allow identical feedback targets");
+ assert.ok(dbTargets.includes("collections"),"The floral collection edit used to fail Postgres CHECK 23514");
+ assert.deepEqual(classifyUniversalFeedback(isolatedBackgroundPrompt),{
+   intent:"style",target:"collections",sectionKey:"produtos"
+ });
+});
+
+test("ML Test 02: repeating an already-applied background is a visual observation, not a new learned success",()=>{
+ const original=isolatedBackgroundSeed();
+ const applied=applyRenderedSectionBackground(original,isolatedBackgroundPrompt);
+ assert.equal(applied.ok,true);
+ const idempotent=applyRenderedSectionBackground(applied.site,isolatedBackgroundPrompt);
+ assert.equal(idempotent.ok,false);
+ assert.match(idempotent.error,/A cor já está registrada/);
+ const editor=read("../src/app/app/builder-v2/page.tsx");
+ const start=editor.indexOf('if(explanation.startsWith("A cor já está registrada."))');
+ const end=editor.indexOf('const verified=verifyUniversalEditResult(site,premiumBackground.site',start);
+ assert.ok(start>=0&&end>start);
+ const code=editor.slice(start,end);
+ assert.match(code,/auditUniversalVisualProof\(root,win,contract\)/);
+ assert.match(code,/section:"produtos",color:existingColor,target:"background"/);
+ assert.match(code,/Este envio não produziu uma nova edição/);
+ assert.match(code,/não será contado como acerto nem como novo aprendizado/);
+ assert.doesNotMatch(code,/recordEditorLearningEvent\(/);
+ assert.doesNotMatch(code,/setSite\(/);
+});
