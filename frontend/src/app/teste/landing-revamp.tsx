@@ -11,6 +11,26 @@ import "./landing-stability.css";
 import "./landing-hero-premium.css";
 
 type Lang = "pt" | "en" | "es";
+// Original PT-BR artwork is immutable. Uploaded EN/ES assets are matched
+// to each style and viewport using their exact GitHub filenames.
+const localizedStyleImages: Record<Lang, Record<"institucional" | "cinematografico" | "3d-imersivo", {desktop:string;mobile:string}>> = {
+ pt: {
+  institucional: {desktop:"/gallery-styles/institucional-desktop.webp",mobile:"/gallery-styles/institucional-mobile.webp"},
+  cinematografico: {desktop:"/gallery-styles/cinematografico-desktop.webp",mobile:"/gallery-styles/cinematografico-mobile.webp"},
+  "3d-imersivo": {desktop:"/gallery-styles/3d-imersivo-desktop.webp",mobile:"/gallery-styles/3d-imersivo-mobile.webp"},
+ },
+ en: {
+  institucional: {desktop:"/gallery-styles/en/Banner%20institucional%20moderno%20com%20laptop%20arquitet%C3%B4nico%20neon.png",mobile:"/gallery-styles/en/Site%20institucional%20com%20est%C3%A9tica%20neon%20verde.png"},
+  cinematografico: {desktop:"/gallery-styles/en/Banner%20Cinematogr%C3%A1fico%20Aurora.png",mobile:"/gallery-styles/en/cinematic%20ingles.png"},
+  "3d-imersivo": {desktop:"/gallery-styles/en/Banner%20Neon%20de%20Experi%C3%AAncia%203D%20Immersiva.png",mobile:"/gallery-styles/en/immersive%20ingles.png"},
+ },
+ es: {
+  institucional: {desktop:"/gallery-styles/es/banner%20institucional%20espanhol.png",mobile:"/gallery-styles/es/mobile%20institucional%20espanhol.png"},
+  cinematografico: {desktop:"/gallery-styles/es/banner%20cinematografico%20espanhol.png",mobile:"/gallery-styles/es/mobile%20cinematografico%20esoanhol.png"},
+  "3d-imersivo": {desktop:"/gallery-styles/es/banner%203d%20imersivo%20espanhol.png",mobile:"/gallery-styles/es/mobile%203d%20imersivo%20%20espanhol.png"},
+ },
+};
+
 function LanguageFlag({code}:{code:Lang}){return <svg className="pnr-country-flag" viewBox="0 0 30 20" width="30" height="20" role="img" aria-label={code==="pt"?"Brasil":code==="en"?"Estados Unidos":"Espanha"}>{code==="pt"?<><rect width="30" height="20" fill="#159447"/><path d="M15 2 28 10 15 18 2 10Z" fill="#FFDF00"/><circle cx="15" cy="10" r="5.2" fill="#173A91"/><path d="M10 8.6q5-1.4 10 2" fill="none" stroke="#fff" strokeWidth="1.1"/></>:code==="en"?<><rect width="30" height="20" fill="#fff"/>{[0,1,2,3,4,5,6].map(i=><rect key={i} x="0" y={i*3} width="30" height="1.6" fill="#B22234"/>)}<rect width="13" height="11" fill="#3C3B6E"/>{[0,1,2].map(i=>[0,1,2,3].map(j=><circle key={i+"-"+j} cx={2+j*3} cy={2+i*3} r=".65" fill="#fff"/>))}</>:<><rect width="30" height="20" fill="#AA151B"/><rect y="5" width="30" height="10" fill="#F1BF00"/><rect x="8" y="8" width="3" height="5" rx=".5" fill="#AA151B"/></>}</svg>}
 
 type FAQ = { q: string; a: string };
@@ -236,7 +256,7 @@ export function LandingRevamp() {
    </section>
    <section id="estilos" className="pnr-section pnr-styles">
     <header className="pnr-section-heading"><p className="pnr-overline">{t.stylesTag}</p><h2>{t.stylesTitle} <em>{t.stylesHi}</em></h2><p>{t.stylesDesc}</p></header>
-    <div className="pnr-style-grid" data-motion-scope="styles">{(["institucional","cinematografico","3d-imersivo"] as const).map((id,i)=><div className="pnr-style-card" key={id}><picture><source media="(max-width: 650px)" srcSet={"/gallery-styles/"+id+"-mobile.webp?v=20261111-new-art"}/><img src={"/gallery-styles/"+id+"-desktop.webp"} alt={t.types[i]} width="1600" height="900" loading="lazy" decoding="async"/></picture></div>)}</div>
+    <div className="pnr-style-grid" data-motion-scope="styles">{(["institucional","cinematografico","3d-imersivo"] as const).map((id,i)=><div className="pnr-style-card" key={id}><picture><source media="(max-width: 650px)" srcSet={localizedStyleImages[lang][id].mobile}/><img src={localizedStyleImages[lang][id].desktop} alt={t.types[i]} width="1600" height="900" loading="lazy" decoding="async"/></picture></div>)}</div>
     <p className="pnr-footnote">{t.stylesNote}</p>
    </section>
    <section id="publicos" className="pnr-section pnr-audiences">
