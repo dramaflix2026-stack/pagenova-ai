@@ -43,12 +43,21 @@ function findVisibleTP10Anchor(root:HTMLElement,anchorId:string):HTMLElement|nul
  const normalized=norm(anchorId);
  const family=normalized==="perguntas-frequentes"||normalized==="duvidas-frequentes"?"faq":
   normalized==="depoimentos-dos-alunos"?"depoimentos":normalized;
- const candidates=[anchorId,...(anchorAliases[family]||[])];
- const elements=Array.from(root.querySelectorAll<HTMLElement>("section,footer"));
+ const canonical=/^(?:tp9|tp10)[a-z0-9-]*-(?:contato|contact)$/.test(family)?"contato":
+  /^(?:tp9|tp10)[a-z0-9-]*-(?:servicos|services)$/.test(family)?"servicos":family;
+ const candidates=[...new Set([anchorId,...(anchorAliases[family]||[]),...(anchorAliases[canonical]||[])])];
+ const visible=(element:HTMLElement)=>element.getClientRects().length>0
+  &&element.ownerDocument.defaultView?.getComputedStyle(element).display!=="none";
+ const sections=Array.from(root.querySelectorAll<HTMLElement>("section,footer"));
  for(const id of candidates){
-  const selected=elements.find(el=>(el.id===id||el.getAttribute("data-universal-section")===id)
-   &&el.getClientRects().length>0&&el.ownerDocument.defaultView?.getComputedStyle(el).display!=="none");
+  const selected=sections.find(el=>(el.id===id||el.getAttribute("data-universal-section")===id
+    ||el.getAttribute("data-section-id")===id)&&visible(el));
   if(selected)return selected;
+  // Some approved templates put #tp9-contato on an anchor SPAN inside the
+  // actual contact section. Never mount next to the span or behind the footer.
+  const child=Array.from(root.querySelectorAll<HTMLElement>("[id]")).find(el=>el.id===id&&visible(el));
+  const container=child?.closest<HTMLElement>("section,footer");
+  if(container&&root.contains(container)&&visible(container))return container;
  }
  return null;
 }
@@ -95,7 +104,11 @@ export function TP10UniversalCustomSections({blocks,sectionEvents=[],children,au
    const afterTail=new Map<HTMLElement,HTMLElement>();
    let changed=false;
    for(const section of sections){
-    if(hosts.has(section.id))continue;
+    const oldHost=hosts.get(section.id);
+    if(oldHost?.isConnected)continue;
+    // React template switches and preview refreshes can detach an injected
+    // portal host. Reattach instead of silently claiming the section exists.
+    if(oldHost){oldHost.remove();hosts.delete(section.id);}
     const placement=resolveTP10CustomPlacement(blocks,sectionEvents,section.id);
     if(!placement)continue;
     const target=findVisibleTP10Anchor(root,placement.anchorId);
@@ -111,7 +124,7 @@ export function TP10UniversalCustomSections({blocks,sectionEvents=[],children,au
     hosts.set(section.id,host);changed=true;
    }
    if(changed)setMounts([...hosts].map(([sectionId,host])=>({sectionId,host})));
-   if(hosts.size===sections.length)observer?.disconnect();
+   // Keep observing: approved templates can rerender without this component remounting.
   };
   observer=new MutationObserver(attach);
   observer.observe(root,{subtree:true,childList:true});
