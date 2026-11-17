@@ -7,7 +7,7 @@ import "./tp9-vertice-m3-approved.css";
 type Review={name:string;role:string;quote:string};
 type FAQ={question:string;answer:string};
 type Photo={src:string;caption?:string};
-type Props={brand:string;niche:string;email?:string;whatsapp?:string;address?:string;gallery?:Photo[];reviews?:Review[];faqs?:FAQ[];customSections?:ReactNode;reviewsSection?:ReactNode;locationSection?:ReactNode};
+type Props={brand:string;niche:string;email?:string;whatsapp?:string;address?:string;gallery?:Photo[];reviews?:Review[];faqs?:FAQ[];customSections?:ReactNode;reviewsSection?:ReactNode;locationSection?:ReactNode;heroImageOverride?:string};
 
 const photo=(id:string,width=1400)=>"https://unsplash.com/photos/"+id+"/download?force=true&w="+width;
 const photoFallback="https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=1500&q=85";
@@ -61,7 +61,7 @@ const placeholderReviews:Review[]=[
 const validEmail=(raw?:string)=>{const v=(raw||"").trim();return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)?v:undefined;};
 const validPhone=(raw?:string)=>{const digits=(raw||"").replace(/\D/g,"");const normalized=digits.length===10||digits.length===11?"55"+digits:digits;return /^55\d{10,11}$/.test(normalized)?normalized:undefined;};
 
-export function TP9VerticeModel3Approved({brand,email,whatsapp,address,gallery=[],reviews=[],faqs=[],customSections,locationSection}:Props){
+export function TP9VerticeModel3Approved({brand,email,whatsapp,address,gallery=[],reviews=[],faqs=[],customSections,locationSection,heroImageOverride}:Props){
  const [menuOpen,setMenuOpen]=useState(false);
  const [openedFAQ,setOpenedFAQ]=useState<number|null>(0);
  const [selectedPhoto,setSelectedPhoto]=useState<number|null>(null);
@@ -123,7 +123,7 @@ export function TP9VerticeModel3Approved({brand,email,whatsapp,address,gallery=[
  }
  return <main className="tp9v3" id="tp9v3-top">
   <section className="tp9v3-hero" aria-label="Apresentação do Vértice Auto Center">
-   <img className="tp9v3-cover" src={photo(source.hero,1900)} onError={onPhotoError} alt="Fotografia de veículos em uma oficina de manutenção" />
+   <img data-universal-hero-photo="true" className="tp9v3-cover" src={heroImageOverride&&/^https:\/\//i.test(heroImageOverride)?heroImageOverride:photo(source.hero,1900)} onError={onPhotoError} alt="Fotografia de veículos em uma oficina de manutenção" />
    <header className="tp9v3-header">
     <a className="tp9v3-logo" href="#tp9v3-top" aria-label={brand+" — início"}><span className="tp9v3-mark">V.</span><span>{brand}</span></a>
     <button type="button" className="tp9v3-menuBtn" aria-label={menuOpen?"Fechar menu":"Abrir menu"} aria-controls="tp9v3-navigation" aria-expanded={menuOpen} onClick={()=>setMenuOpen(x=>!x)}>{menuOpen?<X size={23}/>:<Menu size={23}/>}</button>
