@@ -35,7 +35,7 @@ test("Six photographic, labelled testimonials in 3x2 desktop layout",()=>{
  assert.ok(ui.includes("Juliana Santos"),"sixth review must not be a pet-shop sample");
 });
 test("Forms and location never fake WhatsApp or email submission",()=>{
- assert.match(ui,/const canContact=hasWhats\|\|hasMail/);
+ assert.match(ui,/canContact=hasWhats\|\|hasMail/);
  assert.match(ui,/onSubmit=\{send\}/);
  assert.match(ui,/disabled=\{!canContact\}/);
  assert.match(ui,/https:\/\/wa\.me\//);
