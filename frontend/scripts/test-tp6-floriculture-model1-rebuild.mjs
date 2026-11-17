@@ -83,3 +83,13 @@ test("Dedicated components parse as TSX",()=>{
   assert.deepEqual(parsed.parseDiagnostics.map(d=>ts.flattenDiagnosticMessageText(d.messageText," ")),[],name);
  }
 });
+
+test("Collection titles stay inside their cards, and footer wordmark has restrained sizing",()=>{
+ assert.match(css,/\.pn-floral1-collection-name>div\{min-width:0;flex:1 1 auto/);
+ assert.match(css,/\.pn-floral1-collection-name h3\{font:400 clamp\(18px,1\.9vw,27px\)/);
+ assert.match(css,/\.pn-floral1-collection-name h3\{[^}]*white-space:normal;overflow-wrap:break-word/);
+ assert.match(css,/\.pn-floral1-collection-name>strong\{flex:0 0 auto/);
+ assert.match(css,/\.pn-floral1-footer-wordmark,\.pn-floral1-wordmark\{font-size:clamp\(42px,6vw,98px\)/);
+ assert.match(css,/\.pn-floral1-wordmark\{font-size:clamp\(36px,8\.2vw,58px\)/);
+ assert.ok(!css.includes(".tp6m2-")&&!css.includes(".tp6m3-"),"no CSS changes to protected models 02 or 03");
+});
