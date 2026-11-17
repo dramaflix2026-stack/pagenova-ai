@@ -1,9 +1,22 @@
 import { readFileSync, mkdirSync, writeFileSync, existsSync } from 'node:fs';
 import { resolve, dirname, relative, sep } from 'node:path';
 import { inflateRawSync } from 'node:zlib';
+import { createHash } from 'node:crypto';
 
 const root = resolve(process.cwd(), '..');
 const zip = readFileSync(resolve(process.cwd(), 'frigolog-next-integration-v7.zip'));
+const digest = (bytes) => createHash('sha256').update(bytes).digest('hex');
+const zipDigest = digest(zip);
+const manifestPath = resolve(root, 'frontend/.frigolog-install-manifest.json');
+const prior = (() => {
+  if (!existsSync(manifestPath)) return null;
+  try {
+    const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+    return manifest.version === 1 && manifest.zipDigest === zipDigest && manifest.files && typeof manifest.files === 'object'
+      ? manifest : null;
+  } catch { return null; }
+})();
+const expectedFiles = [];
 const allowed = ['frontend/src/app/templates/frigolog/', 'frontend/public/lovable/frigolog/'];
 let end = -1;
 for (let i = zip.length - 22; i >= Math.max(0, zip.length - 65557); i--) {
@@ -25,6 +38,7 @@ for (let i = 0; i < count; i++) {
   const name = zip.subarray(cursor + 46, cursor + 46 + nameLength).toString('utf8');
   cursor += 46 + nameLength + extraLength + commentLength;
   if (!allowed.some(prefix => name.startsWith(prefix)) || name.endsWith('/')) continue;
+  expectedFiles.push(name);
   const target = resolve(root, name);
   if (relative(root, target).startsWith('..' + sep) || relative(root, target) === '..') throw new Error('Unsafe ZIP path');
   if (zip.readUInt32LE(localOffset) !== 0x04034b50) throw new Error('FRIGOLOG ZIP: bad local header');
@@ -33,7 +47,12 @@ for (let i = 0; i < count; i++) {
   const data = method === 0 ? compressedBytes : method === 8 ? inflateRawSync(compressedBytes) : null;
   if (!data || data.length !== uncompressed) throw new Error('FRIGOLOG ZIP: invalid entry ' + name);
   if (existsSync(target)) {
-    if (!readFileSync(target).equals(data)) throw new Error('FRIGOLOG existing file differs: ' + name);
+    // The first installation applies documented V8–V15 patches after ZIP
+    // extraction. A repeat run must match the exact SHA256 of that verified
+    // post-processed output, never accept a modified file by marker alone.
+    const current = readFileSync(target);
+    if (!current.equals(data) && prior?.files?.[name] !== digest(current))
+      throw new Error('FRIGOLOG existing file differs: ' + name);
     continue;
   }
   mkdirSync(dirname(target), { recursive: true });
@@ -143,3 +162,14 @@ if(!aboutCurrent.includes('FRIGOLOG_ABOUT_CONTENT_CENTER_V14')) writeFileSync(cs
 const contactTextCss="\n/* FRIGOLOG_CONTACT_ALL_TEXT_CENTER_V15 */\n.frigolog-template #contato .eyebrow,.frigolog-template #contato .section-heading,.frigolog-template #contato p{ text-align:center!important; } .frigolog-template #contato p{margin-left:auto!important;margin-right:auto!important;}";
 const contactTextCurrent=readFileSync(cssPath,'utf8');
 if(!contactTextCurrent.includes('FRIGOLOG_CONTACT_ALL_TEXT_CENTER_V15'))writeFileSync(cssPath,contactTextCurrent+'\n'+contactTextCss);
+// Persist the exact, post-patch content of every ZIP asset in the build layer.
+// Subsequent runs verify every byte and the source ZIP's identity before reuse.
+// No approved template content is overwritten or silently accepted as changed.
+writeFileSync(manifestPath, JSON.stringify({
+  version: 1,
+  zipDigest,
+  files: Object.fromEntries(expectedFiles.map(name => {
+    const file = resolve(root, name);
+    return [name, digest(readFileSync(file))];
+  }))
+}, null, 2));
