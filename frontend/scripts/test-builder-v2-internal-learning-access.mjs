@@ -3,14 +3,32 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 
 const source=p=>readFileSync(new URL(p,import.meta.url),"utf8");
-test("Internal learning is enabled only for the exact confirmed account on server",()=>{
- const access=source("../src/app/api/builder-v2/internal-learning-access/route.ts");
- assert.match(access,/await supabase\.auth\.getUser\(\)/);
- assert.match(access,/user\.id===INTERNAL_LEARNING_OWNER_ID/);
- assert.match(access,/user\.email\?\.trim\(\)\.toLowerCase\(\)===INTERNAL_LEARNING_OWNER_EMAIL/);
- assert.match(access,/!!user\.email_confirmed_at/);
- assert.match(access,/private, no-store/);
- assert.doesNotMatch(access,/(?:request\.nextUrl|request\.headers|request\.json\(\))[\s\S]*?(?:role|email).{0,30}===/);
+import {isVerifiedInternalLearningAccount} from "../src/lib/builder-v2-internal-learning-access.server.ts";
+
+const CONFIRMED="2026-11-17T10:00:00Z";
+const FIRST={id:"01cadff1-1bff-4075-8354-a61b51ecd0eb",email:"giovanesornoqui@hotmail.com",email_confirmed_at:CONFIRMED};
+const SECOND={id:"3a405182-e509-4c1b-ab4b-d16a21049f18",email:"giovanevfs@outlook.com",email_confirmed_at:CONFIRMED};
+
+test("Both verified PageNova owner accounts can see the internal learning dashboard",()=>{
+ assert.equal(isVerifiedInternalLearningAccount(FIRST),true);
+ assert.equal(isVerifiedInternalLearningAccount(SECOND),true);
+ assert.equal(isVerifiedInternalLearningAccount({...SECOND,email:" GIOVANEVFS@OUTLOOK.COM "}),true);
+});
+test("Other accounts, mismatched IDs/emails and unconfirmed owners are denied",()=>{
+ assert.equal(isVerifiedInternalLearningAccount(null),false);
+ assert.equal(isVerifiedInternalLearningAccount({...SECOND,id:"c0000000-0000-4000-8000-000000000001"}),false);
+ assert.equal(isVerifiedInternalLearningAccount({...FIRST,email:SECOND.email}),false);
+ assert.equal(isVerifiedInternalLearningAccount({...SECOND,email:FIRST.email}),false);
+ assert.equal(isVerifiedInternalLearningAccount({...FIRST,email_confirmed_at:null}),false);
+ assert.equal(isVerifiedInternalLearningAccount({...SECOND,email_confirmed_at:null}),false);
+ assert.equal(isVerifiedInternalLearningAccount({...SECOND,email:null}),false);
+});
+test("Server-only access route verifies auth user and never trusts client claims",()=>{
+ const route=source("../src/app/api/builder-v2/internal-learning-access/route.ts");
+ assert.match(route,/await supabase\.auth\.getUser\(\)/);
+ assert.match(route,/const enabled=isVerifiedInternalLearningAccount\(user\)/);
+ assert.match(route,/private, no-store/);
+ assert.doesNotMatch(route,/(?:request\.nextUrl|request\.headers|request\.json\(\))[\s\S]*?(?:role|email).{0,30}===/);
 });
 test("Public editor hides internal counters and all metric panels by default",()=>{
  const page=source("../src/app/app/builder-v2/page.tsx");
