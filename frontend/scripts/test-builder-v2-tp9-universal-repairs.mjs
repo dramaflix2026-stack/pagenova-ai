@@ -6,6 +6,7 @@ import {applyUniversalNaturalLanguage} from "../src/lib/builder-v2-universal-lan
 import {planUniversalPreviewMove} from "../src/lib/builder-v2-universal-preview-postconditions.ts";
 import {planUniversalVisualProof} from "../src/lib/builder-v2-editor-visual-proof.ts";
 import {verifyUniversalEditResult} from "../src/lib/builder-v2-universal-learning.ts";
+import {universalSectionDomIdMatches} from "../src/lib/builder-v2-universal-preview-sections.ts";
 
 const promptPhoto="Substitua somente a imagem principal da primeira seção por uma fotografia real de um mecânico trabalhando em um veículo dentro de uma oficina automotiva moderna. Preserve o texto, os botões, as cores e todas as outras imagens.";
 const promptTeam='Adicione uma nova seção chamada "Nossa Equipe" imediatamente antes da seção de contato, contendo três cards com fotografia, nome e especialidade de cada profissional. Utilize identidade visual compatível com o site. Não duplique nenhuma seção e mantenha o rodapé na última posição.';
@@ -131,4 +132,50 @@ test("TP9 custom sections: real template anchor aliases and preview-gated three 
  assert.doesNotMatch(wrapper,/<img src=\{card\.image\}[^>]+loading="lazy"/);
  assert.match(proof,/cardImages/);
  assert.match(proof,/image.naturalWidth<=0/);
+});
+
+const moveAndCenter='Mova a seção "Nossa Equipe" para imediatamente depois da seção de serviços e centralize somente o título "Nossa Equipe". Preserve as três fotografias, os nomes, as especialidades, todas as demais seções e o rodapé. Não duplique nenhuma seção.';
+test("TP9 step 5: move the team after services and center ONLY its heading atomically",()=>{
+ const creation=applyUniversalNaturalLanguage(site,promptTeam);
+ assert.ok(creation?.ok,JSON.stringify(creation));
+ const result=applyUniversalNaturalLanguage(creation.site,moveAndCenter);
+ assert.ok(result?.ok,JSON.stringify(result));
+ const updated=result.site.blocks;
+ const team=updated.filter(b=>b.section==="custom-nossa-equipe");
+ const originalTeam=creation.site.blocks.filter(b=>b.section==="custom-nossa-equipe");
+ assert.equal(team.length,7);
+ assert.equal(team.find(b=>b.type==="heading")?.align,"center");
+ assert.equal(team.find(b=>b.type==="heading")?.alignExplicit,true);
+ assert.deepEqual(team.slice(1),originalTeam.slice(1),"Card headings, copy and images must stay unchanged");
+ assert.deepEqual(updated.filter(b=>b.section!=="custom-nossa-equipe"),
+  creation.site.blocks.filter(b=>b.section!=="custom-nossa-equipe"));
+ assert.equal(updated.findIndex(b=>b.section==="custom-nossa-equipe"),
+  updated.map(b=>b.section).lastIndexOf("services")+1);
+ assert.equal(updated.at(-1).section,"footer");
+ const plan=planUniversalPreviewMove(creation.site,result.site);
+ assert.equal(plan?.sectionId,"custom-nossa-equipe");
+ assert.equal(plan?.anchorId,"services");
+ assert.equal(plan?.direction,"after");
+ assert.equal(plan?.heading?.align,"center");
+ assert.equal(plan?.cardTitles.length,3);
+ assert.equal(plan?.cardPhotos?.length,3);
+ assert.equal(verifyUniversalEditResult(creation.site,result.site,result.changedIds).ok,true);
+});
+test("TP9 step 5: wrong quoted heading rejects both changes without partial movement",()=>{
+ const creation=applyUniversalNaturalLanguage(site,promptTeam);
+ assert.ok(creation?.ok);
+ const incorrect=moveAndCenter.replace('centralize somente o título "Nossa Equipe"', 'centralize somente o título "Outra Equipe"');
+ const result=applyUniversalNaturalLanguage(creation.site,incorrect);
+ assert.ok(result&&!result.ok,JSON.stringify(result));
+ const original=creation.site.blocks;
+ assert.notEqual(original.findIndex(b=>b.section==="custom-nossa-equipe"),
+  original.map(b=>b.section).lastIndexOf("services")+1);
+});
+test("TP9 step 5: services section aliases agree between renderer and DOM verifier",()=>{
+ assert.equal(universalSectionDomIdMatches("services","tp9-servicos"),true);
+ assert.equal(universalSectionDomIdMatches("servicos","tp9v3-services"),true);
+ assert.equal(universalSectionDomIdMatches("services","tp9m3-services"),true);
+ assert.equal(universalSectionDomIdMatches("services","custom-nossa-equipe"),false);
+ const verification=readFileSync(new URL("../src/lib/builder-v2-universal-preview-postconditions.ts",import.meta.url),"utf8");
+ assert.match(verification,/universalSectionDomIdMatches\(plan\.anchorId,el\.id\)/);
 });
