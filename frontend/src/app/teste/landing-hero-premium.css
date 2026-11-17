@@ -2729,3 +2729,37 @@
     object-position: center !important;
   }
 }
+
+
+/* Approved static artwork is retained until canvas animation starts.
+   When live, render only genuine 3D particles, never spin the bitmap. */
+.pnr-page .pnr-orb-art.pnr-orb-particles {
+  position:relative;
+  overflow:hidden;
+  animation:none!important;
+  transform:none!important;
+  filter:none!important;
+}
+.pnr-page .pnr-orb-art.pnr-orb-particles.pnr-orb-live {
+  background-image:none!important;
+}
+.pnr-page .pnr-orb-particle-canvas {
+  position:absolute;
+  inset:0;
+  display:block;
+  width:100%;
+  height:100%;
+  opacity:0;
+  transition:opacity 1.1s ease;
+  pointer-events:none;
+}
+.pnr-page .pnr-orb-live .pnr-orb-particle-canvas {
+  opacity:1;
+}
+.pnr-page .pnr-orb-stage:hover .pnr-orb-art.pnr-orb-particles {
+  filter:none!important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pnr-page .pnr-orb-art.pnr-orb-particles { animation:none!important; }
+  .pnr-page .pnr-orb-particle-canvas { display:none!important; }
+}
