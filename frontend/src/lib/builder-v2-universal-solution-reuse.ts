@@ -8,7 +8,7 @@ import {resolveBriefingFamily} from "./briefing-template-families.ts";
 export type ReviewedSolutionCase={
  event_id:string;intent:string;target:string;section_key?:string|null;strategy:string;
  review_status:string;execution_status:string;
- verification:"model"|"visual";context:EditorSolutionMemory["context"];deltas:SolutionDelta[];
+ verification:"model"|"visual";context:EditorSolutionMemory["context"];deltas:SolutionDelta[];blockedTechniques?:string[];
 };
 export type SolutionRoutingContext={
  intent:string;target:string;sectionKey?:string;niche:string;model:string;family:string;template?:string;
@@ -96,7 +96,7 @@ export function selectApprovedExecutionTechnique(records:readonly ReviewedSoluti
   for(const d of item.deltas){
    if(!d||typeof d!=="object"||!compatibleSection(d,context))continue;
    const technique=actionRelevant(d,context);
-   if(!technique||(transfer&&!portableFamilyTechniques.has(technique)))continue;
+   if(!technique||(transfer&&!portableFamilyTechniques.has(technique))||item.blockedTechniques?.includes(technique))continue;
    const score=(sameNiche?10:4)+(sameFamily?2:0)+(item.verification==="visual"?3:0)+(!!item.section_key?1:0);
    matches.push({sourceEventId:item.event_id,technique,score,verification:item.verification,
     scope:transfer?"family":"niche",...(sameFamily?{familyId:requestedFamily!}:{})});

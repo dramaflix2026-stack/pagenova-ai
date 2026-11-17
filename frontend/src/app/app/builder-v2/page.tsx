@@ -24,6 +24,7 @@ import {diagnoseEditorFailure,isValidEditorFailureDiagnosis,type EditorDiagnosti
 import {interpretEditorFeedback,isValidEditorInterpretation,safeEditorInterpretationContext,type EditorCommandInterpretation} from "@/lib/builder-v2-editor-interpretation";
 import {captureVerifiedEditorSolution,type EditorSolutionMemory} from "@/lib/builder-v2-universal-solution-memory";
 import {selectApprovedExecutionTechnique,shouldRerouteUsingApprovedTechnique,confirmedReuseSource,type ReviewedSolutionCase} from "@/lib/builder-v2-universal-solution-reuse";
+import {quarantineReviewedReuses,reuseKey,type ReuseEdge,type ReuseOutcome} from "@/lib/builder-v2-learned-technique-quarantine";
 import {applyApprovedSectionBackground} from "@/lib/builder-v2-universal-learned-style";
 import {createClient as createSupabaseBrowserClient} from "@/lib/supabase/client";
 import {parseUniversalCopyEdit,isIsolatedUniversalCopyResult} from "@/lib/builder-v2-universal-copy-edits";
@@ -363,7 +364,7 @@ async function readApprovedEditorSolutionCases(intent:string,target:string):Prom
    .eq("intent",intent).eq("target",target).in("id",ids).limit(120);
   if(reviewError||!reviews?.length)return [];
   const reviewed=new Map(reviews.map(entry=>[entry.id,entry]));
-  return memories.flatMap(memory=>{
+  const cases:ReviewedSolutionCase[]=memories.flatMap(memory=>{
    const event=reviewed.get(memory.event_id);
    if(!event||!memory.context||!Array.isArray(memory.deltas))return [];
    return [{
@@ -373,6 +374,29 @@ async function readApprovedEditorSolutionCases(intent:string,target:string):Prom
     verification:memory.verification,context:memory.context,deltas:memory.deltas
    } as ReviewedSolutionCase];
   });
+  if(!cases.length)return [];
+  const sourceIds=[...new Set(cases.map(item=>item.event_id))];
+  const {data:reuses,error:reuseError}=await client.from("builder_editor_learning_reuses")
+   .select("event_id,source_event_id,technique,created_at").eq("user_id",user.id)
+   .in("source_event_id",sourceIds).order("created_at",{ascending:false}).limit(501);
+  // An incomplete lookup cannot safely promote prior memory techniques.
+  if(reuseError||!reuses||reuses.length>500)return [];
+  const edges=reuses as ReuseEdge[];
+  if(!edges.length)return cases;
+  const targetIds=[...new Set(edges.map(edge=>edge.event_id))];
+  const {data:targets,error:targetError}=await client.from("builder_editor_learning_events")
+   .select("id,review_status,execution_status,created_at,reviewed_at")
+   .eq("user_id",user.id).in("id",targetIds).limit(501);
+  if(targetError||!targets||targets.length!==targetIds.length)return [];
+  const quarantined=quarantineReviewedReuses(edges,targets as ReuseOutcome[],true);
+  if(!quarantined.usable)return [];
+  return cases.map(item=>({
+   ...item,
+   blockedTechniques:[...new Set(edges.filter(edge=>
+    edge.source_event_id===item.event_id&&
+    quarantined.blocked.has(reuseKey(edge.source_event_id,edge.technique))
+   ).map(edge=>edge.technique))]
+  }));
  }catch(error){console.warn("[editor-learning] Approved solution lookup unavailable",error);return [];}
 }
 function persistEditorLearningEvent(niche:string, instruction:string, outcome:"applied"|"rejected",strategy:string,model:string="unknown",solution?:EditorSolutionMemory|null,reuse?:{sourceEventId:string;technique:string},trace?:EditorOperationTrace|null,failurePath?:EditorFailurePath,evidence?:EditorDiagnosticEvidence){
