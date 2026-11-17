@@ -27,7 +27,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       lang={language}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col"><MetaPixel />{children}</body>
+      <body className="min-h-full flex flex-col"><MetaPixel newLandingEnabled={process.env.PAGENOVA_PUBLIC_LP === "v2"} />{children}</body>
     </html>
   );
 }
