@@ -56,7 +56,7 @@ export function PageNovaParticleSphere({ language = "pt" }: { language?: "pt" | 
     let glow: CanvasGradient;
     const palette = ["#60df68", "#88ff70", "#c5ff91"];
     const alphaLevels = [0.43, 0.54, 0.65, 0.76];
-    // Five independent emission zones, rotating naturally through the visible globe.
+    // Seven asynchronous emission zones with occasional stronger energy pulses.
     // Emitters are on the silhouette; avoid simultaneous continuous fireworks.
     type Spark = {
       x: number; y: number; vx: number; vy: number;
@@ -73,6 +73,8 @@ export function PageNovaParticleSphere({ language = "pt" }: { language?: "pt" | 
       { x: 0.55, y: -0.78, dx: 0.50, dy: -0.86 },
       { x: -0.92, y: -0.25, dx: -0.93, dy: -0.36 },
       { x: 0.92, y: -0.25, dx: 0.93, dy: -0.36 },
+      { x: -0.76, y: 0.52, dx: -0.82, dy: 0.56 },
+      { x: 0.76, y: 0.52, dx: 0.82, dy: 0.56 },
     ];
     const zones: Zone[] = sources.map((source, i) => ({
       ...source,
@@ -83,18 +85,18 @@ export function PageNovaParticleSphere({ language = "pt" }: { language?: "pt" | 
       power: 1,
     }));
     const sparks: Spark[] = [];
-    const maxSparks = 170;
+    const maxSparks = 260;
     let elapsed = 0;
     let lastEmissionAt = -3000;
     const interval = (min: number, max: number) => min + Math.random() * (max - min);
     const activate = (zone: Zone) => {
       // Most eruptions are delicate; occasionally a stronger one appears.
-      const strong = Math.random() < 0.1;
-      zone.power = strong ? 1.65 : interval(0.7, 1.05);
-      zone.emitRate = (strong ? 0.095 : 0.047) * zone.power;
-      zone.activeUntil = elapsed + (strong ? interval(700, 1000) : interval(380, 700));
+      const strong = Math.random() < 0.18;
+      zone.power = strong ? interval(1.45, 1.9) : interval(0.95, 1.3);
+      zone.emitRate = (strong ? 0.12 : 0.072) * zone.power;
+      zone.activeUntil = elapsed + (strong ? interval(760, 1100) : interval(520, 850));
       zone.accumulator = 0;
-      zone.nextAt = elapsed + interval(4800, 10000);
+      zone.nextAt = elapsed + interval(4200, 8000);
       lastEmissionAt = elapsed;
     };
 
@@ -126,16 +128,16 @@ export function PageNovaParticleSphere({ language = "pt" }: { language?: "pt" | 
       for (const zone of zones) {
         if (elapsed >= zone.nextAt && elapsed >= zone.activeUntil) {
           // Brief spacing between activations prevents simultaneous bursts.
-          if (elapsed - lastEmissionAt > 900) activate(zone);
+          if (elapsed - lastEmissionAt > 700) activate(zone);
           else zone.nextAt = elapsed + interval(650, 1400);
         }
         if (elapsed >= zone.activeUntil) continue;
         zone.accumulator += dt * zone.emitRate;
-        const spawn = Math.min(6, Math.floor(zone.accumulator), maxSparks - sparks.length);
+        const spawn = Math.max(0, Math.min(9, Math.floor(zone.accumulator), maxSparks - sparks.length));
         zone.accumulator -= Math.max(0, spawn);
         for (let i = 0; i < spawn; i++) {
-          const lateral = (Math.random() - 0.5) * 0.00032;
-          const speed = interval(0.00048, 0.00082) * zone.power;
+          const lateral = (Math.random() - 0.5) * 0.00048;
+          const speed = interval(0.00048, 0.00084) * zone.power;
           sparks.push({
             x: zone.x + interval(-0.025, 0.025),
             y: zone.y + interval(-0.012, 0.012),
@@ -143,7 +145,7 @@ export function PageNovaParticleSphere({ language = "pt" }: { language?: "pt" | 
             vy: zone.dy * speed + zone.dx * lateral - 0.00006,
             age: 0,
             life: interval(850, 1550),
-            radius: interval(0.8, 1.9),
+            radius: interval(0.9, 2.1),
             color: Math.floor(Math.random() * 3),
           });
         }
