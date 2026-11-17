@@ -58,7 +58,10 @@ test("build path waits for actual preview DOM verification before recording lear
  const page=readFileSync(new URL("../src/app/app/builder-v2/page.tsx",import.meta.url),"utf8");
  assert.match(page,/applyApprovedSectionBackground\(site,prompt,approvedTechnique\)/);
  assert.match(page,/const pendingLearnedVisual=!!\(guidedBackgroundApplied&&backgroundSection&&backgroundColor&&verifiedSolution\)/);
- assert.match(page,/if\(!movementPlan&&!pendingLearnedVisual\)/);
+ // Delivery 6: do not restore the removed state-only "applied" shortcut.
+ assert.match(page,/const needsUniversalProof=!movementPlan&&!guidedBackgroundApplied/);
+ assert.match(page,/if\(universalProof\?\.ok\)pendingUniversalVisualProofRef\.current=/);
+ assert.doesNotMatch(page,/if\(!movementPlan&&!pendingLearnedVisual\)\{recordEditorLearningEvent/);
  assert.match(page,/pendingBackgroundVisualReviewRef\.current=\{/);
  assert.match(page,/pending\.solution\?\{\.\.\.pending\.solution,verification:"visual"\}:null,pending\.reuse/);
 });
