@@ -171,7 +171,7 @@ export function BuilderV2LearningMetrics({enabled=false}:{enabled?:boolean}){
       <div className="grid gap-2">
        {coverage.tasks.map(item=><div key={item.task} className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-white/[.045] px-3 py-2">
         <span className="font-semibold">{item.task==="text"?"Texto":item.task==="color"?"Cores":item.task==="image"?"Imagem":item.task==="section"?"Adicionar/remover seção":"Alinhamento/ordem"}</span>
-        <span className="text-white/65">{item.successful}/{item.reviewed} aprovados</span>
+        <span className="text-white/65">{item.successful}/{item.reviewed} aprovados · {item.coveredPairs}/399 cenários</span>
         <span className={item.ratePercent===null?"text-amber-200":"text-lime-300"}>{item.ratePercent===null?"Amostra insuficiente":item.ratePercent+"% observado"}</span>
        </div>)}
       </div>
