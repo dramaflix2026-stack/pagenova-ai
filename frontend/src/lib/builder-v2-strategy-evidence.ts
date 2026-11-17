@@ -21,6 +21,8 @@ export type StrategyEvidence={
  incompleteRequests:number;
  unclassifiedRequests:number;
  requestsWithVerifiedReuse:number;
+ /** Source-reviewed and visual-verified reuse IDs only; never raw reuse links. */
+ verifiedReuseEventIds:string[];
  verifiedReuseOperations:number;
  missingOrLateReuseOperations:number;
  eligibleForStrategyComparison:boolean;
@@ -127,6 +129,7 @@ export function evaluateStrategyEvidence(
  return {routes:rows,contexts:[...contexts.values()].sort((a,b)=>b.reviewed-a.reviewed||a.key.localeCompare(b.key)).slice(0,12),
   mixedRouteRequests:mixed,incompleteRequests:incomplete,unclassifiedRequests:unclassified,
   requestsWithVerifiedReuse:usedReuse,verifiedReuseOperations:verifiedOps,
+  verifiedReuseEventIds:[...verifiedTargets].sort(),
   missingOrLateReuseOperations:missing,eligibleForStrategyComparison:eligible,
   statisticallyPreferredRoute:superior,
   withVerifiedReuse:assisted,withoutVerifiedReuseRecord:noReuse,completeDataset};
