@@ -5,6 +5,7 @@ import { MobileAppBackGuard } from "@/components/mobile-app-back-guard";
 import { PageNovaSupportChat } from "@/components/pagenova-support-chat";
 import { createClient } from "@/lib/supabase/server";
 import { getPageNovaAccess } from "@/lib/trial/server";
+import { isVerifiedInternalLearningAccount } from "@/lib/builder-v2-internal-learning-access.server";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -49,9 +50,17 @@ export default async function ProductLayout({
     }
   );
 
-  let access:Awaited<ReturnType<typeof getPageNovaAccess>>;
-  try { access=await getPageNovaAccess(admin,user,true); }
-  catch { redirect("/access-required?error=entitlement_lookup"); }
+  // The two verified PageNova platform owners administer their own projects
+  // without claiming a commercial purchase or restarting an expired trial.
+  // Every other authenticated account remains subject to entitlement/trial checks.
+  const verifiedOwner=isVerifiedInternalLearningAccount(user);
+  let access:Awaited<ReturnType<typeof getPageNovaAccess>>|{kind:"owner"};
+  if(verifiedOwner){
+    access={kind:"owner"};
+  }else{
+    try { access=await getPageNovaAccess(admin,user,true); }
+    catch { redirect("/access-required?error=entitlement_lookup"); }
+  }
   if(access.kind==="none"){
     redirect(access.reason==="expired"?"/trial-expired":"/access-required");
   }
