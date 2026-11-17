@@ -1889,3 +1889,36 @@
  .pnr-page .pnr-footer-onesignal .pnr-footer-bottom-brand img{width:112px!important}
  .pnr-page .pnr-footer-onesignal .pnr-copyright{text-align:center!important;font-size:11px!important}
 }
+
+
+/* Portrait artwork integration: keep desktop assets and switch to 9:16 on phones. */
+.pnr-page .pnr-showcase-dashboard .pnr-showcase-approved-picture{
+ position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;
+ opacity:0;visibility:hidden;pointer-events:none;transition:opacity .3s ease;
+}
+.pnr-page .pnr-showcase-dashboard .pnr-showcase-approved-picture.is-current{
+ opacity:1;visibility:visible;
+}
+.pnr-page .pnr-showcase-dashboard .pnr-showcase-approved-picture .pnr-showcase-approved-art.is-loaded{
+ position:static!important;top:auto!important;left:auto!important;
+ transform:none!important;opacity:1!important;visibility:visible!important;
+ width:96%;height:auto;max-height:92%;object-fit:contain;
+}
+.pnr-page .pnr-guarantee-responsive-art{display:block;width:100%}
+@media(max-width:767px){
+ .pnr-page .pnr-showcase-dashboard{padding:0!important;min-height:0!important;aspect-ratio:9 / 16;overflow:hidden!important}
+ .pnr-page .pnr-showcase-dashboard .pnr-showcase-approved-picture .pnr-showcase-approved-art.is-loaded{
+  width:100%!important;height:100%!important;max-height:none!important;
+  object-fit:contain!important;object-position:center!important;
+  -webkit-mask-image:none!important;mask-image:none!important;
+ }
+ .pnr-page .pnr-showcase-dashboard .pnr-showcase-approved-picture{inset:0}
+ .pnr-page .pnr-guarantee-full-art .pnr-guarantee-responsive-art .pnr-guarantee-full-image{
+  display:block!important;width:100%!important;height:auto!important;
+  animation:none!important;transform:none!important;filter:none!important;
+  -webkit-mask-image:none!important;mask-image:none!important;
+ }
+ .pnr-page .pnr-guarantee-full-art .pnr-guarantee-mobile{display:none!important}
+ .pnr-page .pnr-guarantee-full-art{overflow:hidden!important}
+ .pnr-page .pnr-guarantee-full-art::after{display:none!important}
+}
