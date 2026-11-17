@@ -2769,28 +2769,23 @@ body .pnr-page.pnr-shared-footer footer.pnr-footer.pnr-footer-onesignal::after{
   object-position:center!important;transform:none!important;animation:none!important;
  }
 }
-/* English guarantee: use the new uploaded 16:9 artwork, retain its native
-   proportions and match the visible shield scale in the approved PT-BR layout.
-   Single EN rule block; the PT, ES and mobile artwork remain untouched. */
+/* EN guarantee inherits the exact approved PT-BR 2048:682 presentation.
+   No EN-specific shrinking or oversized scaling. */
 @media(min-width:768px){
  body .pnr-page.pnr-shared-trust .pnr-trust .pnr-guarantee-full-art.pnr-guarantee-english{
-  display:block!important;width:min(100%,1050px)!important;
-  max-width:1050px!important;margin:0 auto 12px!important;
-  padding:0!important;min-height:0!important;
+  width:min(100%,1440px)!important;max-width:1440px!important;
+  margin:0 auto 12px!important;padding:0!important;min-height:0!important;
  }
  body .pnr-page.pnr-shared-trust .pnr-trust .pnr-guarantee-english .pnr-guarantee-responsive-art{
-  display:block!important;position:relative!important;
-  width:100%!important;height:auto!important;aspect-ratio:auto!important;
+  position:relative!important;display:block!important;
+  width:100%!important;height:auto!important;aspect-ratio:2048/682!important;
  }
  body .pnr-page.pnr-shared-trust .pnr-trust .pnr-guarantee-english .pnr-guarantee-full-image{
   display:block!important;width:100%!important;height:auto!important;
   max-width:100%!important;max-height:none!important;
   object-fit:contain!important;object-position:center!important;
  }
- /* The particles belong to the shield, not the text or the dark margin. */
- body .pnr-page.pnr-shared-trust .pnr-guarantee-english .pnr-shield-particle-field{
-  left:13%!important;top:7%!important;width:35%!important;height:70%!important;
- }
+ /* Same particle-field coordinates and animation as approved PT-BR. */
 }
 /* English copy is longer: keep it on the same visual scale as the PT heading. */
 @media(min-width:651px){
