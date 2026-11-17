@@ -65,7 +65,7 @@ export function TP6FloricultureModel1({brand,headline,description,images,edits,r
  const collectionCards=collections.map(([title,copy],i)=>({
   title:i===0&&edits?.firstCollectionCard?.title?edits.firstCollectionCard.title:title,
   copy:i===0&&edits?.firstCollectionCard?.description?edits.firstCollectionCard.description:copy,
-  image:i===0&&safePhoto(edits?.firstCollectionCard?.image)?edits!.firstCollectionCard!.image!:photo(i+1)
+  image:photo(i+1)
  }));
  const gallery=Array.from({length:6},(_,i)=>photo(i+2));
  const reviewCards=Array.from({length:6},(_,i)=>{
