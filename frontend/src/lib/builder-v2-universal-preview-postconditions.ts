@@ -1,4 +1,5 @@
 import type {UniversalSite} from "./builder-v2-universal-operations.ts";
+import {universalSectionDomIdMatches} from "./builder-v2-universal-preview-sections.ts";
 
 /** Visual contract generated from a completed move, never from chat assertions. */
 export type UniversalPreviewMoveContract={
@@ -46,7 +47,7 @@ export function auditUniversalPreviewMove(root:ParentNode,win:Pick<Window,"getCo
  if(matchingSection.length!==1)return fail("A seção movimentada está ausente ou duplicada na prévia.");
  const moved=matchingSection[0];
  const candidateAnchors=all.filter(el=>isVisible(el)&&(
-  isExact(el,plan.anchorId)||el.id&&normId(el.id).endsWith("-"+normId(plan.anchorId))&&!el.id.startsWith("custom-")
+  isExact(el,plan.anchorId)||(!!el.id&&universalSectionDomIdMatches(plan.anchorId,el.id))
  ));
  if(candidateAnchors.length!==1)return fail("A seção de referência não foi localizada de forma única na prévia.");
  const anchor=candidateAnchors[0];
