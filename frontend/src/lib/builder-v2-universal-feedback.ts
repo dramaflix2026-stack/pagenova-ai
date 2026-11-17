@@ -31,7 +31,7 @@ export function classifyUniversalFeedback(instruction:string):{intent:UniversalF
  const add=/\b(?:adicione|adicionar|inclua|incluir|insira|inserir|crie|criar)\b[^.!?]{0,90}\b(?:secao|especialidade|card)\b/.test(action);
  const remove=/\b(?:remova|remover|exclua|excluir|apague|apagar|delete|deletar)\b[^.!?]{0,90}\b(?:secao|card|bloco)\b/.test(action);
  const intent:UniversalFeedbackIntent=add?"add-section":remove?"remove-section":
-  /(alinh|centraliz|ordem|reorden|mova|mover|reposicion)/.test(text)?"layout":
+  /\b(?:alinh\w*|centraliz\w*|ordem|reorden\w*|mova|mover|reposicion\w*)\b/.test(action)?"layout":
   /(imagem|foto|fotografia|capa|banner)/.test(text)?"image":
   /(cor|cores|color|fundo|background)/.test(text)?"style":
   /(texto|titulo|descric|subtitulo)/.test(text)?"copy":"other";
