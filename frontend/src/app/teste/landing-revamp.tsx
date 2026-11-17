@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, BarChart3, Blocks, BriefcaseBusiness, Building2, Check, ChevronDown, CircleHelp, Clapperboard, Code2, Crown, Globe2, Layers3, LayoutTemplate, Menu, MonitorSmartphone, Play, Rocket, ShieldCheck, ShoppingBag, Sparkles, Store, Target, Users, WandSparkles, X, Zap } from "lucide-react";
 import { PremiumAiDemo } from "./premium-ai-demo";
@@ -55,6 +55,49 @@ const localizedStyleImages: Record<Lang, Record<"institucional" | "cinematografi
   "3d-imersivo": {desktop:"/gallery-styles/es/banner%203d%20imersivo%20espanhol.png",mobile:"/gallery-styles/es/mobile%203d%20imersivo%20%20espanhol.png"},
  },
 };
+
+
+/**
+ * The approved English desktop PNGs are ultra-wide. Build a real 16:9 frame
+ * without stretching or cropping their baked-in titles and laptop imagery.
+ * Only the upper/lower edge pixels are extended to fill the extra height.
+ */
+function EnglishGalleryFrame({src}:{src:string}){
+ const canvasRef=useRef<HTMLCanvasElement>(null);
+ const [ready,setReady]=useState(false);
+ useEffect(()=>{
+  let active=true;
+  setReady(false);
+  const image=new Image();
+  image.decoding="async";
+  image.onload=()=>{
+   if(!active)return;
+   const canvas=canvasRef.current,ctx=canvas?.getContext("2d");
+   if(!canvas||!ctx)return;
+   const w=1200,h=675,sw=image.naturalWidth,sh=image.naturalHeight;
+   if(!sw||!sh)return;
+   canvas.width=w;canvas.height=h;
+   ctx.clearRect(0,0,w,h);
+   ctx.fillStyle="#06140c";ctx.fillRect(0,0,w,h);
+   const scaledHeight=Math.min(h,w*sh/sw);
+   const top=(h-scaledHeight)/2;
+   if(top>0){
+    const edge=Math.max(2,Math.round(sh*.015));
+    ctx.save();
+    ctx.filter="blur(14px)";
+    ctx.drawImage(image,0,0,sw,edge,-12,-18,w+24,top+36);
+    ctx.drawImage(image,0,sh-edge,sw,edge,-12,top+scaledHeight-18,w+24,h-top-scaledHeight+36);
+    ctx.restore();
+   }
+   ctx.drawImage(image,0,0,sw,sh,0,top,w,scaledHeight);
+   setReady(true);
+  };
+  image.onerror=()=>{if(active)setReady(false)};
+  image.src=src;
+  return ()=>{active=false};
+ },[src]);
+ return <canvas ref={canvasRef} className={"pnr-en-gallery-canvas"+(ready?" is-ready":"")} aria-hidden="true"/>;
+}
 
 function LanguageFlag({code}:{code:Lang}){return <svg className="pnr-country-flag" viewBox="0 0 30 20" width="30" height="20" role="img" aria-label={code==="pt"?"Brasil":code==="en"?"Estados Unidos":"Espanha"}>{code==="pt"?<><rect width="30" height="20" fill="#159447"/><path d="M15 2 28 10 15 18 2 10Z" fill="#FFDF00"/><circle cx="15" cy="10" r="5.2" fill="#173A91"/><path d="M10 8.6q5-1.4 10 2" fill="none" stroke="#fff" strokeWidth="1.1"/></>:code==="en"?<><rect width="30" height="20" fill="#fff"/>{[0,1,2,3,4,5,6].map(i=><rect key={i} x="0" y={i*3} width="30" height="1.6" fill="#B22234"/>)}<rect width="13" height="11" fill="#3C3B6E"/>{[0,1,2].map(i=>[0,1,2,3].map(j=><circle key={i+"-"+j} cx={2+j*3} cy={2+i*3} r=".65" fill="#fff"/>))}</>:<><rect width="30" height="20" fill="#AA151B"/><rect y="5" width="30" height="10" fill="#F1BF00"/><rect x="8" y="8" width="3" height="5" rx=".5" fill="#AA151B"/></>}</svg>}
 
@@ -281,7 +324,7 @@ export function LandingRevamp() {
    </section>
    <section id="estilos" className="pnr-section pnr-styles">
     <header className="pnr-section-heading"><p className="pnr-overline">{t.stylesTag}</p><h2>{t.stylesTitle} <em>{t.stylesHi}</em></h2><p>{t.stylesDesc}</p></header>
-    <div className="pnr-style-grid" data-motion-scope="styles">{(["institucional","cinematografico","3d-imersivo"] as const).map((id,i)=><div className={"pnr-style-card"+(lang==="en"?" pnr-style-card--en":"")} key={id}><picture><source media="(max-width: 650px)" srcSet={localizedStyleImages[lang][id].mobile}/><img src={localizedStyleImages[lang][id].desktop} alt={t.types[i]} width="1600" height="900" loading="lazy" decoding="async"/></picture></div>)}</div>
+    <div className="pnr-style-grid" data-motion-scope="styles">{(["institucional","cinematografico","3d-imersivo"] as const).map((id,i)=><div className={"pnr-style-card"+(lang==="en"?" pnr-style-card--en":"")} key={id}><picture><source media="(max-width: 650px)" srcSet={localizedStyleImages[lang][id].mobile}/><img src={localizedStyleImages[lang][id].desktop} alt={t.types[i]} width="1600" height="900" loading="lazy" decoding="async"/></picture>{lang==="en"&&<EnglishGalleryFrame src={localizedStyleImages.en[id].desktop}/>}</div>)}</div>
     <p className="pnr-footnote">{t.stylesNote}</p>
    </section>
    <section id="publicos" className="pnr-section pnr-audiences">
