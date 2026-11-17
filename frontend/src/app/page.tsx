@@ -1,3 +1,4 @@
+import { LandingShell } from "./teste/landing-shell";
 import type {Metadata} from "next";
 import { LandingRevamp } from "./teste/landing-revamp";
 import { PageNovaLandingMotion, PageNovaVideoShowcase } from "@/components/pagenova-landing-motion";
@@ -129,7 +130,7 @@ function ProductFrame() {
 
 export default function Home() {
   if (process.env.PAGENOVA_PUBLIC_LP === "v2") {
-    return <LandingRevamp official initialLanguage="pt" />;
+    return <LandingShell><LandingRevamp official initialLanguage="pt" /></LandingShell>;
   }
   return (
     <main className="pn-mobile-centered pn-landing-v2 min-h-screen overflow-x-clip bg-[#0b100d] font-sans text-[#f2f6f1]"><PageNovaLandingMotion />
