@@ -87,6 +87,12 @@ export function verifyUniversalEditResult<T extends UniversalSite>(before:T,afte
  if(ids.size!==changedIds.length)return reject("IDs de alteração duplicados.");
  if(JSON.stringify(before)===JSON.stringify(after))return reject("O site permaneceu inalterado.");
  const oldOrder=before.blocks.map(b=>b.id),newOrder=after.blocks.map(b=>b.id);
+ const oldEventCount=Array.isArray(before.universalSectionEvents)?before.universalSectionEvents.length:0;
+ const newlyPlacedSections=new Set(
+  (Array.isArray(after.universalSectionEvents)?after.universalSectionEvents:[]).slice(oldEventCount)
+   .filter(event=>event.action==="move"&&!!(event.after?.id||event.before?.id))
+   .map(event=>event.section.id)
+ );
  for(const id of ids){
   if(id==="primary-cta-theme"){
    const previous=(before as Record<string,unknown>).universalPrimaryCtaColor;
@@ -122,7 +128,11 @@ export function verifyUniversalEditResult<T extends UniversalSite>(before:T,afte
    const survivingOld=oldOrder.filter(blockId=>nextBlocks.has(blockId));
    const survivingNew=newOrder.filter(blockId=>oldBlocks.has(blockId));
    const genuinelyReordered=survivingOld.indexOf(id)!==survivingNew.indexOf(id);
-   if(!genuinelyReordered)return reject("Bloco indicado não foi modificado nem movido: "+id);
+   // Reasserting a saved-but-invisible custom section may leave JSON block
+   // order unchanged. A fresh section move event is still a real placement
+   // obligation; only the subsequent DOM verifier can mark it applied.
+   if(!genuinelyReordered&&!(old.section&&newlyPlacedSections.has(old.section)))
+    return reject("Bloco indicado não foi modificado nem movido: "+id);
   }
  }
  for(const [id,old] of oldBlocks){
