@@ -12,7 +12,7 @@ import {diagnoseUniversalEditFailure,verifyUniversalEditResult} from "@/lib/buil
 import {findUniversalPreviewSections,universalPreviewSectionSelectors} from "@/lib/builder-v2-universal-preview-sections";
 import {planUniversalPreviewMove,auditUniversalPreviewMove,type UniversalPreviewMoveContract} from "@/lib/builder-v2-universal-preview-postconditions";
 import {planUniversalVisualProof,auditUniversalVisualProof,type UniversalVisualProof} from "@/lib/builder-v2-editor-visual-proof";
-import {captureUniversalRegressionSentinels,auditUniversalRegressionSentinels,type RegressionSentinel} from "@/lib/builder-v2-regression-guard";
+import {auditUniversalRegressionState,captureUniversalRegressionSentinels,auditUniversalRegressionSentinels,type RegressionSentinel} from "@/lib/builder-v2-regression-guard";
 import {resolveUniversalSection} from "@/lib/builder-v2-universal-targets";
 import {classifyUniversalFeedback,inferUniversalFeedbackFailureCode} from "@/lib/builder-v2-universal-feedback";
 import {learnReviewedExecutionRoute} from "@/lib/builder-v2-universal-online-learning";
@@ -509,6 +509,14 @@ export default function BuilderV2() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [reviewCandidate,setReviewCandidate]=useState<{id:string;status:"pending"|"approved"|"rejected"}|null>(null);
   const previewVisualAuditRef=useRef<HTMLDivElement|null>(null);
+  /** Snapshot actual old iframe content before switching the edited site.
+   * If the preview is unavailable, positive proof still remains mandatory. */
+  function captureCurrentPreviewRegression(before:Site,after:Site,changedIds:readonly string[]):RegressionSentinel[]{
+    const frame=previewVisualAuditRef.current?.querySelector("iframe");
+    const doc=frame?.contentDocument,win=frame?.contentWindow;
+    const root=doc?.getElementById("pn-v2-preview-root")||doc?.body;
+    return root&&win?captureUniversalRegressionSentinels(root,win,before,after,changedIds):[];
+  }
   const pendingBackgroundVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;color:string;solution?:EditorSolutionMemory|null;reuse?:{sourceEventId:string;technique:string};trace?:EditorSubmissionTrace|null}|null>(null);
   const pendingSectionPhotoVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;src:string;solution?:EditorSolutionMemory|null;trace?:EditorSubmissionTrace|null}|null>(null);
   const pendingMoveVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;contract:UniversalPreviewMoveContract;solution?:EditorSolutionMemory|null;reuse?:{sourceEventId:string;technique:string};trace?:EditorSubmissionTrace|null}|null>(null);
@@ -1354,7 +1362,8 @@ export default function BuilderV2() {
         }
         pendingUniversalVisualProofRef.current={trace:activeSubmissionTraceRef.current,
           prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",
-          contract:proof.contract,siteAfter:heroChange.site};
+          contract:proof.contract,siteAfter:heroChange.site,
+          regressionSentinels:captureCurrentPreviewRegression(site,heroChange.site,heroChange.changedIds)};
         recordVersion(site,"Antes de editar o título principal");
         setHistory(previous=>[...previous.slice(-19),site]);setRedoHistory([]);
         setSite(heroChange.site);setInstruction("");setGenerationError("");
@@ -2310,7 +2319,6 @@ export default function BuilderV2() {
       // Preserve the selected visual mode when AI generation returns a site without cinematic settings.
       if(site.cinematic?.mode && site.cinematic.mode!=="static" && incoming.cinematic?.mode!==site.cinematic.mode) incoming={...incoming,cinematic:{...site.cinematic,mode:site.cinematic.mode}};
       incoming=prepareTP1MakeupSite(incoming,shouldCreateProject?incoming.niche:selectedNiche);
-      setSite(incoming);
       // Delivery 7 regression follow-up: the AI editor may change a JSON
       // heading that a premium renderer does NOT actually display. The real
       // preview DOM — not the API summary — must decide whether learning records
@@ -2322,11 +2330,19 @@ export default function BuilderV2() {
           ...incoming.blocks.filter(b=>JSON.stringify(previousBlocks.get(b.id))!==JSON.stringify(b)).map(b=>b.id),
           ...site.blocks.filter(b=>!nextIds.has(b.id)).map(b=>b.id)
         ];
+        const regression=auditUniversalRegressionState(site,incoming,changedIds);
+        if(!regression.ok){
+          recordEditorLearningEvent(site.niche||"",prompt,"rejected","ai-editor-regression-blocked",
+            site.briefingLayoutVariant||"01",undefined,undefined,activeSubmissionTraceRef.current);
+          setMessages(prev=>[...prev,{role:"assistant",text:"Edição bloqueada antes de alterar o projeto: "+regression.reason}]);
+          return;
+        }
         const visual=changedIds.length?planUniversalVisualProof(site,incoming,changedIds):null;
         if(visual?.ok){
           pendingUniversalVisualProofRef.current={trace:activeSubmissionTraceRef.current,
             prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",
-            contract:visual.contract,siteAfter:incoming,strategy:"ai-editor-visual-verified"};
+            contract:visual.contract,siteAfter:incoming,strategy:"ai-editor-visual-verified",
+            regressionSentinels:captureCurrentPreviewRegression(site,incoming,changedIds)};
         }else{
           recordEditorLearningEvent(site.niche||"",prompt,"rejected","ai-editor-visual-unverifiable",
             site.briefingLayoutVariant||"01",undefined,undefined,activeSubmissionTraceRef.current);
@@ -2334,6 +2350,7 @@ export default function BuilderV2() {
             text:"A IA retornou dados, mas não foi possível comprovar essa edição na prévia. Não aprove como sucesso; o resultado ficou registrado para diagnóstico."}]);
         }
       }
+      setSite(incoming);
       let finishedSite=incoming;
        if (!site.blocks.length || creatingNewSite) {
          try { finishedSite=await generateVisuals(incoming,prompt);finishedSite=prepareTP1MakeupSite(finishedSite,shouldCreateProject?finishedSite.niche:selectedNiche);setSite(finishedSite); }
