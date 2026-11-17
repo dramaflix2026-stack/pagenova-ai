@@ -41,7 +41,7 @@ test("Six enlarged floral gallery photographs and working keyboard lightbox",()=
 test("Six clearly disclosed testimonials in 3 by 2 desktop grid",()=>{
  assert.equal((ui.match(/"EXEMPLO FICTÍCIO · NÃO É CLIENTE REAL"/g)||[]).length,1);
  assert.match(ui,/testimonialRows=Array\.from\(\{length:6\}/);
- assert.match(ui,/Fotografia de depoimento cadastrado/);
+ assert.match(ui,/Foto de depoimento cadastrado/);
  assert.match(ui,/retratos?/i);
  assert.match(css,/\.pn-floral2-testimonial-grid\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
  assert.match(css,/\.pn-floral2-testimonial-grid\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
