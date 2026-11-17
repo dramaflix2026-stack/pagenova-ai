@@ -49,7 +49,6 @@ export function BuilderV2LearningMetrics({enabled=false}:{enabled?:boolean}){
      if(rows.length<PAGE)break;
      if(offset+PAGE===MAX_ROWS)complete=false;
     }
-    const reused=new Set<string>();
     const reuseEdges:ReuseEdge[]=[];
     for(let offset=0;offset<MAX_ROWS;offset+=PAGE){
      const {data,error:reuseError}=await client.from("builder_editor_learning_reuses")
@@ -59,7 +58,6 @@ export function BuilderV2LearningMetrics({enabled=false}:{enabled?:boolean}){
      if(reuseError)throw new Error("Atribuições de aprendizado indisponíveis.");
      const rows=data||[];
      for(const row of rows)if(typeof row.event_id==="string"){
-      reused.add(row.event_id);
       if(typeof row.source_event_id==="string")
        reuseEdges.push({event_id:row.event_id,source_event_id:row.source_event_id,technique:row.technique});
      }
@@ -67,7 +65,9 @@ export function BuilderV2LearningMetrics({enabled=false}:{enabled?:boolean}){
      if(offset+PAGE===MAX_ROWS)complete=false;
     }
     if(active){
-     setMetrics(measureFirstRequests(events,reused,countResult.count??events.length,complete));
+     // A raw reuse link is not proof of learning. Start without attribution;
+     // replace this cohort only after source review + visual memory verification.
+     setMetrics(measureFirstRequests(events,new Set<string>(),countResult.count??events.length,complete));
      setCoverage(auditUniversalCoverage(events as UniversalCoverageEvent[],complete));
     }
     // Attribution is intentionally stricter than a reuse link alone.
@@ -91,9 +91,13 @@ export function BuilderV2LearningMetrics({enabled=false}:{enabled?:boolean}){
       sourceEvents.push(...(reviews.data||[]) as SourceReview[]);
       sourceMemories.push(...(memory.data||[]) as SourceMemory[]);
      }
-     if(active)setStrategyEvidence(evaluateStrategyEvidence(
+     const verifiedEvidence=evaluateStrategyEvidence(
       events as StrategyEvent[],reuseEdges,sourceEvents,sourceMemories,complete
-     ));
+     );
+     if(active){
+      setStrategyEvidence(verifiedEvidence);
+      setMetrics(measureFirstRequests(events,new Set(verifiedEvidence.verifiedReuseEventIds),countResult.count??events.length,complete));
+     }
      const targetIds=[...new Set(reuseEdges.map(row=>row.event_id))];
      const targets:FamilyTargetReview[]=[];
      for(let offset=0;offset<targetIds.length;offset+=100){
@@ -151,14 +155,14 @@ export function BuilderV2LearningMetrics({enabled=false}:{enabled?:boolean}){
       <p className="mt-1 text-white/70">Intervalo Wilson 95%: {metrics.lower95Percent}%–{metrics.upper95Percent}% (n={metrics.reviewedRequests}).</p>
       <p className="mt-1 text-amber-200">{metrics.statisticallySupports98Percent?"Limite inferior compatível com 98%.":"A meta de 98% ainda NÃO está demonstrada com confiança de 95%."}</p>
      </div>}
-    <div className="rounded-lg border border-white/15 p-3">
-     <p className="font-semibold text-white/90">Comparação descritiva do aprendizado</p>
+    {strategyEvidence?<div className="rounded-lg border border-white/15 p-3">
+     <p className="font-semibold text-white/90">Comparação descritiva do aprendizado · somente reutilizações comprovadas</p>
      <p className="mt-1 text-white/70">Com reutilização auditada: {metrics.withVerifiedReuse.reviewed} solicitações; sem reutilização auditada: {metrics.withoutVerifiedReuse.reviewed}.</p>
      <p className="mt-1 text-white/70">{metrics.comparisonReady?
       "Taxas observadas: "+metrics.withVerifiedReuse.ratePercent+"% com reutilização e "+metrics.withoutVerifiedReuse.ratePercent+"% sem reutilização.":
       "Sem base suficiente para comparar os dois grupos (mínimo de 30 solicitações avaliadas em cada)."}
      </p>
-    </div>
+    </div>:<p className="text-amber-200">Atribuição do aprendizado não comprovada; comparação de reutilização indisponível.</p>}
     <div className="rounded-lg border border-white/15 p-3" aria-label="Entrega 14: cobertura universal verificada">
      <p className="font-semibold text-lime-300">Cobertura universal · Entrega 14</p>
      <p className="mt-1 text-white/60">Somente comandos reais da sua conta, com revisão concluída. Uma solicitação conta uma vez, mesmo com várias operações.</p>
