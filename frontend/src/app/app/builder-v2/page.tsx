@@ -30,7 +30,7 @@ import {quarantineReviewedReuses,reuseKey,type ReuseEdge,type ReuseOutcome} from
 import {auditFamilyTransfers,type FamilySourceReview,type FamilySolutionMemory,type FamilyTargetReview} from "@/lib/builder-v2-family-transfer-audit";
 import {applyApprovedSectionBackground} from "@/lib/builder-v2-universal-learned-style";
 import {applyRenderedSectionBackground} from "@/lib/builder-v2-rendered-section-background";
-import {applyRenderedFloricultureSectionCreation} from "@/lib/builder-v2-rendered-floriculture-section";
+import {applyRenderedFloricultureSectionCreation,applyRenderedFloricultureSectionMove} from "@/lib/builder-v2-rendered-floriculture-section";
 import {createClient as createSupabaseBrowserClient} from "@/lib/supabase/client";
 import {parseUniversalCopyEdit,isIsolatedUniversalCopyResult} from "@/lib/builder-v2-universal-copy-edits";
 
@@ -525,7 +525,7 @@ export default function BuilderV2() {
   const pendingBackgroundVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;color:string;solution?:EditorSolutionMemory|null;reuse?:{sourceEventId:string;technique:string};trace?:EditorSubmissionTrace|null}|null>(null);
   const pendingHeroPhotoVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;src:string;before:Site;strategy?:"floriculture-hero-photo";trace?:EditorSubmissionTrace|null}|null>(null);
   const pendingSectionPhotoVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;src:string;solution?:EditorSolutionMemory|null;trace?:EditorSubmissionTrace|null}|null>(null);
-  const pendingMoveVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;contract:UniversalPreviewMoveContract;solution?:EditorSolutionMemory|null;reuse?:{sourceEventId:string;technique:string};trace?:EditorSubmissionTrace|null}|null>(null);
+  const pendingMoveVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;contract:UniversalPreviewMoveContract;siteAfter?:Site;before?:Site;rollbackOnFailure?:boolean;strategy?:string;solution?:EditorSolutionMemory|null;reuse?:{sourceEventId:string;technique:string};trace?:EditorSubmissionTrace|null}|null>(null);
   const pendingUniversalVisualProofRef=useRef<{prompt:string;niche:string;variant:string;contract:UniversalVisualProof;siteAfter:Site;before?:Site;rollbackOnFailure?:boolean;regressionSentinels:RegressionSentinel[];strategy?:string;solution?:EditorSolutionMemory|null;reuse?:{sourceEventId:string;technique:string};trace?:EditorSubmissionTrace|null}|null>(null);
   const [previewVisualAudit,setPreviewVisualAudit]=useState<string|null>(null);
   useEffect(()=>{
@@ -659,20 +659,22 @@ export default function BuilderV2() {
       const iframe=previewVisualAuditRef.current?.querySelector("iframe");
       const doc=iframe?.contentDocument,win=iframe?.contentWindow;
       const root=doc?.getElementById("pn-v2-preview-root")||doc?.body;
-      const outcome=root&&win?auditUniversalPreviewMove(root,win,pending.contract):
+      const stale=!!pending.siteAfter&&pending.siteAfter!==site;
+      const outcome=stale?{ok:false,reason:"O projeto mudou durante a auditoria da movimentação."}:root&&win?auditUniversalPreviewMove(root,win,pending.contract):
        {ok:false,reason:"A prévia ainda não está disponível."};
       if(outcome.ok){
         pendingMoveVisualReviewRef.current=null;
         window.clearInterval(timer);
-        recordEditorLearningEvent(pending.niche,pending.prompt,"applied","universal-move-visual-verified",pending.variant,pending.solution?{...pending.solution,verification:"visual"}:null,pending.reuse,pending.trace);
+        recordEditorLearningEvent(pending.niche,pending.prompt,"applied",pending.strategy||"universal-move-visual-verified",pending.variant,pending.solution?{...pending.solution,verification:"visual"}:null,pending.reuse,pending.trace);
         captureReviewCandidate();
         setMessages(previous=>[...previous,{role:"assistant",text:"Movimentação confirmada na prévia: posição, título, alinhamento e cards conferidos. Avalie o resultado antes de aprovar."}]);
-      }else if(++checks>=30){
+      }else if(stale||++checks>=30){
         pendingMoveVisualReviewRef.current=null;
         window.clearInterval(timer);
-        recordEditorLearningEvent(pending.niche,pending.prompt,"rejected","universal-move-visual-postcondition-failed",pending.variant,null,undefined,pending.trace,undefined,root&&win?"dom-layout-mismatch":undefined);
+        recordEditorLearningEvent(pending.niche,pending.prompt,"rejected",pending.strategy?"universal-rendered-floral-move-visual-failed":"universal-move-visual-postcondition-failed",pending.variant,null,undefined,pending.trace,undefined,root&&win?"dom-layout-mismatch":undefined);
         captureReviewCandidate();
-        setMessages(previous=>[...previous,{role:"assistant",text:"Edição NÃO confirmada na prévia: "+outcome.reason+" Não aprove esta tentativa; o motor registrou a falha."}]);
+        if(pending.rollbackOnFailure&&pending.before&&!stale)setSite(pending.before);
+        setMessages(previous=>[...previous,{role:"assistant",text:"Edição NÃO confirmada na prévia: "+outcome.reason+(pending.rollbackOnFailure&&!stale?" Estado anterior restaurado.":"")+" Não aprove esta tentativa; o motor registrou a falha."}]);
       }
     },500);
     return ()=>window.clearInterval(timer);
@@ -1563,6 +1565,46 @@ export default function BuilderV2() {
         setSite(renderedFloralSection.site);setInstruction("");setGenerationError("");
         setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",
           text:"Seção e cards registrados. Conferindo a prévia real: deve aparecer uma única vez, depois do Processo e antes das Perguntas Frequentes. O aprendizado só recebe o resultado após a verificação visual."}]);
+        return;
+      }
+      // Model 01 editor-owned sections can refer to real premium component
+      // anchors without corresponding generated blocks. Verify the two DOM
+      // neighbors and center only the existing section heading before ML reuse.
+      const floralMovement=!reference&&!institutionalFiles.length&&!propertyFiles.length
+        ?applyRenderedFloricultureSectionMove(site,prompt):null;
+      if(floralMovement){
+        if(!floralMovement.ok){
+          recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal-rendered-floral-move-parse-failed",site.briefingLayoutVariant||"01",undefined,undefined,activeSubmissionTraceRef.current);
+          captureReviewCandidate();
+          setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:floralMovement.error}]);
+          return;
+        }
+        const checked=verifyUniversalEditResult(site,floralMovement.site,floralMovement.changedIds);
+        const visual=checked.ok?planUniversalPreviewMove(site,floralMovement.site):null;
+        const exactMove=visual?.anchorId==="depoimentos"&&visual?.direction==="after"&&
+          visual.beforeAnchorId==="como-comprar"&&visual.heading?.align==="center"&&
+          visual.cardTitles.length===3;
+        if(!checked.ok||!visual||!exactMove){
+          const reason=!checked.ok?checked.reason:"A alteração não possui prova visual para as duas referências, o título e os três cards.";
+          recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal-rendered-floral-move-preflight-failed",site.briefingLayoutVariant||"01",undefined,undefined,activeSubmissionTraceRef.current);
+          captureReviewCandidate();
+          setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Movimentação não aplicada: "+reason}]);
+          return;
+        }
+        const solution=captureVerifiedEditorSolution(site,floralMovement.site,floralMovement.changedIds,{
+          niche:site.niche,model:site.briefingLayoutVariant,
+          family:String(resolveBriefingFamily(site.niche||"")||""),template:site.templateId
+        });
+        pendingMoveVisualReviewRef.current={
+          trace:activeSubmissionTraceRef.current,prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",
+          contract:visual,siteAfter:floralMovement.site,before:site,rollbackOnFailure:true,
+          strategy:"universal-rendered-floral-move-visual-verified",solution
+        };
+        recordVersion(site,"Antes de mover a seção floral e centralizar somente seu título");
+        setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
+        setSite(floralMovement.site);setInstruction("");setGenerationError("");
+        setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",
+          text:"Movimentação registrada. Conferindo na prévia: depois dos depoimentos e antes do Processo, com apenas o título principal centralizado e três cards preservados."}]);
         return;
       }
       const compound=splitUniversalInstructions(prompt).length>1;

@@ -3,7 +3,7 @@ import {universalSectionDomIdMatches} from "./builder-v2-universal-preview-secti
 
 /** Visual contract generated from a completed move, never from chat assertions. */
 export type UniversalPreviewMoveContract={
- kind:"move-section";sectionId:string;anchorId:string;direction:"before"|"after";
+ kind:"move-section";sectionId:string;anchorId:string;direction:"before"|"after";beforeAnchorId?:string;
  heading?:{text:string;align:"left"|"center"|"right"};
  cardTitles:string[];cardPhotos?:string[];
 };
@@ -24,7 +24,8 @@ export function planUniversalPreviewMove<T extends UniversalSite>(before:T,after
  const headings=sectionBlocks.filter(block=>block.type==="heading");
  if(!sectionBlocks.length)return null;
  const lead=headings[0];
- return {kind:"move-section",sectionId:move.section.id,anchorId:anchor,direction:move.before?"before":"after",
+ return {kind:"move-section",sectionId:move.section.id,anchorId:anchor,direction:move.after?"after":"before",
+  ...(move.after?.id&&move.before?.id?{beforeAnchorId:move.before.id}:{}),
   ...(lead&&["center","left","right"].includes(lead.align||"")?
    {heading:{text:lead.text||"",align:lead.align as "left"|"center"|"right"}}:{}),
   cardTitles:headings.length>=4?headings.slice(1).map(block=>block.text||""):[],
@@ -66,6 +67,23 @@ export function auditUniversalPreviewMove(root:ParentNode,win:Pick<Window,"getCo
   &&!anchor.contains(el)&&!moved.contains(el)&&!el.contains(anchor)&&!el.contains(moved)
   &&!!(el.getAttribute("data-universal-section")||el.id.startsWith("tp10-")||el.hasAttribute("data-section-id")));
  if(between.length)return fail("Outra seção aparece entre o destino e a seção movimentada.");
+ // When the instruction specifies BOTH adjacent rendered sections, prove
+ // both DOM neighbors. The old code accidentally used the BEFORE direction
+ // with the AFTER anchor, accepting/rejecting the wrong order.
+ if(plan.beforeAnchorId){
+  const nextAnchors=all.filter(el=>isVisible(el)&&(isExact(el,plan.beforeAnchorId!)||
+   (!!el.id&&universalSectionDomIdMatches(plan.beforeAnchorId!,el.id))));
+  if(nextAnchors.length!==1)return fail("A segunda seção de referência não foi localizada de forma única.");
+  const following=nextAnchors[0];
+  if(!(moved.compareDocumentPosition(following)&4))return fail("A seção movimentada não está antes da segunda referência.");
+  const intervening=all.filter(el=>el!==moved&&el!==following&&isVisible(el)&&
+   (el.id||el.getAttribute("data-universal-section"))&&
+   Boolean(moved.compareDocumentPosition(el)&4)&&Boolean(el.compareDocumentPosition(following)&4)&&
+   !moved.contains(el)&&!following.contains(el)&&!el.contains(moved)&&!el.contains(following)
+   // Unlike generic TP10 movement, the floral layout has real named native
+   // sections with only id attributes: they still count as intervening sections.);
+  if(intervening.length)return fail("Outra seção aparece entre a seção movimentada e a segunda referência.");
+ }
  if(plan.heading){
   const heading=moved.querySelector<HTMLElement>("h1,h2,h3");
   if(!heading)return fail("Título principal não encontrado na seção movimentada.");

@@ -73,3 +73,53 @@ export function applyRenderedFloricultureSectionCreation<T extends UniversalSite
   after:{id:after,label:following[1].trim()},before:{id:before,label:preceding[1].trim()}};
  return {...result,site:{...result.site,universalSectionEvents:[...events,placement]} as T};
 }
+
+
+/** Move only an existing, uniquely identified custom florist section.
+ * The two editorial anchors are renderer-owned IDs absent from site.blocks;
+ * the section itself must be a real existing custom section with unchanged cards.
+ * Position, title and cards must pass the separate live DOM move audit.
+ */
+export function applyRenderedFloricultureSectionMove<T extends UniversalSite>(
+ site:T,instruction:string
+):UniversalResult<T>|null{
+ if(!allowed(site)||typeof instruction!=="string"||instruction.length>1600)return null;
+ const sentences=instruction.trim().split(/\.\s*(?=[A-ZÀ-Ú])/u).map(x=>x.trim().replace(/[.!?]+$/,"")).filter(Boolean);
+ const move=sentences[0]?.match(/^(?:mova|reposicione)\s+(?:a\s+)?se[cç][aã]o\s+(.+?)\s+(?:para\s+)?(?:imediatamente\s+)?(?:depois|ap[oó]s)\s+(?:(?:da|do|de)\s+)?(?:se[cç][aã]o\s+)?(.+?)\s+e\s+(?:imediatamente\s+)?antes\s+(?:(?:da|do|de)\s+)?(?:se[cç][aã]o\s+)?(.+)$/iu);
+ if(!move)return null; // Only the exact two-reference operation is in scope.
+ const sourceName=quote(move[1]);
+ const sourceId=floricultureCustomSectionId(sourceName);
+ const sourceBlocks=site.blocks.filter(block=>block.section===sourceId);
+ if(!sourceBlocks.length)return {ok:false,error:"A seção solicitada não existe no projeto. Nenhuma alteração aplicada."};
+ const heading=sourceBlocks.filter(block=>block.type==="heading");
+ if(heading.length<2||normalized(String(heading[0].text||""))!==normalized(sourceName))
+  return {ok:false,error:"O título ou os cards da seção não foram identificados de forma única. Nenhuma alteração aplicada."};
+ const center=sentences[1]?.match(/^(?:centralize|alinhe(?:\s+ao\s+centro)?)\s+(?:(?:exclusivamente|somente|apenas)\s+)?(?:o\s+)?t[ií]tulo\s+principal\s+(?:(?:da|de)\s+)?se[cç][aã]o\s+(.+)$/iu);
+ if(!center||normalized(quote(center[1]))!==normalized(sourceName))
+  return {ok:false,error:"Indique exclusivamente o título principal da mesma seção para centralizar. Nenhuma alteração aplicada."};
+ const safeRest=sentences.slice(2).every(sentence=>
+  /^(?:preserve|mantenha|n[aã]o\s+(?:duplique|modifique|altere|exclua|remova)|a\s+nova\s+posi[cç][aã]o)\b/iu.test(sentence) &&
+  !/^(?:preserve|mantenha)\b[^.!?]*\b(?:altere|mova|troque|exclua|crie)\b/iu.test(sentence)
+ );
+ if(!safeRest)return {ok:false,error:"O comando contém outras alterações não verificáveis. Nenhuma alteração aplicada."};
+ const after=resolveRenderedFloralAnchor(move[2]),before=resolveRenderedFloralAnchor(move[3]);
+ const order=floralAnchors.map(anchor=>anchor.id);
+ if(!after||!before||after===sourceId||before===sourceId||
+  order.indexOf(before)!==order.indexOf(after)+1)
+  return {ok:false,error:"As duas seções de referência são desconhecidas ou não são consecutivas. Nenhuma alteração aplicada."};
+ const priorMoves=(site.universalSectionEvents||[]).filter(event=>event.action==="move"&&event.section.id===sourceId);
+ const prior=priorMoves.at(-1);
+ // Repeating an already successful operation must not manufacture an additional success.
+ if(prior?.after?.id===after&&prior?.before?.id===before&&heading[0].align==="center")
+  return {ok:false,error:"A seção já está nessa posição e seu título está centralizado. Confira a prévia; nenhuma edição duplicada."};
+ const alignment=applyUniversalOperations(site,[{action:"update",blockId:heading[0].id,changes:{align:"center"}}]);
+ if(!alignment.ok)return alignment;
+ const placement={action:"move" as const,
+  section:{id:sourceId,label:sourceName},
+  after:{id:after,label:quote(move[2])},
+  before:{id:before,label:quote(move[3])}};
+ const events=(alignment.site.universalSectionEvents||[]);
+ const siteAfter={...alignment.site,universalSectionEvents:[...events,placement]} as T;
+ const changedIds=[...new Set([heading[0].id,...sourceBlocks.map(b=>b.id)])];
+ return {ok:true,site:siteAfter,changedIds};
+}

@@ -6,7 +6,8 @@ import {applyRenderedSectionBackground} from "../src/lib/builder-v2-rendered-sec
 import {verifyUniversalEditResult} from "../src/lib/builder-v2-universal-learning.ts";
 import {planUniversalVisualProof,auditUniversalVisualProof} from "../src/lib/builder-v2-editor-visual-proof.ts";
 import {classifyUniversalFeedback} from "../src/lib/builder-v2-universal-feedback.ts";
-import {applyRenderedFloricultureSectionCreation,resolveRenderedFloralAnchor,floricultureCustomSectionId} from "../src/lib/builder-v2-rendered-floriculture-section.ts";
+import {applyRenderedFloricultureSectionCreation,applyRenderedFloricultureSectionMove,resolveRenderedFloralAnchor,floricultureCustomSectionId} from "../src/lib/builder-v2-rendered-floriculture-section.ts";
+import {planUniversalPreviewMove,auditUniversalPreviewMove} from "../src/lib/builder-v2-universal-preview-postconditions.ts";
 import {verifiedPeonyBouquetPhoto,isExplicitFloriculturePeonyHeroIntent,applyVerifiedFloricultureHeroPhoto} from "../src/lib/builder-v2-floriculture-hero-photo.ts";
 
 
@@ -328,3 +329,92 @@ test("Test 04 renderer works in published M1 and preview with no duplicate porta
  assert.match(portal,/createPortal/);
 });
 
+
+
+const actualTest05Prompt="Mova a seção Cuidados com as Flores para imediatamente depois da seção Histórias em cada flor e antes da seção Um processo tão especial quanto as flores.\n\nCentralize exclusivamente o título principal da seção Cuidados com as Flores.\n\nPreserve os três cards existentes, seus títulos, descrições e estilos.\n\nNão duplique, exclua ou modifique outras seções.\n\nA nova posição e o alinhamento devem aparecer imediatamente na prévia, sem precisar publicar o site.";
+const test05Fixture=()=>{
+ const previous=applyRenderedFloricultureSectionCreation(test04Site(),actualTest04Prompt);
+ assert.equal(previous.ok,true);
+ return previous.site;
+};
+test("Test 05: exact user move command centers ONLY the custom section title and preserves all three cards",()=>{
+ const before=test05Fixture();
+ const response=applyRenderedFloricultureSectionMove(before,actualTest05Prompt);
+ assert.equal(response?.ok,true);
+ const sectionId="custom-cuidados-com-as-flores";
+ assert.equal(response.changedIds.length,8);
+ const previous=before.blocks.filter(block=>block.section===sectionId);
+ const changed=response.site.blocks.filter(block=>block.section===sectionId);
+ assert.equal(changed[0].align,"center");
+ assert.equal(changed[0].alignExplicit,true);
+ for(let i=1;i<previous.length;i++)assert.deepEqual(changed[i],previous[i],"Unrequested card mutation at "+i);
+ assert.deepEqual(response.site.blocks.filter(b=>b.section!==sectionId),before.blocks.filter(b=>b.section!==sectionId));
+ assert.deepEqual(response.site.universalSectionEvents.slice(0,-1),before.universalSectionEvents);
+ const move=response.site.universalSectionEvents.at(-1);
+ assert.equal(move.action,"move");
+ assert.equal(move.section.id,sectionId);
+ assert.equal(move.after.id,"depoimentos");
+ assert.equal(move.before.id,"como-comprar");
+ assert.equal(verifyUniversalEditResult(before,response.site,response.changedIds).ok,true);
+ const plan=planUniversalPreviewMove(before,response.site);
+ assert.deepEqual(plan,{
+  kind:"move-section",sectionId,anchorId:"depoimentos",direction:"after",
+  beforeAnchorId:"como-comprar",
+  heading:{text:"Cuidados com as Flores",align:"center"},
+  cardTitles:["Água fresca","Luz indireta","Cuidado com as hastes"]
+ });
+});
+test("Test 05: actual visual move proof checks TWO adjacent anchors and heading alignment",()=>{
+ const before=test05Fixture(),after=applyRenderedFloricultureSectionMove(before,actualTest05Prompt);
+ assert.equal(after.ok,true);
+ const contract=planUniversalPreviewMove(before,after.site);
+ const mk=(id,order)=>({
+   id,order,tagName:"SECTION",
+   getAttribute:()=>null,hasAttribute:()=>false,getClientRects:()=>[{}],
+   compareDocumentPosition(other){return this.order<other.order?4:this.order>other.order?2:0;},
+   contains:()=>false,
+   querySelector:()=>({textContent:"Cuidados com as Flores",tagName:"H2",_heading:true}),
+   querySelectorAll:(selector)=>selector==="article"?["Água fresca","Luz indireta","Cuidado com as hastes"].map(title=>({querySelector:()=>({textContent:title})})):[]
+ });
+ const pos=(ids)=>ids.map((id,index)=>mk(id,index));
+ const view={getComputedStyle:element=>({display:"block",visibility:"visible",textAlign:element?._heading?"center":"left"})};
+ const check=(ids)=>auditUniversalPreviewMove({querySelectorAll:sel=>sel==="section"?pos(ids):[]},view,contract);
+ assert.equal(check(["depoimentos","custom-cuidados-com-as-flores","como-comprar","perguntas-frequentes"]).ok,true);
+ assert.equal(check(["depoimentos","como-comprar","custom-cuidados-com-as-flores","perguntas-frequentes"]).ok,false);
+ assert.equal(check(["depoimentos","custom-cuidados-com-as-flores","newsletter","como-comprar"]).ok,false);
+ assert.equal(check(["depoimentos","custom-cuidados-com-as-flores","custom-cuidados-com-as-flores","como-comprar"]).ok,false);
+ const unc=pos(["depoimentos","custom-cuidados-com-as-flores","como-comprar"]);
+ const wrongView={getComputedStyle:()=>({display:"block",visibility:"visible",textAlign:"left"})};
+ assert.equal(auditUniversalPreviewMove({querySelectorAll:sel=>sel==="section"?unc:[]},wrongView,contract).ok,false);
+});
+test("Test 05: no duplicate, cross-model, unknown anchor or unrelated edit can be claimed applied",()=>{
+ const before=test05Fixture();
+ const first=applyRenderedFloricultureSectionMove(before,actualTest05Prompt);
+ assert.equal(first.ok,true);
+ assert.equal(applyRenderedFloricultureSectionMove(first.site,actualTest05Prompt).ok,false);
+ for(const v of ["02","03"])assert.equal(applyRenderedFloricultureSectionMove({...before,briefingLayoutVariant:v},actualTest05Prompt),null);
+ assert.equal(applyRenderedFloricultureSectionMove({...before,niche:"Auto centers",title:"Vértice Auto Center"},actualTest05Prompt),null);
+ assert.equal(applyRenderedFloricultureSectionMove(before,actualTest05Prompt.replace("Histórias em cada flor","Outro Nome")).ok,false);
+ assert.equal(applyRenderedFloricultureSectionMove(before,actualTest05Prompt.replace("Histórias em cada flor e antes da seção Um processo tão especial quanto as flores","Um processo tão especial quanto as flores e antes da seção Histórias em cada flor")).ok,false);
+ assert.equal(applyRenderedFloricultureSectionMove(before,actualTest05Prompt.replace("Centralize exclusivamente o título principal da seção Cuidados com as Flores","Centralize todos os títulos dos cards")).ok,false);
+ assert.equal(applyRenderedFloricultureSectionMove(before,actualTest05Prompt+" Exclua a galeria.").ok,false);
+ assert.equal(applyRenderedFloricultureSectionMove(test04Site(),actualTest05Prompt).ok,false);
+});
+test("ML: an existing custom section movement is layout/sections, not Hero copy or FAQ",()=>{
+ assert.deepEqual(classifyUniversalFeedback(actualTest05Prompt),{intent:"layout",target:"sections"});
+ assert.deepEqual(classifyUniversalFeedback("Mova a seção Cuidados com as Flores para imediatamente depois da seção Histórias em cada flor e antes da seção Um processo tão especial quanto as flores."),{intent:"layout",target:"sections"});
+});
+test("Test 05: the live preview must verify the two anchors; no state-only applied-learning event",()=>{
+ const editor=read("../src/app/app/builder-v2/page.tsx");
+ const planner=read("../src/lib/builder-v2-universal-preview-postconditions.ts");
+ assert.match(editor,/const floralMovement=!reference/);
+ assert.match(editor,/applyRenderedFloricultureSectionMove\(site,prompt\)/);
+ assert.match(editor,/pendingMoveVisualReviewRef.current=\{/);
+ assert.match(editor,/strategy:"universal-rendered-floral-move-visual-verified"/);
+ assert.match(editor,/rollbackOnFailure:true/);
+ assert.match(editor,/planUniversalPreviewMove\(site,floralMovement.site\)/);
+ assert.match(editor,/verifyUniversalEditResult\(site,floralMovement.site,floralMovement.changedIds\)/);
+ assert.match(planner,/beforeAnchorId:move.before.id/);
+ assert.match(planner,/intervening.length/);
+ assert.match(planner,/win.getComputedStyle\(heading\).textAlign/);
+});

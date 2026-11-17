@@ -39,8 +39,11 @@ export function classifyUniversalFeedback(instruction:string):{intent:UniversalF
  // describe placement anchors, NOT the content being edited. Assign the
  // learning to the section-add technique, not to FAQ or process edits.
  const creatingNamedSection=intent==="add-section"&&/\buma\s+(?:nova\s+)?secao\s+(?:chamada|denominada)\b/.test(action);
- const resolvedTarget:UniversalFeedbackTarget=creatingNamedSection?"sections":target;
- const sectionKey=!creatingNamedSection?(sectionTarget==="collections"?"produtos":sectionTarget?sectionTarget:undefined):undefined;
+ // Layout actions on an entire section must learn as section movement.
+ // "título principal" is a heading constraint, not evidence of a Hero edit.
+ const movingNamedSection=intent==="layout"&&/^(?:mova|mover|reposicione|coloque)\s+(?:a\s+)?secao\s+/.test(action);
+ const resolvedTarget:UniversalFeedbackTarget=creatingNamedSection||movingNamedSection?"sections":target;
+ const sectionKey=!(creatingNamedSection||movingNamedSection)?(sectionTarget==="collections"?"produtos":sectionTarget?sectionTarget:undefined):undefined;
  return {intent,target:resolvedTarget,...(sectionKey?{sectionKey}:{})};
 }
 export function inferUniversalFeedbackFailureCode(strategy:string,outcome:"applied"|"rejected"):UniversalFeedbackFailureCode|null{
