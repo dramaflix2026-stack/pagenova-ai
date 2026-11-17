@@ -969,18 +969,41 @@ export default function BuilderV2() {
         const localRaw=localStorage.getItem(key);
         let localSite:Site|null=null;
         if(localRaw){try{const parsed=JSON.parse(localRaw) as Site;if(Array.isArray(parsed.blocks)&&parsed.blocks.length&&typeof parsed.title==="string")localSite=parsed;}catch{/* handled by legacy recovery */}}
-        if(validLibraryId){
-          if(library?.site)return library;
-          if(draft?.site&&draft.site.id===validLibraryId)return draft;
-          if(localSite?.id===validLibraryId)return {site:localSite,updatedAt:0};
-          throw new Error("Projeto selecionado não encontrado.");
+        const localDraft=validLibraryId
+          ?[library,draft,localSite?.id===validLibraryId?{site:localSite,updatedAt:0}:null]
+            .filter((entry):entry is {site:Site;updatedAt:number}=>!!entry?.site&&entry.site.id===validLibraryId)
+            .sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0))[0]
+          :draft?.site?draft:localSite?{site:localSite,updatedAt:0}:null;
+        const cloudId=validLibraryId||localDraft?.site.id||null;
+        if(cloudId){
+          cloudDraftProjectIdRef.current=cloudId;
+          cloudDraftRevisionRef.current=0;
+          cloudDraftBlockedRef.current=false;
+          try{
+            const response=await fetch("/api/builder-v2/draft?projectId="+encodeURIComponent(cloudId),{cache:"no-store"});
+            if(response.ok){
+              const remote=await response.json() as {site:Site;revision:number;updatedAt:string};
+              if(remote.site?.id===cloudId&&Array.isArray(remote.site.blocks)&&remote.site.blocks.length){
+                cloudDraftRevisionRef.current=remote.revision;
+                const remoteStamp=Date.parse(remote.updatedAt)||0;
+                if(!localDraft||remoteStamp>(localDraft.updatedAt||0)){
+                  setCloudDraftStatus("Rascunho recuperado da nuvem");
+                  return {site:remote.site,updatedAt:remoteStamp};
+                }
+              }
+            }else if(response.status!==404&&response.status!==401)throw Error("Nuvem indisponível");
+          }catch{
+            setCloudDraftStatus("Nuvem indisponível; cópia local preservada");
+          }
         }
-        return draft?.site?draft:localSite?{site:localSite,updatedAt:0}:null;
+        if(validLibraryId&&!localDraft)throw new Error("Projeto selecionado não encontrado no armazenamento local ou na nuvem.");
+        return localDraft;
       })()
         .then(saved=>{
           if(cancelled)return;
           if(saved?.site&&Array.isArray(saved.site.blocks)&&saved.site.blocks.length&&
              typeof saved.site.title==="string"&&typeof saved.site.background==="string"){
+            setDraftRecoveryFailed(false);
             setSite(prepareTP1MakeupSite(saved.site,saved.site.niche));
             if(saved.site.kind)setSiteCategory(saved.site.kind);
             if(saved.site.realEstateWhatsapp)setRealEstateWhatsapp(saved.site.realEstateWhatsapp);
