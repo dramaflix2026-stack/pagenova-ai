@@ -4,8 +4,8 @@ import {createPortal} from "react-dom";
 import {type ReactNode,useEffect,useMemo,useRef,useState} from "react";
 import type {UniversalSectionEvent} from "@/lib/builder-v2-universal-operations";
 
-type EditableBlock={id:string;section?:string;type:string;text?:string;align?:string};
-type Section={id:string;title:string;headingAlign:"left"|"center"|"right";introduction:string;cards:{id:string;title:string;description:string}[]};
+type EditableBlock={id:string;section?:string;type:string;text?:string;align?:string;src?:string};
+type Section={id:string;title:string;headingAlign:"left"|"center"|"right";introduction:string;cards:{id:string;title:string;description:string;image?:string}[]};
 type Placement={anchorId:string;direction:"before"|"after"};
 
 const norm=(text:string)=>text.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim().replace(/[_\s]+/g,"-");
@@ -14,12 +14,14 @@ const anchorAliases:Record<string,string[]>={
  testimonials:["tp10-depoimentos","tp10m2-reviews","tp10m3-reviews"],
  depoimentos:["tp10-depoimentos","tp10m2-reviews","tp10m3-reviews"],
  reviews:["tp10-depoimentos","tp10m2-reviews","tp10m3-reviews"],
- contact:["tp10-matriculas","tp10m2-contact","tp10m3-contact"],
- contato:["tp10-matriculas","tp10m2-contact","tp10m3-contact"],
+ contact:["tp10-matriculas","tp10m2-contact","tp10m3-contact","tp9-contato","tp9v3-contact","tp9m3-contact","tp9-orcamento"],
+ contato:["tp10-matriculas","tp10m2-contact","tp10m3-contact","tp9-contato","tp9v3-contact","tp9m3-contact","tp9-orcamento"],
  cursos:["tp10-cursos","tp10m2-courses","tp10m3-courses"],
  gallery:["tp10-galeria","tp10m2-gallery","tp10m3-gallery"],
  galeria:["tp10-galeria","tp10m2-gallery","tp10m3-gallery"],
  metodologia:["tp10-metodologia","tp10m2-method","tp10m3-method"],
+ services:["tp9-servicos","tp9v3-services","tp9m3-services"],
+ servicos:["tp9-servicos","tp9v3-services","tp9m3-services"],
  differences:["tp10-diferenciais","tp10m2-difference","tp10m3-difference"]
 };
 
@@ -51,7 +53,7 @@ function findVisibleTP10Anchor(root:HTMLElement,anchorId:string):HTMLElement|nul
  return null;
 }
 
-export function TP10UniversalCustomSections({blocks,sectionEvents=[],children}:{blocks:EditableBlock[];sectionEvents?:UniversalSectionEvent[];children:ReactNode}){
+export function TP10UniversalCustomSections({blocks,sectionEvents=[],children,automotive=false}:{blocks:EditableBlock[];sectionEvents?:UniversalSectionEvent[];children:ReactNode;automotive?:boolean}){
  const sections=useMemo(()=>{
   const grouped=new Map<string,EditableBlock[]>();
   for(const block of blocks){
@@ -69,12 +71,12 @@ export function TP10UniversalCustomSections({blocks,sectionEvents=[],children}:{
     const item=rest[i];
     if(item.type==="heading"){
      const next=rest[i+1];
-     cards.push({id:item.id,title:item.text||"",description:next?.type==="paragraph"?next.text||"":""});
+     cards.push({id:item.id,title:item.text||"",description:next?.type==="paragraph"?next.text||"":"",...(next?.type==="paragraph"&&next.src?{image:next.src}:{})});
      if(next?.type==="paragraph")i++;
     }else{
      const text=item.text||"";
      const split=text.match(/^([^:：—–]{2,100})\s*[:：—–]\s*(.+)$/);
-     if(split)cards.push({id:item.id,title:split[1].trim(),description:split[2].trim()});
+     if(split)cards.push({id:item.id,title:split[1].trim(),description:split[2].trim(),...(item.src?{image:item.src}:{})});
      else if(!introduction)introduction=text;
     }
    }
@@ -118,6 +120,6 @@ export function TP10UniversalCustomSections({blocks,sectionEvents=[],children}:{
  },[sections,blocks,sectionEvents]);
  return <div ref={rootRef} data-pn-tp10-custom-host="true" style={{display:"contents"}}>{children}{mounts.map(({sectionId,host})=>{
   const section=sections.find(item=>item.id===sectionId);
-  return section?createPortal(<section id={section.id} data-universal-section={section.id} data-section-id={section.id} data-pn-generated-premium="true" className="bg-[#f4f6f4] px-6 py-16 text-[#14251f] md:px-12 md:py-24"><div className="mx-auto max-w-6xl"><p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-[#587061]">Metodologia e diferenciais</p><h2 style={{textAlign:section.headingAlign}} className="mb-6 text-3xl font-bold md:text-5xl">{section.title}</h2>{section.introduction&&<p className="mb-8 max-w-3xl text-base leading-7">{section.introduction}</p>}<div data-universal-custom-cards className="grid gap-5 md:grid-cols-3">{section.cards.map(card=><article key={card.id} data-block-id={card.id} className="rounded-2xl border border-[#dce5dc] bg-white p-7 shadow-sm"><h3 className="mb-3 text-xl font-bold">{card.title}</h3><p className="leading-7 text-[#42564b]">{card.description}</p></article>)}</div></div></section>,host,section.id):null;
+  return section?createPortal(<section id={section.id} data-universal-section={section.id} data-section-id={section.id} data-pn-generated-premium="true" className="px-6 py-16 md:px-12 md:py-24" style={{background:automotive?"#13191D":"#f4f6f4",color:automotive?"#F7F7F5":"#14251f"}}><div className="mx-auto max-w-6xl"><p className="mb-3 text-xs font-bold uppercase tracking-[0.2em]" style={{color:automotive?"#D5B47F":"#587061"}}>{automotive?"EQUIPE · DEMONSTRAÇÃO":"Metodologia e diferenciais"}</p><h2 style={{textAlign:section.headingAlign}} className="mb-6 text-3xl font-bold md:text-5xl">{section.title}</h2>{section.introduction&&<p className="mb-8 max-w-3xl text-base leading-7">{section.introduction}</p>}<div data-universal-custom-cards className="grid gap-5 md:grid-cols-3">{section.cards.map(card=><article key={card.id} data-block-id={card.id} className="rounded-2xl border p-5 shadow-sm" style={{background:automotive?"#1E282C":"#FFFFFF",color:automotive?"#F7F7F5":"#14251f",borderColor:automotive?"#D5B47F45":"#dce5dc"}}>{card.image&&/^https:\/\//i.test(card.image)&&<img src={card.image} alt={"Fotografia ilustrativa para "+card.title} loading="lazy" className="mb-5 aspect-[4/3] w-full rounded-lg object-cover"/>}<h3 className="mb-3 text-xl font-bold">{card.title}</h3><p className="leading-7" style={{color:automotive?"#CED6D7":"#42564b"}}>{card.description}</p></article>)}</div></div></section>,host,section.id):null;
  })}</div>;
 }
