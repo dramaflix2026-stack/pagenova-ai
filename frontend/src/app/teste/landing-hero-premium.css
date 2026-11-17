@@ -2643,3 +2643,46 @@
     height: auto !important;
   }
 }
+
+/* Keep the featured-plan ribbon fully inside the rounded card. */
+.pnr-page .pnr-pricing .pnr-price-card.is-featured {
+  padding-top: 0 !important;
+}
+.pnr-page .pnr-pricing .pnr-price-card.is-featured > .pnr-featured-label {
+  position: relative !important;
+  top: 0 !important;
+  margin: 0 auto 16px !important;
+  flex-shrink: 0;
+  max-width: calc(100% - 28px) !important;
+  border-radius: 0 0 14px 14px !important;
+  box-sizing: border-box;
+}
+@media (max-width: 767px) {
+  .pnr-page .pnr-pricing .pnr-price-card.is-featured {
+    padding-top: 0 !important;
+  }
+  .pnr-page .pnr-pricing .pnr-price-card.is-featured > .pnr-featured-label {
+    top: 0 !important;
+    margin: 0 auto 16px !important;
+  }
+}
+/* Crop only the English desktop artwork to the same horizontal band as PT-BR. */
+@media (min-width: 768px) {
+  .pnr-page .pnr-trust .pnr-guarantee-english .pnr-guarantee-responsive-art {
+    display: block !important;
+    position: relative !important;
+    width: 100% !important;
+    aspect-ratio: 2.9 / 1 !important;
+    height: auto !important;
+    overflow: hidden !important;
+  }
+  .pnr-page .pnr-trust .pnr-guarantee-english .pnr-guarantee-full-image {
+    display: block !important;
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+  }
+}
