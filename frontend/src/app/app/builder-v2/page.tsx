@@ -41,6 +41,7 @@ import {importReadyCrmProject} from "@/lib/builder-v2-crm-transport";
 import { applySiteMotionInstruction, hasMotionIntent, type SiteMotion } from "@/lib/site-builder-animation";
 import {applyUniversalPaletteEdit} from "@/lib/builder-v2-universal-palette";
 import {isExplicitImageChangeRequest} from "@/lib/builder-v2-image-intent";
+import {isAutomotiveHeroPhotoIntent,applyAutomotiveHeroPhoto,automotiveMechanicWorkshopPhoto} from "@/lib/builder-v2-automotive-hero-photo";
 import {parseScopedSectionPhotoRequest,isSingleSectionImageIntent,canonicalPhotoSection,curatedRealSectionPhoto,applyUniversalSectionPhoto} from "@/lib/builder-v2-universal-section-photo";
 import {institutionalImageIntent,planInstitutionalImageEdit,restoreInstitutionalSectionImages,type HeroComposition,type MediaLayout} from "@/lib/builder-v2-institutional-images";
 import {isScopedBannerCopyRequest,applyHeroBannerCopy,type HeroBannerCopy} from "@/lib/builder-v2-hero-banner-edits";
@@ -82,7 +83,7 @@ const nichePhotoBase="https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object
 type Block = { id: string; type: "heading" | "paragraph" | "button" | "image"; text: string; color: string; align: "left" | "center" | "right"; cardTitleAlign?: "left" | "center" | "right"; src?: string; mobileSrc?: string; forCardId?: string; imageFit?: "contain" | "cover"; imagePosition?: string; userUploaded?: boolean; imageExplicit?: boolean; textExplicit?: boolean; section?: string; fontSize?: number; radius?: number; spacing?: number; href?: string; layout?: "hero" | "grid" | "split" | "banner" | "faq" | "gallery" | "standard"; background?: string; columns?: number };
 type MenuItem = {id:string;name:string;description:string;price:number;category:string;image?:string};
 type RestaurantData = {whatsapp:string;menu:MenuItem[]};
-type Site = { universalHeroHeadingBlockId?:string; universalSectionEvents?:import("@/lib/builder-v2-universal-operations").UniversalSectionEvent[]; design?:import("@/lib/builder-v2-brief-contract").AdaptiveDesign; extras?:Record<string,unknown>; cinematic?: {mode:"static"|"cinematic"|"immersive-3d";desktopUrl?:string;mobileUrl?:string;posterUrl?:string;overlay?:number}; properties?:PropertyItem[]; realEstateWhatsapp?:string; kind?:SiteCategory; restaurant?:RestaurantData; restaurantContent?:{menuTitle?:string;menuSubtitle?:string;footerTitle?:string;footerCentered?:boolean;footerSpacious?:boolean}; templateId?: "institutional-complete" | "minimalist-sophisticated" | "prompt-adaptive"; briefingLayoutVariant?:"01"|"02"|"03"; title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; heroPresentation?: "immersive" | "split"; crmImported?:boolean; designPaletteApplied?:boolean; heroComposition?: HeroComposition; heroBannerCopy?: Record<string,HeroBannerCopy>; sectionMediaLayouts?: Record<string,MediaLayout>; sectionMediaManaged?: string[]; processImageCard?: boolean; processImageCardTitle?: string; processImageCardDescription?: string; motion?: SiteMotion; footer?: (SocialFooter & {cnpj?:string;address?:string;email?:string;showMenu?:boolean}) };
+type Site = { universalHeroImageOverride?:string; universalHeroHeadingBlockId?:string; universalSectionEvents?:import("@/lib/builder-v2-universal-operations").UniversalSectionEvent[]; design?:import("@/lib/builder-v2-brief-contract").AdaptiveDesign; extras?:Record<string,unknown>; cinematic?: {mode:"static"|"cinematic"|"immersive-3d";desktopUrl?:string;mobileUrl?:string;posterUrl?:string;overlay?:number}; properties?:PropertyItem[]; realEstateWhatsapp?:string; kind?:SiteCategory; restaurant?:RestaurantData; restaurantContent?:{menuTitle?:string;menuSubtitle?:string;footerTitle?:string;footerCentered?:boolean;footerSpacious?:boolean}; templateId?: "institutional-complete" | "minimalist-sophisticated" | "prompt-adaptive"; briefingLayoutVariant?:"01"|"02"|"03"; title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; heroPresentation?: "immersive" | "split"; crmImported?:boolean; designPaletteApplied?:boolean; heroComposition?: HeroComposition; heroBannerCopy?: Record<string,HeroBannerCopy>; sectionMediaLayouts?: Record<string,MediaLayout>; sectionMediaManaged?: string[]; processImageCard?: boolean; processImageCardTitle?: string; processImageCardDescription?: string; motion?: SiteMotion; footer?: (SocialFooter & {cnpj?:string;address?:string;email?:string;showMenu?:boolean}) };
 type SiteCategory = "institutional" | "restaurant" | "real-estate" | "catalog";
 const restaurantSegments = [
   {id:"pizzaria",name:"Pizzaria",description:"Pizzas, bordas, tamanhos e combos"},
@@ -518,6 +519,7 @@ export default function BuilderV2() {
     return root&&win?captureUniversalRegressionSentinels(root,win,before,after,changedIds):[];
   }
   const pendingBackgroundVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;color:string;solution?:EditorSolutionMemory|null;reuse?:{sourceEventId:string;technique:string};trace?:EditorSubmissionTrace|null}|null>(null);
+  const pendingHeroPhotoVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;src:string;before:Site;trace?:EditorSubmissionTrace|null}|null>(null);
   const pendingSectionPhotoVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;src:string;solution?:EditorSolutionMemory|null;trace?:EditorSubmissionTrace|null}|null>(null);
   const pendingMoveVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;contract:UniversalPreviewMoveContract;solution?:EditorSolutionMemory|null;reuse?:{sourceEventId:string;technique:string};trace?:EditorSubmissionTrace|null}|null>(null);
   const pendingUniversalVisualProofRef=useRef<{prompt:string;niche:string;variant:string;contract:UniversalVisualProof;siteAfter:Site;regressionSentinels:RegressionSentinel[];strategy?:string;solution?:EditorSolutionMemory|null;reuse?:{sourceEventId:string;technique:string};trace?:EditorSubmissionTrace|null}|null>(null);
@@ -583,6 +585,33 @@ export default function BuilderV2() {
       }
     },1200);
     return ()=>window.clearTimeout(timer);
+  },[site]);
+
+  useEffect(()=>{
+    const pending=pendingHeroPhotoVisualReviewRef.current;
+    if(!pending)return;
+    let checks=0;
+    const timer=window.setInterval(()=>{
+      if(pendingHeroPhotoVisualReviewRef.current!==pending){window.clearInterval(timer);return;}
+      const iframe=previewVisualAuditRef.current?.querySelector("iframe");
+      const doc=iframe?.contentDocument;
+      const root=doc?.getElementById("pn-v2-preview-root")||doc?.body;
+      const heroPhotos=root?Array.from(root.querySelectorAll<HTMLImageElement>("img[data-universal-hero-photo='true']")):[];
+      const photo=heroPhotos.length===1?heroPhotos[0]:undefined;
+      if(site.universalHeroImageOverride===pending.src&&photo?.getAttribute("src")===pending.src&&photo.complete&&photo.naturalWidth>0){
+        pendingHeroPhotoVisualReviewRef.current=null;window.clearInterval(timer);
+        recordEditorLearningEvent(pending.niche,pending.prompt,"applied","automotive-hero-photo-visual-verified",pending.variant,null,undefined,pending.trace);
+        captureReviewCandidate();
+        setMessages(previous=>[...previous,{role:"assistant",text:"Fotografia principal substituída e confirmada na prévia. As demais imagens e seções foram preservadas. Avalie antes de aprovar."}]);
+      }else if(++checks>=30){
+        pendingHeroPhotoVisualReviewRef.current=null;window.clearInterval(timer);
+        recordEditorLearningEvent(pending.niche,pending.prompt,"rejected","automotive-hero-photo-visual-unverified",pending.variant,null,undefined,pending.trace,undefined,"dom-photo-absent");
+        captureReviewCandidate();
+        setSite(pending.before);
+        setMessages(previous=>[...previous,{role:"assistant",text:"A imagem principal não foi comprovada na prévia. Alteração revertida, nenhuma imagem aprovada foi substituída."}]);
+      }
+    },500);
+    return ()=>window.clearInterval(timer);
   },[site]);
 
   useEffect(()=>{
@@ -2144,6 +2173,24 @@ export default function BuilderV2() {
     }
     if (isExplicitImageChangeRequest(prompt) && site.blocks.length) {
       try {
+        if(resolveBriefingFamily(site.niche||"")===9&&isAutomotiveHeroPhotoIntent(prompt)){
+          const result=applyAutomotiveHeroPhoto(site,automotiveMechanicWorkshopPhoto);
+          if(!result.ok)throw new Error(result.error);
+          const loaded=await new Promise<boolean>(resolve=>{
+            const image=new window.Image();
+            const timeout=window.setTimeout(()=>{image.onload=null;image.onerror=null;resolve(false);},9000);
+            image.onload=()=>{window.clearTimeout(timeout);resolve(true);};
+            image.onerror=()=>{window.clearTimeout(timeout);resolve(false);};
+            image.src=automotiveMechanicWorkshopPhoto;
+          });
+          if(!loaded)throw new Error("A fotografia da oficina não carregou. O site foi preservado.");
+          recordVersion(site,"Antes de substituir a fotografia principal automotiva");
+          setRedoHistory([]);setHistory(previous=>[...previous.slice(-19),site]);
+          pendingHeroPhotoVisualReviewRef.current={prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",src:automotiveMechanicWorkshopPhoto,before:site,trace:activeSubmissionTraceRef.current};
+          setSite(result.site);setInstruction("");setGenerationError("");
+          setMessages(previous=>[...previous,{role:"user",text:prompt},{role:"assistant",text:"Fotografia da oficina preparada. Conferindo a imagem principal na prévia antes de registrar a edição."}]);
+          return;
+        }
         if(isSingleSectionImageIntent(prompt)){
           const request=parseScopedSectionPhotoRequest(prompt);
           const section=request?canonicalPhotoSection(request.sectionLabel):null;
@@ -2658,7 +2705,7 @@ export default function BuilderV2() {
   if(valid(styles.headingColor))rules.push(selectors.map(s=>s+" h2").join(",")+"{color:"+styles.headingColor+"!important}");
   if(valid(styles.textColor))rules.push(selectors.map(s=>s+" :is(h1,h2,h3,h4,h5,h6,p,blockquote,span,small,strong,em,li)").join(",")+"{color:"+styles.textColor+"!important;-webkit-text-fill-color:"+styles.textColor+"!important}");
   return rules;
-}).join("\n")}</style><style>{site.blocks.filter(b=>b.section?.startsWith("custom-")&&b.type==="paragraph"&&b.cardTitleAlign==="center"&&/^[a-zA-Z0-9_-]+$/.test(b.id)).map(b=>`[data-section-id="${b.section}"] .pn-section-heading,[data-section-id="${b.section}"] .pn-section-heading h2,[data-section-id="${b.section}"] .pn-section-heading [data-block-id]{text-align:center!important;margin-left:auto!important;margin-right:auto!important}section[data-universal-section="${b.section}"][data-pn-generated-premium="true"] > div > div:first-child > h2{text-align:center!important;width:100%!important}[data-section-id="${b.section}"] h3{text-align:center!important}[data-section-id="${b.section}"] p{text-align:left!important}`).join("\n")}</style><style>{site.blocks.filter(b=>b.section?.startsWith("custom-")&&b.type==="heading"&&typeof b.color==="string"&&/^#[0-9a-fA-F]{6}$/.test(b.color)&&/^[a-zA-Z0-9_-]+$/.test(b.section)).map(b=>{const headings=site.blocks.filter(h=>h.section===b.section&&h.type==="heading");const position=headings.findIndex(h=>h.id===b.id);return position>0?`section[data-universal-section="${b.section}"][data-pn-generated-premium="true"] [data-universal-custom-cards] article:nth-child(${position}) h3{color:${b.color}!important}`:""}).filter(Boolean).join("\n")}</style>{siteCategory==="real-estate"?<RealEstateTemplate properties={properties} whatsapp={realEstateWhatsapp} footer={site.footer} preview/>:siteCategory==="restaurant"&&site.templateId==="prompt-adaptive"?<BuilderV2Site site={site} onVariantChange={variant=>setSite(previous=>({...previous,briefingLayoutVariant:variant}))} templateId="prompt-adaptive" selectedNiche={selectedNiche||site.niche||""}/>:siteCategory==="restaurant"&&site.cinematic?.mode==="immersive-3d"?<div className="pn-immersive-3d"><BuilderV2Site site={site} onVariantChange={variant=>setSite(previous=>({...previous,briefingLayoutVariant:variant}))} templateId={site.templateId||"institutional-complete"} selectedNiche={selectedNiche||site.niche||""}/></div>:siteCategory==="restaurant"?(/pizzaria|pizza/i.test([restaurantSegment,site.niche,selectedNiche,site.title].filter(Boolean).join(" "))||((site.restaurant?.menu||[]).length>=2&&(site.restaurant?.menu||[]).filter(item=>/pizza|mussarela|calabresa|portuguesa|pepperoni|catupiry|marguerita|quatro queijos/i.test(item.name+" "+item.category)).length>=Math.ceil((site.restaurant?.menu||[]).length/2)))?<PizzeriaTemplate site={site} segment={restaurantSegment} preview/>:<RestaurantSegmentTemplate key={restaurantSegment||site.niche} site={site} segment={restaurantSegment||site.niche||"Delivery"} preview/>:<div className={site.cinematic?.mode==="immersive-3d"?"pn-immersive-3d":""}><TP10UniversalCustomSections blocks={site.blocks} sectionEvents={site.universalSectionEvents}><BuilderV2Site site={site} onVariantChange={variant=>setSite(previous=>({...previous,briefingLayoutVariant:variant}))} templateId={site.templateId||"institutional-complete"} selectedNiche={selectedNiche||site.niche||""} /></TP10UniversalCustomSections></div>}</BuilderV2PreviewFrame></div>:<BuilderV2EmptyPreview device={previewDevice} onStart={()=>{composerRef.current?.scrollIntoView({behavior:"smooth",block:"center"});composerRef.current?.focus();}}/>}
+}).join("\n")}</style><style>{site.blocks.filter(b=>b.section?.startsWith("custom-")&&b.type==="paragraph"&&b.cardTitleAlign==="center"&&/^[a-zA-Z0-9_-]+$/.test(b.id)).map(b=>`[data-section-id="${b.section}"] .pn-section-heading,[data-section-id="${b.section}"] .pn-section-heading h2,[data-section-id="${b.section}"] .pn-section-heading [data-block-id]{text-align:center!important;margin-left:auto!important;margin-right:auto!important}section[data-universal-section="${b.section}"][data-pn-generated-premium="true"] > div > div:first-child > h2{text-align:center!important;width:100%!important}[data-section-id="${b.section}"] h3{text-align:center!important}[data-section-id="${b.section}"] p{text-align:left!important}`).join("\n")}</style><style>{site.blocks.filter(b=>b.section?.startsWith("custom-")&&b.type==="heading"&&typeof b.color==="string"&&/^#[0-9a-fA-F]{6}$/.test(b.color)&&/^[a-zA-Z0-9_-]+$/.test(b.section)).map(b=>{const headings=site.blocks.filter(h=>h.section===b.section&&h.type==="heading");const position=headings.findIndex(h=>h.id===b.id);return position>0?`section[data-universal-section="${b.section}"][data-pn-generated-premium="true"] [data-universal-custom-cards] article:nth-child(${position}) h3{color:${b.color}!important}`:""}).filter(Boolean).join("\n")}</style>{siteCategory==="real-estate"?<RealEstateTemplate properties={properties} whatsapp={realEstateWhatsapp} footer={site.footer} preview/>:siteCategory==="restaurant"&&site.templateId==="prompt-adaptive"?<BuilderV2Site site={site} onVariantChange={variant=>setSite(previous=>({...previous,briefingLayoutVariant:variant}))} templateId="prompt-adaptive" selectedNiche={selectedNiche||site.niche||""}/>:siteCategory==="restaurant"&&site.cinematic?.mode==="immersive-3d"?<div className="pn-immersive-3d"><BuilderV2Site site={site} onVariantChange={variant=>setSite(previous=>({...previous,briefingLayoutVariant:variant}))} templateId={site.templateId||"institutional-complete"} selectedNiche={selectedNiche||site.niche||""}/></div>:siteCategory==="restaurant"?(/pizzaria|pizza/i.test([restaurantSegment,site.niche,selectedNiche,site.title].filter(Boolean).join(" "))||((site.restaurant?.menu||[]).length>=2&&(site.restaurant?.menu||[]).filter(item=>/pizza|mussarela|calabresa|portuguesa|pepperoni|catupiry|marguerita|quatro queijos/i.test(item.name+" "+item.category)).length>=Math.ceil((site.restaurant?.menu||[]).length/2)))?<PizzeriaTemplate site={site} segment={restaurantSegment} preview/>:<RestaurantSegmentTemplate key={restaurantSegment||site.niche} site={site} segment={restaurantSegment||site.niche||"Delivery"} preview/>:<div className={site.cinematic?.mode==="immersive-3d"?"pn-immersive-3d":""}><TP10UniversalCustomSections blocks={site.blocks} sectionEvents={site.universalSectionEvents} automotive={resolveBriefingFamily(site.niche||"")===9}><BuilderV2Site site={site} onVariantChange={variant=>setSite(previous=>({...previous,briefingLayoutVariant:variant}))} templateId={site.templateId||"institutional-complete"} selectedNiche={selectedNiche||site.niche||""} /></TP10UniversalCustomSections></div>}</BuilderV2PreviewFrame></div>:<BuilderV2EmptyPreview device={previewDevice} onStart={()=>{composerRef.current?.scrollIntoView({behavior:"smooth",block:"center"});composerRef.current?.focus();}}/>}
 {(site.blocks.length>0||siteCategory!=="institutional")&&<p className="mt-3 text-left text-[11px] text-white/45">Role dentro da prévia para visualizar todo o site.</p>}
 </div><section aria-label="Publicação e links" className="pn-editor-publish-panel mt-4 rounded-xl border border-white/15 bg-[#141d1a] p-4 text-white">
 <div className="mb-3 flex items-center justify-between gap-2"><h2 className="text-left text-sm font-bold">Publicação</h2><span className="text-xs text-white/55">{site.publishedUrl?"Site publicado":"Rascunho"}</span></div>
