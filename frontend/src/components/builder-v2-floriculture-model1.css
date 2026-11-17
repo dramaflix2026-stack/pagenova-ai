@@ -45,10 +45,11 @@
 .pn-floral1-collection-photo img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .8s}
 .pn-floral1-collection-card:hover img{transform:scale(1.055)}
 .pn-floral1-collection-photo span{position:absolute;top:19px;left:19px;padding:9px 12px;background:#f5efe7ee;font-size:11px;letter-spacing:.1em}
-.pn-floral1-collection-name{display:flex;justify-content:space-between;gap:15px;border-bottom:1px solid #8e978a6b;padding:19px 0 22px}
-.pn-floral1-collection-name h3{font:400 clamp(25px,2.6vw,39px)/1.2 Georgia,serif;letter-spacing:-.035em;margin:0 0 10px}
-.pn-floral1-collection-name p{color:#667168;font-size:13px;line-height:1.6;margin:0}
-.pn-floral1-collection-name>strong{font-size:25px;font-weight:400}
+.pn-floral1-collection-name{display:flex;justify-content:space-between;align-items:flex-start;gap:9px;min-width:0;border-bottom:1px solid #8e978a6b;padding:17px 0 20px}
+.pn-floral1-collection-name>div{min-width:0;flex:1 1 auto;overflow-wrap:break-word}
+.pn-floral1-collection-name h3{font:400 clamp(18px,1.9vw,27px)/1.2 Georgia,serif;letter-spacing:-.02em;margin:0 0 8px;white-space:normal;overflow-wrap:break-word;hyphens:auto}
+.pn-floral1-collection-name p{color:#667168;font-size:12px;line-height:1.65;margin:0;white-space:normal;overflow-wrap:break-word}
+.pn-floral1-collection-name>strong{flex:0 0 auto;font-size:18px;font-weight:400;line-height:1.35}
 .pn-floral1-about{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);align-items:center;gap:clamp(45px,6vw,110px);background:#faf7f0}
 .pn-floral1-about-photos{position:relative;min-height:650px}
 .pn-floral1-about-large{display:block;width:79%;height:590px;object-fit:cover}
@@ -141,7 +142,7 @@
 .pn-floral1-footer-top p{max-width:310px;font-size:14px;line-height:1.8;color:#d0d7d0}
 .pn-floral1-footer-top h3{font:700 11px Poppins,sans-serif;text-transform:uppercase;letter-spacing:.15em;margin-bottom:24px;color:#ddc7af}
 .pn-floral1-footer-top nav a,.pn-floral1-footer-top>div a{display:block;margin:13px 0;color:#e3e9e0;font-size:13px;overflow-wrap:anywhere}
-.pn-floral1-footer-wordmark,.pn-floral1-wordmark{font-size:clamp(59px,10.8vw,180px);line-height:.96;color:#f3f1e7;margin:75px 0 44px;max-width:100%;overflow-wrap:anywhere}
+.pn-floral1-footer-wordmark,.pn-floral1-wordmark{font-size:clamp(42px,6vw,98px);line-height:1.06;color:#f3f1e7;margin:54px 0 35px;max-width:100%;overflow-wrap:normal;word-break:normal}
 .pn-floral1-footer-base{border-top:1px solid #68807355;padding-top:22px;display:flex;justify-content:space-between;gap:18px;align-items:center;font-size:11px;color:#c3cdc3}
 .pn-floral1-footer-base a{text-decoration:underline}
 .pn-floral1-lightbox{position:fixed;inset:0;z-index:9999;background:#0a140ef5;display:flex;align-items:center;justify-content:center;gap:20px;padding:35px;color:white}
@@ -218,7 +219,7 @@
 .pn-floral1-footer{padding:70px 19px 26px}
 .pn-floral1-footer-top{grid-template-columns:1fr;gap:25px}
 .pn-floral1-footer-top>div:last-child{grid-column:auto}
-.pn-floral1-wordmark{font-size:clamp(48px,12vw,76px);margin:55px 0 35px}
+.pn-floral1-wordmark{font-size:clamp(36px,8.2vw,58px);margin:40px 0 30px}
 .pn-floral1-footer-base{flex-direction:column;align-items:flex-start}
 .pn-floral1-lightbox{gap:7px;padding:12px}
 .pn-floral1-lightbox button{font-size:22px;min-width:32px;height:32px}
