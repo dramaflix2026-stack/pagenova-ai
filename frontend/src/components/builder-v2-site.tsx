@@ -482,7 +482,7 @@ function BuilderV2SiteContent(props:BuilderV2SiteProps){
     const explicitlyEditedHero=props.site.blocks.find(b=>b.type==="image"&&b.userUploaded&&b.src)?.src;
     return <TP6FloricultureModel1
      brand={props.site.header?.brand||props.site.title||"Jardim de Âmbar — Atelier Floral"}
-     headline={heading} description={intro} images={photos}
+     headline={heading} headlineBlockId={props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.id} description={intro} images={photos}
      heroImage={explicitlyEditedHero}
      edits={props.site.tp6RetailEdits}
      reviews={readTP6RealReviews(props.site.blocks,6)}

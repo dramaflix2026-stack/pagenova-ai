@@ -67,8 +67,8 @@
       "path": "src/components/builder-v2-site.tsx",
       "blobSha": "39f70209f2e11a82b84923c43d28eae10e4c344a",
       "approvedBindingRevision": {
-        "sha": "45cd87a8297c12f1cc6bb4f47b0afbf1de635a9e",
-        "reason": "Explicit user approval 2026-11-17: TP6 Floricultura Model 03 redesign with TypeScript-safe generic routing, preserving Models 01/02, Universal Editor and learning."
+        "sha": "7efea5acc2bc7466f6b9f275c90879db2589856e",
+        "reason": "Explicit user approval 2026-11-17: fix failed Universal Editor Test 01; only bind TP6 Floricultura Model 01 visible Hero heading to the actual block ID, preserving all approved templates, other models and learning gates."
       }
     },
     {

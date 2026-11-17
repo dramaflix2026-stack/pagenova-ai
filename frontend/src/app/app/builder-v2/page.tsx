@@ -1401,6 +1401,44 @@ export default function BuilderV2() {
         return;
       }
     }
+    // Generic isolated Hero text edit, ahead of learned route ranking and AI.
+    // Protect other blocks, preserve fail-closed regression and only count
+    // the attempt as applied after the real preview passes its DOM contract.
+    if(site.blocks.length&&!isFullSiteCreationBrief(prompt)&&!reference&&!institutionalFiles.length&&!propertyFiles.length){
+      const isolatedHero=applyIsolatedHeroTitleEdit(site,prompt);
+      if(isolatedHero){
+        setMessages(previous=>[...previous,{role:"user",text:prompt}]);
+        if(!isolatedHero.ok){
+          recordEditorLearningEvent(site.niche||"",prompt,"rejected","hero-title-source-mismatch",
+            site.briefingLayoutVariant||"01",undefined,undefined,activeSubmissionTraceRef.current);
+          captureReviewCandidate();
+          setMessages(previous=>[...previous,{role:"assistant",text:isolatedHero.error}]);
+          return;
+        }
+        const regression=auditUniversalRegressionState(site,isolatedHero.site,isolatedHero.changedIds);
+        const proof=regression.ok?planUniversalVisualProof(site,isolatedHero.site,isolatedHero.changedIds):null;
+        if(!regression.ok||!proof?.ok){
+          recordEditorLearningEvent(site.niche||"",prompt,"rejected","hero-title-visual-unverifiable",
+            site.briefingLayoutVariant||"01",undefined,undefined,activeSubmissionTraceRef.current);
+          captureReviewCandidate();
+          setMessages(previous=>[...previous,{role:"assistant",
+            text:"Alteração do título não comprovada: "+(!regression.ok?regression.reason:proof&&!proof.ok?proof.reason:"Sem prova visual")+". O projeto foi preservado."}]);
+          return;
+        }
+        pendingUniversalVisualProofRef.current={
+          trace:activeSubmissionTraceRef.current,prompt,niche:site.niche||"",
+          variant:site.briefingLayoutVariant||"01",contract:proof.contract,
+          siteAfter:isolatedHero.site,
+          regressionSentinels:captureCurrentPreviewRegression(site,isolatedHero.site,isolatedHero.changedIds)
+        };
+        recordVersion(site,"Antes de editar isoladamente o título do Hero");
+        setHistory(previous=>[...previous.slice(-19),site]);setRedoHistory([]);
+        setSite(isolatedHero.site);setInstruction("");setGenerationError("");
+        setMessages(previous=>[...previous,{role:"assistant",
+          text:"Novo título registrado. Conferindo a prévia real antes de confirmar que a alteração foi aplicada."}]);
+        return;
+      }
+    }
     const scopedCopy=site.blocks.length&&!isFullSiteCreationBrief(prompt)?parseUniversalCopyEdit(site,prompt):null;
     if(busy)return;
     // Resolve universal batches before any legacy shortcut can consume only one clause.

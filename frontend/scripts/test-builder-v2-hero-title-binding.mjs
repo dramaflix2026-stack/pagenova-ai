@@ -60,3 +60,45 @@ test("approved default cover is unmodified unless an explicit site block ID is b
  assert.match(renderer,/heroTitleOverrideBlock\?\.id/);
  assert.match(editor,/pendingUniversalVisualProofRef\.current=\{trace:activeSubmissionTraceRef\.current/);
 });
+
+
+test("real Test 01 prompt with unquoted old and new title is parsed and isolated",()=>{
+ const current=seed();
+ current.blocks[0].text="Flores que transformam momentos em memórias";
+ const prompt="Altere exclusivamente o título principal do Hero de Flores que transformam momentos em memórias para Flores que fazem cada instante florescer. Preserve a imagem, o subtítulo, os botões e todas as demais seções. A alteração deve aparecer imediatamente na prévia.";
+ const changed=applyIsolatedHeroTitleEdit(current,prompt);
+ assert.equal(changed?.ok,true);
+ assert.equal(changed.site.blocks[0].text,"Flores que fazem cada instante florescer");
+ assert.equal(changed.site.universalHeroHeadingBlockId,"main-h1");
+ assert.deepEqual(changed.site.blocks.slice(1),current.blocks.slice(1));
+ const proof=planUniversalVisualProof(current,changed.site,changed.changedIds);
+ assert.equal(proof.ok,true);
+ const el=(value)=>({getAttribute:key=>key==="data-block-id"?"main-h1":null,
+  getClientRects:()=>[{}],textContent:value});
+ const root=value=>({querySelectorAll:key=>key==="[data-block-id]"?[el(value)]:[]});
+ const browser={getComputedStyle:()=>({display:"block",visibility:"visible"})};
+ assert.equal(auditUniversalVisualProof(root(current.blocks[0].text),browser,proof.contract).ok,false);
+ assert.equal(auditUniversalVisualProof(root(changed.site.blocks[0].text),browser,proof.contract).ok,true);
+});
+test("unverified from-to hero requests reject and never edit other elements",()=>{
+ const current=seed();
+ current.blocks[0].text="Outro título";
+ const prompt="Altere exclusivamente o título principal do Hero de Flores que transformam momentos em memórias para Flores que fazem cada instante florescer. Preserve a imagem, o subtítulo, os botões e todas as demais seções. A alteração deve aparecer imediatamente na prévia.";
+ const bad=applyIsolatedHeroTitleEdit(current,prompt);
+ assert.equal(bad?.ok,false);
+ assert.match(bad.error,/não corresponde/);
+ assert.deepEqual(current.blocks,seed().blocks.map((v,i)=>i===0?{...v,text:"Outro título"}:v));
+ assert.equal(applyIsolatedHeroTitleEdit(current,prompt+" Remova o rodapé."),null);
+});
+test("Hero Test 01 routes ahead of AI, retaining state and actual visual postconditions",()=>{
+ const editor=readFileSync(new URL("../src/app/app/builder-v2/page.tsx",import.meta.url),"utf8");
+ const index=editor.indexOf("const isolatedHero=applyIsolatedHeroTitleEdit(site,prompt)");
+ assert.ok(index>0);
+ assert.ok(index<editor.indexOf("const scopedCopy=site.blocks.length"));
+ const segment=editor.slice(index,index+3000);
+ assert.match(segment,/auditUniversalRegressionState\(site,isolatedHero.site,isolatedHero.changedIds\)/);
+ assert.match(segment,/planUniversalVisualProof\(site,isolatedHero.site,isolatedHero.changedIds\)/);
+ assert.match(segment,/pendingUniversalVisualProofRef.current=\{/);
+ assert.match(segment,/setSite\(isolatedHero.site\)/);
+ assert.doesNotMatch(segment,/recordEditorLearningEvent\([^;]*"applied"/);
+});

@@ -5,7 +5,7 @@ import {TP6RetailCustomSections,type TP6RetailReview} from "./builder-v2-tp6-pre
 import "./builder-v2-floriculture-model1.css";
 
 /** User-approved editorial rebuild, exclusively TP6 Floricultura Model 01. */
-type Props={brand:string;headline?:string;description?:string;images:string[];edits?:TP6RetailVisualEdits;reviews?:TP6RetailReview[];whatsapp?:string;email?:string;address?:string;heroImage?:string};
+type Props={brand:string;headline?:string;description?:string;images:string[];edits?:TP6RetailVisualEdits;reviews?:TP6RetailReview[];whatsapp?:string;email?:string;address?:string;heroImage?:string;headlineBlockId?:string};
 const photosFallback=[
  "https://images.unsplash.com/photo-1561848355-890d054dc55a?auto=format&fit=crop&w=1600&q=85",
  "https://images.unsplash.com/photo-1457089328109-e5d9bd499191?auto=format&fit=crop&w=1600&q=85",
@@ -46,7 +46,7 @@ const galleryNames=["Detalhes que encantam","Flores de estação","Composições
 const safePhoto=(src:unknown)=>typeof src==="string"&&/^https:\/\/(?:images\.unsplash\.com|[\w.-]+\.supabase\.co|[\w.-]+\.cloudinary\.com)\//i.test(src);
 const validEmail=(v:string)=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)&&v.length<=254;
 
-export function TP6FloricultureModel1({brand,headline,description,images,edits,reviews=[],whatsapp,email,address,heroImage}:Props){
+export function TP6FloricultureModel1({brand,headline,description,images,edits,reviews=[],whatsapp,email,address,heroImage,headlineBlockId}:Props){
  const [menuOpen,setMenuOpen]=useState(false);
  const [faqOpen,setFaqOpen]=useState<number|null>(0);
  const [lightbox,setLightbox]=useState<number|null>(null);
@@ -105,7 +105,7 @@ export function TP6FloricultureModel1({brand,headline,description,images,edits,r
    <a className="pn-floral1-head-cta" href="#contato">Encomendar flores ↗</a>
   </header>
 
-  <section className="pn-floral1-hero"><div className="pn-floral1-hero-copy"><span className="pn-floral1-kicker">CURADORIA FLORAL · FEITA COM AFETO</span><h1>{heroTitle}</h1><p>{heroCopy}</p><div className="pn-floral1-hero-actions"><a className="pn-floral1-btn" href="#produtos">Conheça as coleções ↗</a><a href="#sobre" className="pn-floral1-text-link">Nossa história ↗</a></div><span className="pn-floral1-hero-index">01 / UM ATELIER DE EXPERIÊNCIAS FLORAIS</span></div><div className="pn-floral1-hero-visual"><img src={mainPhoto} alt="Flores e arranjos em fotografia editorial" loading="eager" onError={e=>{e.currentTarget.onerror=null;e.currentTarget.src=photo(0);}}/><span>Flores para sentir, guardar e celebrar.</span></div></section>
+  <section className="pn-floral1-hero"><div className="pn-floral1-hero-copy"><span className="pn-floral1-kicker">CURADORIA FLORAL · FEITA COM AFETO</span><h1 data-block-id={headlineBlockId}>{heroTitle}</h1><p>{heroCopy}</p><div className="pn-floral1-hero-actions"><a className="pn-floral1-btn" href="#produtos">Conheça as coleções ↗</a><a href="#sobre" className="pn-floral1-text-link">Nossa história ↗</a></div><span className="pn-floral1-hero-index">01 / UM ATELIER DE EXPERIÊNCIAS FLORAIS</span></div><div className="pn-floral1-hero-visual"><img src={mainPhoto} alt="Flores e arranjos em fotografia editorial" loading="eager" onError={e=>{e.currentTarget.onerror=null;e.currentTarget.src=photo(0);}}/><span>Flores para sentir, guardar e celebrar.</span></div></section>
 
   <section className="pn-floral1-collections" id="produtos" style={color?{backgroundColor:color}:undefined}><div className="pn-floral1-top"><div><span className="pn-floral1-kicker">01 / COLEÇÕES FLORAIS</span><h2 style={titleColor?{color:titleColor}:undefined}>Escolhas que florescem.</h2></div><p>Três formas de tornar cada gesto especial, do presente inesperado ao ritual de ter flores em casa.</p></div><div className="pn-floral1-collection-grid" id="colecao">{collectionCards.map((card,i)=><a href="#contato" key={i} className="pn-floral1-collection-card"><div className="pn-floral1-collection-photo"><img src={card.image} alt={"Arranjo ilustrativo da coleção "+card.title} loading="lazy"/><span>0{i+1}</span></div><div className="pn-floral1-collection-name"><div><h3>{card.title}</h3><p>{card.copy}</p></div><strong aria-hidden="true">↗</strong></div></a>)}</div></section>
 

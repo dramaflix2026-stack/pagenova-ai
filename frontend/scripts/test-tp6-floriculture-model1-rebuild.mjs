@@ -98,3 +98,11 @@ test("Collection captions have dedicated padding, readable typography and a non-
  assert.match(css,/\.pn-floral1-wordmark\{font-size:clamp\(36px,8\.2vw,58px\)/);
  assert.ok(!css.includes(".tp6m2-")&&!css.includes(".tp6m3-"),"no CSS changes to protected models 02 or 03");
 });
+
+test("Floricultura Model 01 Hero binds a real DOM heading to the active editor block",()=>{
+ assert.match(ui,/headlineBlockId\?:string/);
+ assert.match(ui,/data-block-id=\{headlineBlockId\}/);
+ assert.match(ui,/<h1 data-block-id=\{headlineBlockId\}>\{heroTitle\}<\/h1>/);
+ assert.match(router,/headlineBlockId=\{props.site.blocks.find\(b=>b.type==="heading"&&b.text\?\.trim\(\)\)\?\.id\}/);
+ assert.match(router,/if\(variant==="01"&&retailNiche==="Floricultura"\)/);
+});
