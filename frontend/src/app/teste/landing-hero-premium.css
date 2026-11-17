@@ -1922,3 +1922,38 @@
  .pnr-page .pnr-guarantee-full-art{overflow:hidden!important}
  .pnr-page .pnr-guarantee-full-art::after{display:none!important}
 }
+
+
+/* Mobile audience cards: artwork already contains its own heading, CTA and details. */
+@media(max-width:767px){
+ .pnr-page .pnr-audiences .pnr-showcase-stage{
+  display:block!important;grid-template-columns:none!important;
+  width:100%!important;min-height:0!important;height:auto!important;
+  padding:0!important;overflow:hidden!important;
+ }
+ .pnr-page .pnr-audiences .pnr-showcase-copy{display:none!important}
+ .pnr-page .pnr-audiences .pnr-showcase-dashboard{
+  display:block!important;position:relative!important;
+  width:100%!important;height:auto!important;min-height:0!important;
+  aspect-ratio:9 / 16!important;margin:0!important;padding:0!important;
+  overflow:hidden!important;
+ }
+ .pnr-page .pnr-audiences .pnr-showcase-approved-picture{
+  position:absolute!important;inset:0!important;display:block!important;
+  width:100%!important;height:100%!important;min-width:100%!important;
+  max-width:none!important;margin:0!important;padding:0!important;
+  opacity:0!important;visibility:hidden!important;
+ }
+ .pnr-page .pnr-audiences .pnr-showcase-approved-picture.is-current{
+  opacity:1!important;visibility:visible!important;
+ }
+ .pnr-page .pnr-audiences .pnr-showcase-approved-picture img.pnr-showcase-approved-art{
+  display:block!important;position:absolute!important;inset:0!important;
+  width:100%!important;height:100%!important;max-width:none!important;
+  max-height:none!important;margin:0!important;padding:0!important;
+  object-fit:cover!important;object-position:center!important;
+  transform:none!important;filter:none!important;
+  -webkit-mask-image:none!important;mask-image:none!important;
+ }
+ .pnr-page .pnr-audiences .pnr-showcase-dashboard::before{display:none!important}
+}
