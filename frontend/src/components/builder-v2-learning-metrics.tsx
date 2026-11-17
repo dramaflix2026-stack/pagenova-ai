@@ -8,7 +8,7 @@ const PAGE=500;
 const MAX_ROWS=10000;
 /** Opt-in metrics view: all data stays behind authenticated owner RLS.
  * Do not fetch or expose customer prompts, site copy, addresses or solutions. */
-export function BuilderV2LearningMetrics(){
+export function BuilderV2LearningMetrics({enabled=false}:{enabled?:boolean}){
  const [expanded,setExpanded]=useState(false);
  const [refresh,setRefresh]=useState(0);
  const [loading,setLoading]=useState(false);
@@ -17,7 +17,7 @@ export function BuilderV2LearningMetrics(){
  const [strategyEvidence,setStrategyEvidence]=useState<StrategyEvidence|null>(null);
  const [strategyError,setStrategyError]=useState("");
  useEffect(()=>{
-  if(!expanded)return;
+  if(!expanded||!enabled)return;
   let active=true;
   const load=async()=>{
    setLoading(true);setError("");setStrategyError("");setStrategyEvidence(null);
@@ -93,7 +93,8 @@ export function BuilderV2LearningMetrics(){
   };
   void load();
   return()=>{active=false};
- },[expanded,refresh]);
+ },[expanded,refresh,enabled]);
+ if(!enabled)return null;
  return <section aria-label="Métricas de precisão do Editor Universal" className="mt-3 rounded-xl border border-white/15 bg-[#14211a] p-3 text-left text-xs text-white">
   <div className="flex flex-wrap items-center justify-between gap-2">
    <div><h3 className="font-semibold text-lime-300">Precisão de primeira solicitação</h3>

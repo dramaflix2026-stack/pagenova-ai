@@ -53,5 +53,5 @@ test("Delivery 8: UI reads owner-scoped status only and never raw instructions o
  assert.match(ui,/builder_editor_learning_reuses/);
  assert.match(ui,/Amostra insuficiente/);
  assert.doesNotMatch(ui,/select\(".*(?:instruction_redacted|requested_value|site|deltas|prompt).*"\)/);
- assert.match(page,/<BuilderV2LearningMetrics\/>/);
+ assert.match(page,/<BuilderV2LearningMetrics enabled=\{internalLearningAccess\}\/>/);
 });
