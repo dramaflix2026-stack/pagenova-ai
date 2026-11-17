@@ -27,7 +27,7 @@ const campaignStart=Date.parse("2026-11-23T00:00:00-03:00");
 const campaignEnd=Date.parse("2026-12-01T00:00:00-03:00");
 const benefits:Record<string,string>={studio:"Seu estúdio digital com IA em um só lugar.",crm:"Organize contatos e oportunidades comerciais.",apps:"Soluções digitais para ampliar sua operação.",completo:"Reúna o ecossistema PageNova em um pacote.",site:"Crie sua presença digital com inteligência artificial.",landing:"Apresente ofertas em páginas de conversão.",clone:"Use uma página existente como ponto de partida.",form:"Colete informações com formulários personalizados.",quiz:"Crie experiências interativas para captar interesse.",ebook:"Produza materiais digitais com ajuda da IA.",search:"Encontre empresas para sua prospecção.",leads:"Centralize e acompanhe seus contatos.",commercial:"Organize etapas da sua operação comercial."};
 const money=(n:number)=>new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:0}).format(n);
-export default function MontarPacote(){
+export default function MontarPacote({ official = false }: { official?: boolean } = {}){
  const [selected,setSelected]=useState<string[]>([]);
  const [now,setNow]=useState<number|null>(null);
  useEffect(()=>{setNow(Date.now());const interval=window.setInterval(()=>setNow(Date.now()),1000);return ()=>window.clearInterval(interval)},[]);
@@ -59,7 +59,7 @@ export default function MontarPacote(){
   });
  }
  return <main className="mp-page">
-  <header className="mp-header"><Link href="/teste" aria-label="Voltar à PageNova"><img src="/brand/pagenova-logo.png" alt="PageNova AI"/></Link><Link href="/teste#planos" className="mp-back"><ArrowLeft size={16}/> Voltar aos planos</Link></header>
+  <header className="mp-header"><Link href={official?"/":"/teste"} aria-label="Voltar à PageNova"><img src="/brand/pagenova-logo.png" alt="PageNova AI"/></Link><Link href={official?"/#planos":"/teste#planos"} className="mp-back"><ArrowLeft size={16}/> Voltar aos planos</Link></header>
   <div className="mp-wrap">
    <div className="mp-intro"><span><Sparkles size={14}/> CONTRATE DO SEU JEITO</span><h1>Seu negócio. <em>Suas escolhas.</em></h1><p>Monte um pacote sob medida: combine planos e ferramentas ou contrate somente o que precisa. Sem complicação.</p><div className="mp-intro-pills"><span><Check size={14}/> Escolha livre</span><span><Check size={14}/> Sem itens duplicados</span><span><ShieldCheck size={14}/> Checkout seguro</span></div></div>
    {now!==null&&now<campaignEnd&&<section className="mp-campaign" aria-label="Prévia da campanha Black Friday"><div className="mp-campaign-copy"><span className="mp-campaign-kicker"><Gift size={15}/> BLACK FRIDAY PAGENOVA AI</span><h2>Mais ferramentas. <em>Mais possibilidades.</em></h2><p>{isCampaignUpcoming?"Campanha prevista para 23 a 30 de novembro. Confira as condições antes de contratar.":"Período da campanha: 23 a 30 de novembro. Condições promocionais sujeitas à confirmação no checkout."}</p><div className="mp-discount-tiers"><span>1 item <strong>10% OFF*</strong></span><span>2 itens <strong>15% OFF*</strong></span><span>3+ itens <strong>20% OFF*</strong></span></div><small>*Proposta promocional em configuração. Descontos ainda não estão habilitados nos checkouts Kiwify.</small></div><div className="mp-campaign-timer"><span><Clock3 size={15}/> {isCampaignUpcoming?"INÍCIO PREVISTO EM":"PERÍODO TERMINA EM"}</span><div className="mp-clock" aria-label="Contagem regressiva">{countdown.map((v,i)=><div key={i}><strong>{String(v).padStart(2,"0")}</strong><small>{["DIAS","HORAS","MIN","SEG"][i]}</small></div>)}</div><small>Horário de Brasília · Contador com data fixa</small></div></section>}
@@ -77,6 +77,6 @@ export default function MontarPacote(){
     <p className="mp-note"><ShieldCheck size={16}/> Você será direcionado ao checkout seguro da Kiwify. Nenhuma compra é feita nesta página.</p>
    </div></aside></div>
   </div>
-  <div className="mp-after-catalog"><PageNovaTrustSections/><PageNovaFooter onPackagePage/></div>
+  <div className="mp-after-catalog"><PageNovaTrustSections/><PageNovaFooter onPackagePage homePath={official?"/":"/teste"}/></div>
  </main>;
 }
