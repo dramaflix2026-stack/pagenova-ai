@@ -8,6 +8,7 @@ import {summarizeUniversalEdit} from "@/lib/builder-v2-universal-operations";
 import {diagnoseUniversalEditFailure,verifyUniversalEditResult} from "@/lib/builder-v2-universal-learning";
 import {findUniversalPreviewSections,universalPreviewSectionSelectors} from "@/lib/builder-v2-universal-preview-sections";
 import {planUniversalPreviewMove,auditUniversalPreviewMove,type UniversalPreviewMoveContract} from "@/lib/builder-v2-universal-preview-postconditions";
+import {planUniversalVisualProof,auditUniversalVisualProof,type UniversalVisualProof} from "@/lib/builder-v2-editor-visual-proof";
 import {resolveUniversalSection} from "@/lib/builder-v2-universal-targets";
 import {classifyUniversalFeedback,inferUniversalFeedbackFailureCode} from "@/lib/builder-v2-universal-feedback";
 import {learnReviewedExecutionRoute} from "@/lib/builder-v2-universal-online-learning";
@@ -476,6 +477,7 @@ export default function BuilderV2() {
   const pendingBackgroundVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;color:string;solution?:EditorSolutionMemory|null;reuse?:{sourceEventId:string;technique:string};trace?:EditorSubmissionTrace|null}|null>(null);
   const pendingSectionPhotoVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;src:string;solution?:EditorSolutionMemory|null;trace?:EditorSubmissionTrace|null}|null>(null);
   const pendingMoveVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;contract:UniversalPreviewMoveContract;solution?:EditorSolutionMemory|null;reuse?:{sourceEventId:string;technique:string};trace?:EditorSubmissionTrace|null}|null>(null);
+  const pendingUniversalVisualProofRef=useRef<{prompt:string;niche:string;variant:string;contract:UniversalVisualProof;siteAfter:Site;solution?:EditorSolutionMemory|null;reuse?:{sourceEventId:string;technique:string};trace?:EditorSubmissionTrace|null}|null>(null);
   const [previewVisualAudit,setPreviewVisualAudit]=useState<string|null>(null);
   useEffect(()=>{
     const styles=(site as unknown as Record<string,unknown>).universalSectionStyles as Record<string,{backgroundColor?:string;headingColor?:string;textColor?:string}>|undefined;
@@ -595,6 +597,42 @@ export default function BuilderV2() {
         recordEditorLearningEvent(pending.niche,pending.prompt,"rejected","universal-move-visual-postcondition-failed",pending.variant,null,undefined,pending.trace,undefined,root&&win?"dom-layout-mismatch":undefined);
         captureReviewCandidate();
         setMessages(previous=>[...previous,{role:"assistant",text:"Edição NÃO confirmada na prévia: "+outcome.reason+" Não aprove esta tentativa; o motor registrou a falha."}]);
+      }
+    },500);
+    return ()=>window.clearInterval(timer);
+  },[site]);
+
+  // Delivery 06: a changed JSON field is not proof of a visible change.
+  // Keep specialized move, section photo and section background verifiers.
+  useEffect(()=>{
+    const pending=pendingUniversalVisualProofRef.current;
+    if(!pending)return;
+    let checks=0;
+    const timer=window.setInterval(()=>{
+      if(pendingUniversalVisualProofRef.current!==pending){window.clearInterval(timer);return;}
+      const iframe=previewVisualAuditRef.current?.querySelector("iframe");
+      const doc=iframe?.contentDocument,win=iframe?.contentWindow;
+      const root=doc?.getElementById("pn-v2-preview-root")||doc?.body;
+      const stale=site!==pending.siteAfter;
+      const result=stale?{ok:false,reason:"Outra versão do site foi carregada antes da conferência."}:
+        root&&win?auditUniversalVisualProof(root,win,pending.contract):
+        {ok:false,reason:"A prévia não está disponível para conferir a edição."};
+      if(result.ok){
+        pendingUniversalVisualProofRef.current=null;window.clearInterval(timer);
+        recordEditorLearningEvent(pending.niche,pending.prompt,"applied","universal-five-types-visual-verified",
+          pending.variant,pending.solution?{...pending.solution,verification:"visual"}:null,pending.reuse,pending.trace);
+        captureReviewCandidate();
+        setMessages(previous=>[...previous,{role:"assistant",text:"Edição confirmada na prévia real. As alterações solicitadas foram verificadas visualmente. Avalie antes de aprovar."}]);
+      }else if(stale||++checks>=30){
+        pendingUniversalVisualProofRef.current=null;window.clearInterval(timer);
+        const tasks=pending.contract.tasks.map(task=>task.kind);
+        const evidence=root&&win&&!stale?tasks.includes("block-image")?"dom-photo-absent":
+          tasks.some(kind=>kind==="block-color"||kind==="section-color"||kind==="cta-color")?"dom-color-mismatch":
+          tasks.some(kind=>kind==="block-align"||kind==="section-new")?"dom-layout-mismatch":undefined:undefined;
+        recordEditorLearningEvent(pending.niche,pending.prompt,"rejected","universal-five-types-visual-postcondition-failed",
+          pending.variant,null,undefined,pending.trace,undefined,evidence);
+        captureReviewCandidate();
+        setMessages(previous=>[...previous,{role:"assistant",text:"Edição NÃO confirmada na prévia: "+result.reason+" Não marque como aprovada; o motor registrou a falha."}]);
       }
     },500);
     return ()=>window.clearInterval(timer);
@@ -1447,6 +1485,15 @@ export default function BuilderV2() {
           return;
         }
         const movementPlan=planUniversalPreviewMove(site,result.site);
+        // Every ordinary universal mutation needs a deterministic visual contract.
+        const needsUniversalProof=!movementPlan&&!guidedBackgroundApplied;
+        const universalProof=needsUniversalProof?planUniversalVisualProof(site,result.site,result.changedIds):null;
+        if(universalProof&&!universalProof.ok){
+          recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal-five-types-unverifiable",site.briefingLayoutVariant||"01",undefined,undefined,activeSubmissionTraceRef.current);
+          captureReviewCandidate();
+          setMessages(prev=>[...prev,{role:"assistant",text:"Edição não aplicada: "+universalProof.reason+" A prévia não poderia comprovar essa alteração."}]);
+          return;
+        }
         const verifiedSolution=captureVerifiedEditorSolution(site,result.site,result.changedIds,{niche:site.niche,model:site.briefingLayoutVariant,family:String(resolveBriefingFamily(site.niche||"")||""),template:site.templateId});
         // A source is attributed only when it CHANGED the route and the new
         // mutation is verified, never merely because an old memory was read.
@@ -1454,6 +1501,9 @@ export default function BuilderV2() {
         const learnedReuse=learnedSource&&approvedTechnique
           ?{sourceEventId:learnedSource,technique:approvedTechnique.technique}:undefined;
         if(movementPlan)pendingMoveVisualReviewRef.current={trace:activeSubmissionTraceRef.current,prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",contract:movementPlan,solution:verifiedSolution,reuse:learnedReuse};
+        if(universalProof?.ok)pendingUniversalVisualProofRef.current={trace:activeSubmissionTraceRef.current,
+          prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",contract:universalProof.contract,
+          siteAfter:result.site,solution:verifiedSolution,reuse:learnedReuse};
         // Memory-guided section backgrounds require a DOM check before an
         // applied event or reuse attribution can ever be recorded.
         const backgroundStyleId=guidedBackgroundApplied?result.changedIds.find(id=>id.startsWith("section-style:")):undefined;
@@ -1469,8 +1519,8 @@ export default function BuilderV2() {
         setSite(result.site);setInstruction("");setGenerationError("");
         // A model-side mutation is not evidence of an actual visible edit.
         // Reviewed learning must receive the verdict only after the preview audit.
-        if(!movementPlan&&!pendingLearnedVisual){recordEditorLearningEvent(site.niche||"",prompt,"applied","universal",site.briefingLayoutVariant||"01",verifiedSolution,learnedReuse);captureReviewCandidate();}
-        setMessages(prev=>[...prev,{role:"assistant",text:(movementPlan?"Movimentação registrada nos dados do projeto. Conferindo a posição e o alinhamento na prévia antes de confirmar.":pendingLearnedVisual?"Cor definida por uma técnica aprendida. Aguardando confirmação na prévia.":result.changedIds.includes("primary-cta-theme")?"Configuração de cor dos CTAs atualizada. A mudança visual dos botões ainda precisa ser confirmada na prévia; não aprove se os CTAs não mudaram ou se outras áreas foram afetadas.":summarizeUniversalEdit(result))+(learnedReuse?" Estratégia escolhida com base em experiência aprovada; confirme o resultado antes de aprovar.":"")}]);
+        // No state-only automatic approval; the corresponding DOM verifier owns the feedback event.
+        setMessages(prev=>[...prev,{role:"assistant",text:(movementPlan?"Movimentação registrada nos dados do projeto. Conferindo a posição e o alinhamento na prévia antes de confirmar.":pendingLearnedVisual?"Cor definida por uma técnica aprendida. Aguardando confirmação na prévia.":universalProof?.ok?"Alteração registrada. Verificando as pós-condições na prévia antes de confirmar.":result.changedIds.includes("primary-cta-theme")?"Cor dos CTAs registrada; confira na prévia.":summarizeUniversalEdit(result))+(learnedReuse?" Estratégia escolhida com base em experiência aprovada; confirme o resultado antes de aprovar.":"")}]);
         return;
       }
     }
