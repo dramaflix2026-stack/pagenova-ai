@@ -125,6 +125,10 @@ test("TP9 custom sections: real template anchor aliases and preview-gated three 
  assert.match(wrapper,/tp9-contato/);
  assert.match(wrapper,/tp9v3-contact/);
  assert.match(wrapper,/card.image/);
+ // Preview audits run before the user scrolls to the added section.
+ // Lazy images below the fold never load, even with correct URLs.
+ assert.match(wrapper,/<img src=\{card\.image\}[^>]+loading="eager"/);
+ assert.doesNotMatch(wrapper,/<img src=\{card\.image\}[^>]+loading="lazy"/);
  assert.match(proof,/cardImages/);
  assert.match(proof,/image.naturalWidth<=0/);
 });
