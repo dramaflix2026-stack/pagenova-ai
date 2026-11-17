@@ -1957,3 +1957,8 @@
  }
  .pnr-page .pnr-audiences .pnr-showcase-dashboard::before{display:none!important}
 }
+
+.pnr-page .pnr-showcase-mobile-click{display:none}
+@media(max-width:767px){
+ .pnr-page .pnr-showcase-mobile-click{display:block;position:absolute;inset:0;z-index:5;cursor:pointer}
+}
