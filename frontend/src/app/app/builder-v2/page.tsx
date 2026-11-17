@@ -29,6 +29,7 @@ import {selectApprovedExecutionTechnique,shouldRerouteUsingApprovedTechnique,con
 import {quarantineReviewedReuses,reuseKey,type ReuseEdge,type ReuseOutcome} from "@/lib/builder-v2-learned-technique-quarantine";
 import {auditFamilyTransfers,type FamilySourceReview,type FamilySolutionMemory,type FamilyTargetReview} from "@/lib/builder-v2-family-transfer-audit";
 import {applyApprovedSectionBackground} from "@/lib/builder-v2-universal-learned-style";
+import {applyRenderedSectionBackground} from "@/lib/builder-v2-rendered-section-background";
 import {createClient as createSupabaseBrowserClient} from "@/lib/supabase/client";
 import {parseUniversalCopyEdit,isIsolatedUniversalCopyResult} from "@/lib/builder-v2-universal-copy-edits";
 
@@ -1576,15 +1577,36 @@ export default function BuilderV2() {
       // intercept a request that also changes a heading, card or other element.
       // Dedicated deterministic route: explicit section background HEX edits must not
       // be misclassified by other universal parsers or learning-based strategy ranking.
-      const exactSectionHex=prompt.trim().match(/^(?:altere|mude|troque|coloque|defina|ajuste)\s+(?:somente\s+|apenas\s+)?(?:a\s+)?(?:cor\s+de\s+)?fundo\s+(?:da|do|de)\s+(?:se[cç][aã]o\s+(?:de\s+|da\s+|dos\s+)?)?(.+?)\s+(?:para|pra|em)\s+(?:(?:[\p{L}]+\s+){0,3})?(#[0-9a-fA-F]{6})(?=\s|[.!?]|$)/iu);
+      const exactSectionHex=prompt.trim().match(/^(?:altere|mude|troque|coloque|defina|ajuste)\s+(?:(?:somente|apenas|exclusivamente)\s+)?(?:a\s+)?(?:cor\s+de\s+)?fundo\s+(?:da|do|de)\s+(?:se[cç][aã]o\s+(?:de\s+|da\s+|dos\s+)?)?(.+?)\s+(?:para|pra|em)\s+(?:(?:[\p{L}]+\s+){0,3})?(#[0-9a-fA-F]{6})(?=\s|[.!?]|$)/iu);
       if(exactSectionHex&&!hasAttachments&&!imageChange&&!compound){
-        const parsed=applyUniversalNaturalLanguage(site,prompt);
+        const generic=applyUniversalNaturalLanguage(site,prompt);
+        // A rendered premium section may lack a matching generated data block.
+        const renderedBackground=!generic?.ok?applyRenderedSectionBackground(site,prompt):null;
+        const parsed=renderedBackground||generic;
         if(parsed?.ok){
           const sectionId=parsed.changedIds.find(id=>id.startsWith("section-style:"));
           const verified=verifyUniversalEditResult(site,parsed.site,parsed.changedIds);
           if(sectionId&&verified.ok){
             const section=sectionId.slice("section-style:".length);
-            pendingBackgroundVisualReviewRef.current={trace:activeSubmissionTraceRef.current,prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",section,color:exactSectionHex[2].toUpperCase(),solution:captureVerifiedEditorSolution(site,parsed.site,parsed.changedIds,{niche:site.niche,model:site.briefingLayoutVariant,family:String(resolveBriefingFamily(site.niche||"")||""),template:site.templateId})};
+            const solution=captureVerifiedEditorSolution(site,parsed.site,parsed.changedIds,{niche:site.niche,model:site.briefingLayoutVariant,family:String(resolveBriefingFamily(site.niche||"")||""),template:site.templateId});
+            if(renderedBackground?.ok){
+              const visual=planUniversalVisualProof(site,parsed.site,parsed.changedIds);
+              if(!visual.ok){
+                recordEditorLearningEvent(site.niche||"",prompt,"rejected","rendered-section-background-unverifiable",site.briefingLayoutVariant||"01",undefined,undefined,activeSubmissionTraceRef.current);
+                captureReviewCandidate();
+                setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Cor não aplicada: "+visual.reason}]);
+                return;
+              }
+              pendingUniversalVisualProofRef.current={
+                trace:activeSubmissionTraceRef.current,prompt,niche:site.niche||"",
+                variant:site.briefingLayoutVariant||"01",contract:visual.contract,
+                siteAfter:parsed.site,solution,
+                strategy:"universal-rendered-section-background-visual-verified",
+                regressionSentinels:captureCurrentPreviewRegression(site,parsed.site,parsed.changedIds)
+              };
+            }else{
+              pendingBackgroundVisualReviewRef.current={trace:activeSubmissionTraceRef.current,prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",section,color:exactSectionHex[2].toUpperCase(),solution};
+            }
             recordVersion(site,"Antes da edição de fundo");
             setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
             setSite(parsed.site);setInstruction("");setGenerationError("");

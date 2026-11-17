@@ -67,8 +67,8 @@
       "path": "src/components/builder-v2-site.tsx",
       "blobSha": "39f70209f2e11a82b84923c43d28eae10e4c344a",
       "approvedBindingRevision": {
-        "sha": "7efea5acc2bc7466f6b9f275c90879db2589856e",
-        "reason": "Explicit user approval 2026-11-17: fix failed Universal Editor Test 01; only bind TP6 Floricultura Model 01 visible Hero heading to the actual block ID, preserving all approved templates, other models and learning gates."
+        "sha": "275cbfca6ad51c3252a6e950491f397980415c48",
+        "reason": "Explicit user approval of TP6 Floricultura Model 01 and Test 02 correction request 2026-11-17: bind the rendered #produtos collection background to the universal section style; preserve Models 02/03, other approved templates, Editor and learning gates."
       }
     },
     {

@@ -5,7 +5,7 @@ import {TP6RetailCustomSections,type TP6RetailReview} from "./builder-v2-tp6-pre
 import "./builder-v2-floriculture-model1.css";
 
 /** User-approved editorial rebuild, exclusively TP6 Floricultura Model 01. */
-type Props={brand:string;headline?:string;description?:string;images:string[];edits?:TP6RetailVisualEdits;reviews?:TP6RetailReview[];whatsapp?:string;email?:string;address?:string;heroImage?:string;headlineBlockId?:string};
+type Props={brand:string;headline?:string;description?:string;images:string[];edits?:TP6RetailVisualEdits;reviews?:TP6RetailReview[];whatsapp?:string;email?:string;address?:string;heroImage?:string;headlineBlockId?:string;sectionBackgroundOverride?:string};
 const photosFallback=[
  "https://images.unsplash.com/photo-1561848355-890d054dc55a?auto=format&fit=crop&w=1600&q=85",
  "https://images.unsplash.com/photo-1457089328109-e5d9bd499191?auto=format&fit=crop&w=1600&q=85",
@@ -46,7 +46,7 @@ const galleryNames=["Detalhes que encantam","Flores de estação","Composições
 const safePhoto=(src:unknown)=>typeof src==="string"&&/^https:\/\/(?:images\.unsplash\.com|[\w.-]+\.supabase\.co|[\w.-]+\.cloudinary\.com)\//i.test(src);
 const validEmail=(v:string)=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)&&v.length<=254;
 
-export function TP6FloricultureModel1({brand,headline,description,images,edits,reviews=[],whatsapp,email,address,heroImage,headlineBlockId}:Props){
+export function TP6FloricultureModel1({brand,headline,description,images,edits,reviews=[],whatsapp,email,address,heroImage,headlineBlockId,sectionBackgroundOverride}:Props){
  const [menuOpen,setMenuOpen]=useState(false);
  const [faqOpen,setFaqOpen]=useState<number|null>(0);
  const [lightbox,setLightbox]=useState<number|null>(null);
@@ -60,7 +60,7 @@ export function TP6FloricultureModel1({brand,headline,description,images,edits,r
  const mainPhoto=safePhoto(heroImage)?heroImage!:photo(2);
  const whats=(whatsapp||"").replace(/\D/g,""),hasWhats=whats.length>=10&&whats.length<=15;
  const mail=email?.trim()||"",hasMail=validEmail(mail),canContact=hasWhats||hasMail;
- const color=edits?.collectionBackground&&/^#[a-f\d]{6}$/i.test(edits.collectionBackground)?edits.collectionBackground:undefined;
+ const color=sectionBackgroundOverride&&/^#[a-f\d]{6}$/i.test(sectionBackgroundOverride)?sectionBackgroundOverride:edits?.collectionBackground&&/^#[a-f\d]{6}$/i.test(edits.collectionBackground)?edits.collectionBackground:undefined;
  const titleColor=edits?.collectionHeadingColor&&/^#[a-f\d]{6}$/i.test(edits.collectionHeadingColor)?edits.collectionHeadingColor:undefined;
  const collectionCards=collections.map(([title,copy],i)=>({
   title:i===0&&edits?.firstCollectionCard?.title?edits.firstCollectionCard.title:title,

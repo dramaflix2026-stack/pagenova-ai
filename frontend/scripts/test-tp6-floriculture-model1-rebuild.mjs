@@ -2,6 +2,10 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import ts from "typescript";
+import {applyRenderedSectionBackground} from "../src/lib/builder-v2-rendered-section-background.ts";
+import {verifyUniversalEditResult} from "../src/lib/builder-v2-universal-learning.ts";
+import {planUniversalVisualProof,auditUniversalVisualProof} from "../src/lib/builder-v2-editor-visual-proof.ts";
+
 
 const read=path=>readFileSync(new URL(path,import.meta.url),"utf8");
 const ui=read("../src/components/builder-v2-floriculture-model1.tsx");
@@ -105,4 +109,56 @@ test("Floricultura Model 01 Hero binds a real DOM heading to the active editor b
  assert.match(ui,/<h1 data-block-id=\{headlineBlockId\}>\{heroTitle\}<\/h1>/);
  assert.match(router,/headlineBlockId=\{props.site.blocks.find\(b=>b.type==="heading"&&b.text\?\.trim\(\)\)\?\.id\}/);
  assert.match(router,/if\(variant==="01"&&retailNiche==="Floricultura"\)/);
+});
+
+const isolatedBackgroundPrompt="Altere exclusivamente a cor de fundo da seção Coleções Florais para #EFE7DC. Preserve as cores dos textos, imagens, cards, botões e todas as demais seções. A alteração deve aparecer imediatamente na prévia, sem precisar publicar o site.";
+const isolatedBackgroundSeed=()=>({
+ title:"Jardim de Âmbar — Atelier Floral",niche:"Floricultura",briefingLayoutVariant:"01",
+ blocks:[{id:"floral-hero",type:"heading",section:"hero",text:"Flores que fazem cada instante florescer"}],
+ universalSectionStyles:{hero:{backgroundColor:"#ffffff"},produtos:{headingColor:"#26382D"}}
+});
+test("real Test 02 phrase edits only Model 01's rendered Coleções Florais background",()=>{
+ const original=isolatedBackgroundSeed();
+ const result=applyRenderedSectionBackground(original,isolatedBackgroundPrompt);
+ assert.equal(result?.ok,true);
+ assert.deepEqual(result.changedIds,["section-style:produtos"]);
+ assert.equal(result.site.universalSectionStyles.produtos.backgroundColor,"#EFE7DC");
+ assert.equal(result.site.universalSectionStyles.produtos.headingColor,"#26382D");
+ assert.deepEqual(result.site.universalSectionStyles.hero,original.universalSectionStyles.hero);
+ assert.deepEqual(result.site.blocks,original.blocks);
+ assert.equal(original.universalSectionStyles.produtos.backgroundColor,undefined);
+ assert.equal(verifyUniversalEditResult(original,result.site,result.changedIds).ok,true);
+});
+test("real collection #produtos DOM must show the requested color before success",()=>{
+ const before=isolatedBackgroundSeed();
+ const result=applyRenderedSectionBackground(before,isolatedBackgroundPrompt);
+ assert.equal(result?.ok,true);
+ const proof=planUniversalVisualProof(before,result.site,result.changedIds);
+ assert.deepEqual(proof,{ok:true,contract:{version:1,tasks:[{kind:"section-color",section:"produtos",color:"#EFE7DC",target:"background"}]}});
+ const section={id:"produtos",getAttribute:()=>null,getClientRects:()=>[{}],querySelectorAll:()=>[]};
+ const root={querySelectorAll:selector=>selector.includes("section")?[section]:[]};
+ const browser=color=>({getComputedStyle:()=>({display:"block",visibility:"visible",backgroundColor:color})});
+ assert.equal(auditUniversalVisualProof(root,browser("rgb(239, 231, 220)"),proof.contract).ok,true);
+ assert.equal(auditUniversalVisualProof(root,browser("rgb(248, 245, 236)"),proof.contract).ok,false);
+ assert.equal(auditUniversalVisualProof({querySelectorAll:()=>[]},browser("rgb(239, 231, 220)"),proof.contract).ok,false);
+});
+test("no unrelated template, model or compound operation may consume the special binding",()=>{
+ const seed=isolatedBackgroundSeed();
+ assert.equal(applyRenderedSectionBackground({...seed,briefingLayoutVariant:"02"},isolatedBackgroundPrompt),null);
+ assert.equal(applyRenderedSectionBackground({...seed,briefingLayoutVariant:"03"},isolatedBackgroundPrompt),null);
+ assert.equal(applyRenderedSectionBackground({...seed,niche:"Auto centers",title:"Vértice Auto Center"},isolatedBackgroundPrompt),null);
+ assert.equal(applyRenderedSectionBackground(seed,isolatedBackgroundPrompt+" Mude o botão principal."),null);
+ assert.equal(applyRenderedSectionBackground(seed,"Altere exclusivamente a cor de fundo da seção Inventário para #EFE7DC."),null);
+ assert.equal(applyRenderedSectionBackground(seed,isolatedBackgroundPrompt.replace("#EFE7DC","#GGGGGG")),null);
+});
+test("Test 02 renderer wiring remains isolated to premium M1 and normal universal guards",()=>{
+ const editor=read("../src/app/app/builder-v2/page.tsx");
+ assert.match(editor,/const renderedBackground=!generic\?\.ok\?applyRenderedSectionBackground\(site,prompt\):null/);
+ assert.match(editor,/pendingUniversalVisualProofRef.current=\{/);
+ assert.match(editor,/strategy:"universal-rendered-section-background-visual-verified"/);
+ assert.match(editor,/planUniversalVisualProof\(site,parsed.site,parsed.changedIds\)/);
+ assert.match(router,/sectionBackgroundOverride=\{props.site.universalSectionStyles\?\.produtos\?\.backgroundColor\}/);
+ assert.match(ui,/sectionBackgroundOverride&&\/\^#\[a-f\\d\]\{6\}\$\/i\.test\(sectionBackgroundOverride\)/);
+ const otherModels=["../src/components/builder-v2-floriculture-model2.tsx","../src/components/builder-v2-floriculture-model3.tsx"].map(read);
+ for(const source of otherModels)assert.ok(!source.includes("sectionBackgroundOverride"));
 });
