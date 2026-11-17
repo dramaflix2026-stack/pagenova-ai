@@ -305,6 +305,10 @@ export function PageNovaTrustSections({language="pt"}:{language?:Lang}){
        <span className="pnr-shield-energy-spark pnr-shield-energy-spark--b"/>
        <span className="pnr-shield-energy-spark pnr-shield-energy-spark--c"/>
        <span className="pnr-shield-energy-spark pnr-shield-energy-spark--d"/>
+       <span className="pnr-shield-energy-spark pnr-shield-energy-spark--e"/>
+       <span className="pnr-shield-energy-spark pnr-shield-energy-spark--f"/>
+       <span className="pnr-shield-energy-spark pnr-shield-energy-spark--g"/>
+       <span className="pnr-shield-energy-spark pnr-shield-energy-spark--h"/>
       </span></picture><div className="pnr-guarantee-mobile" aria-label="Garantia de sete dias"><div className="pnr-guarantee-mobile-shield" aria-hidden="true" /><div className="pnr-guarantee-mobile-copy"><span>COMPRE SEM RISCO</span><h3>Garantia incondicional de <em>7 dias.</em></h3><p>Garantia de sete dias para sua contratação, conforme os termos de reembolso publicados junto ao checkout.</p></div></div></div>
     <div className="pnr-faq" id="faq"><div className="pnr-faq-intro"><p className="pnr-overline">{t.faqTag}</p><h2>{t.faqTitle} <em>{t.faqHi}</em></h2><p>{t.faqDesc}</p></div><div className="pnr-faq-items">{t.faqs.map((item:FAQ,i)=><div key={i} className={"pnr-faq-item"+(openFaq===i?" opened":"")}><button type="button" aria-expanded={openFaq===i} onClick={()=>setOpenFaq(openFaq===i?null:i)}>{item.q}<ChevronDown size={17}/></button>{openFaq===i&&<p>{item.a}</p>}</div>)}</div></div>
    </section></div>;
