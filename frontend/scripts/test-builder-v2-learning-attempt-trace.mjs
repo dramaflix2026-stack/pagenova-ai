@@ -95,7 +95,7 @@ test("production Builder passes the trace to existing Supabase event, retaining 
  assert.match(page,/confirmCloudEditorLearningReview\(client,user\.id,event\.id,reviewed\)/);
  assert.match(page,/\.eq\("id",eventId\)\.eq\("user_id",userId\)\.eq\("review_status","pending"\)/);
 });
-test("all four asynchronous visual audit paths capture original submission, including failed audits",()=>{
+test("all five asynchronous visual audit paths capture original submission, including failed audits",()=>{
  const page=readFileSync(new URL("../src/app/app/builder-v2/page.tsx",import.meta.url),"utf8");
  const assignments=(page.match(/\.current=\{trace:activeSubmissionTraceRef\.current,/g)||[]).length;
  const successfulAudits=(page.match(/pending\.trace\)/g)||[]).length;
@@ -103,8 +103,9 @@ test("all four asynchronous visual audit paths capture original submission, incl
  assert.equal(assignments,10,"all existing audits and the newly verified hero/AI entry points retain original request IDs");
  assert.match(page,/if\(heroChange\)\{/);
  assert.match(page,/if\(visual\?\.ok\)\{/);
- assert.equal(successfulAudits,4,"four successful visual pathways retain the original request");
- assert.equal(failedAudits,4,"four failed visual pathways retain request ID plus evidence");
+ assert.equal(successfulAudits,5,"five successful visual pathways retain the original request, including the TP9 hero photograph");
+ assert.equal(failedAudits,5,"five failed visual pathways retain request ID plus evidence");
+ assert.match(page,/pendingHeroPhotoVisualReviewRef\.current/);
  assert.match(page,/capturedSubmission===undefined\?activeSubmissionTraceRef\.current:capturedSubmission/);
 });
 
