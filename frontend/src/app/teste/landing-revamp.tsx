@@ -293,7 +293,19 @@ export function PageNovaTrustSections({language="pt"}:{language?:Lang}){
  const t=translations[language];
  const [openFaq,setOpenFaq]=useState<number|null>(0);
  return <div className="pnr-page pnr-shared-trust"><section className="pnr-section pnr-trust" id="garantia">
-    <div className={"pnr-guarantee pnr-guarantee-full-art"+(language==="en"?" pnr-guarantee-english":"")}><span className="pnr-guarantee-shield-aura" aria-hidden="true"/><picture className="pnr-guarantee-responsive-art"><source media="(max-width: 767px)" srcSet={language==="en"?"/images/en/garantia-7-dias-en-mobile.png":"/images/file_000000004cb8820eabffff5a047418ea.webp"}/><img className="pnr-guarantee-full-image" src={language==="en"?"/images/en/garantia-7-dias-en-desktop.png":"/images/garantia-pagenova-original.webp"} alt="Garantia incondicional de 7 dias PageNova AI" loading="lazy" decoding="async" /></picture><div className="pnr-guarantee-mobile" aria-label="Garantia de sete dias"><div className="pnr-guarantee-mobile-shield" aria-hidden="true" /><div className="pnr-guarantee-mobile-copy"><span>COMPRE SEM RISCO</span><h3>Garantia incondicional de <em>7 dias.</em></h3><p>Garantia de sete dias para sua contratação, conforme os termos de reembolso publicados junto ao checkout.</p></div></div></div>
+    <div className={"pnr-guarantee pnr-guarantee-full-art"+(language==="en"?" pnr-guarantee-english":"")}><span className="pnr-guarantee-shield-aura" aria-hidden="true"/><picture className="pnr-guarantee-responsive-art"><source media="(max-width: 767px)" srcSet={language==="en"?"/images/en/garantia-7-dias-en-mobile.png":"/images/file_000000004cb8820eabffff5a047418ea.webp"}/><img className="pnr-guarantee-full-image" src={language==="en"?"/images/en/garantia-7-dias-en-desktop.png":"/images/garantia-pagenova-original.webp"} alt="Garantia incondicional de 7 dias PageNova AI" loading="lazy" decoding="async" />
+      <span className="pnr-shield-internal-energy" aria-hidden="true">
+       <svg className="pnr-shield-energy-lines" viewBox="0 0 300 340" preserveAspectRatio="none" fill="none">
+        <path className="pnr-shield-energy-track" d="M150 13 L251 44 L251 191 Q248 266 150 326 Q52 266 49 191 L49 44 Z"/>
+        <path className="pnr-shield-energy-trail" d="M150 13 L251 44 L251 191 Q248 266 150 326 Q52 266 49 191 L49 44 Z"/>
+       </svg>
+       <span className="pnr-shield-energy-logo"/>
+       <span className="pnr-shield-energy-glint"/>
+       <span className="pnr-shield-energy-spark pnr-shield-energy-spark--a"/>
+       <span className="pnr-shield-energy-spark pnr-shield-energy-spark--b"/>
+       <span className="pnr-shield-energy-spark pnr-shield-energy-spark--c"/>
+       <span className="pnr-shield-energy-spark pnr-shield-energy-spark--d"/>
+      </span></picture><div className="pnr-guarantee-mobile" aria-label="Garantia de sete dias"><div className="pnr-guarantee-mobile-shield" aria-hidden="true" /><div className="pnr-guarantee-mobile-copy"><span>COMPRE SEM RISCO</span><h3>Garantia incondicional de <em>7 dias.</em></h3><p>Garantia de sete dias para sua contratação, conforme os termos de reembolso publicados junto ao checkout.</p></div></div></div>
     <div className="pnr-faq" id="faq"><div className="pnr-faq-intro"><p className="pnr-overline">{t.faqTag}</p><h2>{t.faqTitle} <em>{t.faqHi}</em></h2><p>{t.faqDesc}</p></div><div className="pnr-faq-items">{t.faqs.map((item:FAQ,i)=><div key={i} className={"pnr-faq-item"+(openFaq===i?" opened":"")}><button type="button" aria-expanded={openFaq===i} onClick={()=>setOpenFaq(openFaq===i?null:i)}>{item.q}<ChevronDown size={17}/></button>{openFaq===i&&<p>{item.a}</p>}</div>)}</div></div>
    </section></div>;
 }
