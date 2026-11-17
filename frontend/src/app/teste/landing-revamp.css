@@ -69,6 +69,15 @@
 .pnr-style-card:hover{transform:translateY(-5px);border-color:#aaff5bab;box-shadow:0 15px 50px #7fff3c32}
 .pnr-style-card picture,.pnr-style-card img{display:block;width:100%;height:auto}
 .pnr-style-card img{aspect-ratio:16/9;object-fit:cover}
+ /* EN desktop artwork is ultra-wide (3:1). Show the entire banner rather than clipping its copy. */
+ .pnr-style-card--en picture{position:relative;isolation:isolate;overflow:hidden;background-color:#06140c}
+ .pnr-style-card--en picture::before{content:"";position:absolute;inset:-22px;background-image:inherit;background-size:cover;background-position:center;filter:blur(18px);opacity:.65;pointer-events:none;z-index:-1}
+ .pnr-style-card--en img{object-fit:contain;position:relative;z-index:1}
+ @media (max-width:650px){
+  .pnr-style-card--en picture{background-image:none!important}
+  .pnr-style-card--en picture::before{display:none}
+  .pnr-style-card--en img{object-fit:cover}
+ }
 .pnr-footnote{font-size:11px;line-height:1.6;color:#95ac98;text-align:center;margin:20px auto 0;max-width:860px}
 .pnr-audiences{padding-top:42px;padding-bottom:65px;background:#07130c}
 .pnr-audience-grid{max-width:1300px;margin:auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
