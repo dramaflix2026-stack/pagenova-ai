@@ -2164,3 +2164,46 @@
   animation:none!important;opacity:1!important;transform:none!important;
  }
 }
+
+
+/* Hero integration v3: remove the visible rectangular artwork boundary.
+   Preserve the approved face and embedded UI; animate only atmospheric light. */
+@keyframes pnrHeroAtmosphere{
+  0%,100%{opacity:.46;transform:translate3d(0,0,0) scale(.98)}
+  50%{opacity:.75;transform:translate3d(0,-5px,0) scale(1.045)}
+}
+@media(max-width:767px){
+ .pnr-page .pnr-hero--premium{
+  background:radial-gradient(ellipse 85% 27% at 52% 76%,rgba(21,92,43,.14),transparent 90%),#031009!important;
+ }
+ .pnr-page .pnr-hero--premium .pnr-hero-scene{
+  isolation:isolate!important;overflow:visible!important;
+  margin-top:4px!important;
+ }
+ .pnr-page .pnr-hero--premium .pnr-hero-scene::before{
+  display:block!important;content:""!important;
+  position:absolute!important;z-index:-1!important;
+  inset:-18% -18% -26%!important;border-radius:50%!important;
+  background:radial-gradient(ellipse at 48% 46%,rgba(45,177,72,.27) 0%,rgba(23,104,50,.15) 34%,transparent 72%)!important;
+  filter:blur(23px)!important;
+  animation:pnrHeroAtmosphere 7.5s ease-in-out infinite!important;
+ }
+ .pnr-page .pnr-hero--premium .pnr-hero-image-stage{
+  isolation:auto!important;overflow:visible!important;
+  animation:none!important;transform:none!important;
+ }
+ .pnr-page .pnr-hero--premium .pnr-hero-image-stage img.pnr-hero-art-approved{
+  display:block!important;
+  -webkit-mask-image:radial-gradient(ellipse 70% 69% at 49% 48%,#000 58%,rgba(0,0,0,.92) 72%,rgba(0,0,0,.48) 88%,transparent 100%)!important;
+  mask-image:radial-gradient(ellipse 70% 69% at 49% 48%,#000 58%,rgba(0,0,0,.92) 72%,rgba(0,0,0,.48) 88%,transparent 100%)!important;
+  filter:drop-shadow(0 12px 18px rgba(26,131,56,.12))!important;
+  transform:none!important;
+ }
+ .pnr-page .pnr-hero--premium .pnr-benefits{
+  position:relative!important;z-index:2!important;
+  margin-top:-5px!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ .pnr-page .pnr-hero--premium .pnr-hero-scene::before{animation:none!important}
+}
