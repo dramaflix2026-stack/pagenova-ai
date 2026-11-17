@@ -200,18 +200,18 @@ function AccessCredits({credits,loading}:{credits:SidebarCredits|null;loading:bo
   </div>;
 }
 
-function AccessPanel({accessKind,accountEmail,credits,creditsLoading}:{accessKind:"paid"|"trial";accountEmail:string;credits:SidebarCredits|null;creditsLoading:boolean}){
+function AccessPanel({accessKind,accountEmail,credits,creditsLoading}:{accessKind:"paid"|"trial"|"owner";accountEmail:string;credits:SidebarCredits|null;creditsLoading:boolean}){
   const [expanded,setExpanded]=useState(false);
   return <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.025]">
     <button type="button" onClick={()=>setExpanded(value=>!value)} aria-expanded={expanded} className="flex w-full items-center justify-between gap-2 p-3 text-left transition hover:bg-white/[0.04]">
-      <span className="min-w-0"><span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-white/45">Seu acesso</span><span className="mt-1 block text-xs font-semibold text-white">{accessKind==="trial"?"Teste grátis · 5 dias":"Acesso completo"} <span className="text-emerald-300">· Ativo</span></span></span>
+      <span className="min-w-0"><span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-white/45">Seu acesso</span><span className="mt-1 block text-xs font-semibold text-white">{accessKind==="owner"?"Acesso administrativo":accessKind==="trial"?"Teste grátis · 5 dias":"Acesso completo"} <span className="text-emerald-300">· Ativo</span></span></span>
       <ChevronDown className={`h-4 w-4 shrink-0 text-emerald-300 transition-transform ${expanded?"rotate-180":""}`}/>
     </button>
-    {expanded?<div className="border-t border-white/10 px-3 pb-3 pt-2"><p className="break-all text-xs text-emerald-200/70" title={accountEmail}>{accountEmail||"PageNova AI"}</p><AccessCredits credits={credits} loading={creditsLoading}/><LogoutButton/></div>:null}
+    {expanded?<div className="border-t border-white/10 px-3 pb-3 pt-2"><p className="break-all text-xs text-emerald-200/70" title={accountEmail}>{accountEmail||"PageNova AI"}</p>{accessKind!=="owner"&&<AccessCredits credits={credits} loading={creditsLoading}/>}<LogoutButton/></div>:null}
   </div>;
 }
 
-export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
+export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"|"owner"}) {
   const visibleStudioItems=accessKind==="trial"?studioItems.map(item=>
     item.href==="/app/builder-v2"
       ?{...item,href:"/app/crm?view=sites-ia",crmView:"sites-ia",label:"Gerar site com IA · teste"}
