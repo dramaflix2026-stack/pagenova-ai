@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, BarChart3, Blocks, BriefcaseBusiness, Building2, Check, ChevronDown, CircleHelp, Clapperboard, Code2, Crown, Globe2, Layers3, LayoutTemplate, Menu, MonitorSmartphone, Play, Rocket, ShieldCheck, ShoppingBag, Sparkles, Store, Target, Users, WandSparkles, X, Zap } from "lucide-react";
 import { PremiumAiDemo } from "./premium-ai-demo";
@@ -28,7 +28,7 @@ function GuaranteeShieldEruption(){
    <span className="pnr-guarantee-eruption-core"/>
    <span className="pnr-guarantee-eruption-ring pnr-guarantee-eruption-ring--first"/>
    <span className="pnr-guarantee-eruption-ring pnr-guarantee-eruption-ring--second"/>
-   {guaranteeSparks.map((p,i)=><span key={i} className="pnr-guarantee-eruption-spark" style={{left:`${50+(i%7-3)*3.5}%`,top:`${48+(i%5-2)*5}%`,width:p.size,height:p.size,animationDelay:`${p.delay}s`,animationDuration:`${p.duration}s`,["--spark-x" as string]:`${p.x}%`,["--spark-y" as string]:`${p.y}%`} as React.CSSProperties}/>)}
+   {guaranteeSparks.map((p,i)=><span key={i} className="pnr-guarantee-eruption-spark" style={{left:`${50+(i%7-3)*3.5}%`,top:`${48+(i%5-2)*5}%`,width:p.size,height:p.size,animationDelay:`${p.delay}s`,animationDuration:`${p.duration}s`,["--spark-x" as string]:`${p.x}px`,["--spark-y" as string]:`${p.y}px`} as CSSProperties}/>)}
   </span>;
 }
 
