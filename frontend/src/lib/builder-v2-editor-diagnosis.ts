@@ -87,7 +87,7 @@ export function isValidEditorFailureDiagnosis(v:unknown):v is EditorFailureDiagn
    observedFacts[x.evidence as EditorDiagnosticEvidence].code===x.code&&
    observedFacts[x.evidence as EditorDiagnosticEvidence].stage===x.stage;
  if(x.status==="hypothesis")return x.confidence===35&&x.evidence==="strategy-label"&&
-   x.code!=="unknown"&&signalToHypothesis[x.code]?.cause===x.cause&&
+   typeof x.code==="string"&&x.code!=="unknown"&&signalToHypothesis[x.code]?.cause===x.cause&&
    signalToHypothesis[x.code]?.stage===x.stage;
  return x.confidence===0&&x.cause===null&&x.code==="unknown"&&x.evidence==="none";
 }
