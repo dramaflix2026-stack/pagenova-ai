@@ -100,7 +100,9 @@ test("all four asynchronous visual audit paths capture original submission, incl
  const assignments=(page.match(/\.current=\{trace:activeSubmissionTraceRef\.current,/g)||[]).length;
  const successfulAudits=(page.match(/pending\.trace\)/g)||[]).length;
  const failedAudits=(page.match(/pending\.trace,undefined,/g)||[]).length;
- assert.equal(assignments,8,"seven existing pending paths plus the new universal proof retain request IDs");
+ assert.equal(assignments,10,"all existing audits and the newly verified hero/AI entry points retain original request IDs");
+ assert.match(page,/if\(heroChange\)\{/);
+ assert.match(page,/if\(visual\?\.ok\)\{/);
  assert.equal(successfulAudits,4,"four successful visual pathways retain the original request");
  assert.equal(failedAudits,4,"four failed visual pathways retain request ID plus evidence");
  assert.match(page,/capturedSubmission===undefined\?activeSubmissionTraceRef\.current:capturedSubmission/);
