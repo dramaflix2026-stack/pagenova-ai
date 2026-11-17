@@ -849,19 +849,22 @@ export default function BuilderV2() {
   function persistCloudDraft(snapshot:Site):Promise<void>{
     if(!snapshot.id||!snapshot.blocks.length)return Promise.resolve();
     const id=snapshot.id;
+    if(cloudDraftProjectIdRef.current!==id){
+      cloudDraftProjectIdRef.current=id;
+      cloudDraftRevisionRef.current=0;
+      cloudDraftBlockedRef.current=false;
+    }
     const task=cloudDraftQueueRef.current.catch(()=>undefined).then(async()=>{
+      // A queued old project may finish after navigation; never resurrect it.
+      if(cloudDraftProjectIdRef.current!==id)return;
       if(cloudDraftBlockedRef.current)throw new Error("Conflito de versões: sincronização suspensa, rascunho local preservado.");
-      if(cloudDraftProjectIdRef.current!==id){
-        cloudDraftProjectIdRef.current=id;
-        cloudDraftRevisionRef.current=0;
-      }
       const response=await fetch("/api/builder-v2/draft",{
         method:"PUT",headers:{"Content-Type":"application/json"},
         body:JSON.stringify({site:snapshot,baseRevision:cloudDraftRevisionRef.current}),
         credentials:"same-origin",cache:"no-store"
       });
       if(!response.ok){
-        if(response.status===409)cloudDraftBlockedRef.current=true;
+        if(response.status===409&&cloudDraftProjectIdRef.current===id)cloudDraftBlockedRef.current=true;
         const result=await response.json().catch(()=>null) as {error?:string}|null;
         throw new Error(result?.error||"Não foi possível sincronizar este rascunho.");
       }
@@ -961,12 +964,14 @@ export default function BuilderV2() {
     // with the initial empty React state. Keep the legacy localStorage copy intact.
     if(!projectId||hasDraft||validLibraryId){
       void (async()=>{
-        const draft=await readPageNovaProject<{site:Site;updatedAt:number}>("builder-draft:"+key);
-        const library=validLibraryId?await readPageNovaProject<{site:Site;updatedAt:number}>("builder-v2-site:"+validLibraryId):null;
+        // IndexedDB can be disabled by privacy settings: keep cloud retrieval.
+        const draft=await readPageNovaProject<{site:Site;updatedAt:number}>("builder-draft:"+key).catch(()=>null);
+        const library=validLibraryId?await readPageNovaProject<{site:Site;updatedAt:number}>("builder-v2-site:"+validLibraryId).catch(()=>null):null;
         // A direct library link must recover its own project, not the last opened site.
         // Prefer the newest complete snapshot; an older IndexedDB write must
         // never replace a newer localStorage draft after an interrupted save.
-        const localRaw=localStorage.getItem(key);
+        let localRaw:string|null=null;
+        try{localRaw=localStorage.getItem(key);}catch{/* cloud recovery can still succeed */}
         let localSite:Site|null=null;
         if(localRaw){try{const parsed=JSON.parse(localRaw) as Site;if(Array.isArray(parsed.blocks)&&parsed.blocks.length&&typeof parsed.title==="string")localSite=parsed;}catch{/* handled by legacy recovery */}}
         const localDraft=validLibraryId

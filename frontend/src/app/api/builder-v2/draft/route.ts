@@ -38,7 +38,9 @@ export async function PUT(request:NextRequest){
     let originHost="";
     try{originHost=new URL(origin).host.toLowerCase();}catch{}
     const host=(request.headers.get("host")||"").toLowerCase();
-    if(!originHost||originHost!==host)return jsonError("Origem não autorizada.",403);
+    const resolvedHost=request.nextUrl.host.toLowerCase();
+    if(!originHost||(originHost!==host&&originHost!==resolvedHost))
+      return jsonError("Origem não autorizada.",403);
   }
   const {client,user}=await userClient();
   if(!user)return jsonError("Faça login.",401);
