@@ -32,7 +32,7 @@ test("delivery 13: newly duplicated block IDs never pass",()=>{
 });
 test("delivery 13: split section in otherwise contiguous page is detected",()=>{
  const b=site.blocks.slice();
- b.splice(4,0,{id:"split",type:"paragraph",section:"services",text:"fora de ordem"});
+ b.splice(5,0,{id:"split",type:"paragraph",section:"services",text:"fora de ordem"});
  assert.match(auditUniversalRegressionState(site,{...site,blocks:b},["split"]).reason,/fragmentada/);
 });
 test("delivery 13: adding section after protected terminal footer fails; adding before succeeds",()=>{
