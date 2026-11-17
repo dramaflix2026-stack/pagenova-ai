@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {evaluateStrategyEvidence} from "../src/lib/builder-v2-strategy-evidence.ts";
+import {measureFirstRequests} from "../src/lib/builder-v2-first-request-metrics.ts";
 const id=n=>"00000000-0000-4000-8000-"+String(n).padStart(12,"0");
 const event=(n,request=n,operation=1,route="universal-five-types-visual-verified",review="approved",execution="applied")=>({
  id:id(n),request_id:id(request),operation_index:operation,
@@ -64,4 +65,25 @@ test("Delivery 9: UI fetches only owner-scoped identifiers and status, no prompt
  assert.match(ui,/\.eq\("user_id",user\.id\)/);
  assert.match(ui,/Amostra insuficiente|Amostra pequena/);
  assert.doesNotMatch(ui,/\.select\("[^"]*(?:instruction_redacted|deltas|site|customer_prompt|requested_value)[^"]*"\)/);
+});
+
+test("Delivery 15: raw reuse links never inflate verified first-request improvement",()=>{
+ const target=event(1);
+ const edge={event_id:id(1),source_event_id:id(100),technique:"section-background"};
+ const confirmed=evaluateStrategyEvidence([target],[edge],[source],[memory]);
+ assert.deepEqual(confirmed.verifiedReuseEventIds,[id(1)]);
+ const approved=measureFirstRequests([target],new Set(confirmed.verifiedReuseEventIds),1);
+ assert.equal(approved.withVerifiedReuse.reviewed,1);
+ const late=evaluateStrategyEvidence([target],[edge],[{...source,reviewed_at:"2026-11-17T11:20:00Z"}],[memory]);
+ assert.deepEqual(late.verifiedReuseEventIds,[]);
+ const notAudited=measureFirstRequests([target],new Set(late.verifiedReuseEventIds),1);
+ assert.equal(notAudited.withVerifiedReuse.reviewed,0);
+ assert.equal(notAudited.withoutVerifiedReuse.reviewed,1);
+});
+test("Delivery 15: dashboard uses source-verified IDs rather than unverified reuses",()=>{
+ const ui=readFileSync(new URL("../src/components/builder-v2-learning-metrics.tsx",import.meta.url),"utf8");
+ assert.match(ui,/new Set\(verifiedEvidence\.verifiedReuseEventIds\)/);
+ assert.match(ui,/setStrategyEvidence\(verifiedEvidence\)/);
+ assert.doesNotMatch(ui,/setMetrics\(measureFirstRequests\(events,reused,/);
+ assert.match(ui,/Atribuição do aprendizado não comprovada/);
 });
