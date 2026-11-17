@@ -227,75 +227,33 @@
 .pnr-page a.pnr-price-button:hover{filter:brightness(1.13);transform:translateY(-2px)}
 .pnr-page .pnr-price-button-soon{cursor:not-allowed!important;opacity:.66!important;background:#26362b!important;color:#c5d1c6!important;border:1px dashed #80a485!important;box-shadow:none!important}
 
-/* Guarantee energy V2 — only on the shield itself; no external circles or explosions.
-   Original raster artwork (including text and logo) is never modified. */
-.pnr-page .pnr-guarantee-responsive-art .pnr-shield-internal-energy{
- position:absolute;left:17%;top:13%;width:23%;height:71%;display:block;
- pointer-events:none;z-index:3;overflow:visible;isolation:isolate;
+
+/* Particle-sphere-inspired shield eruption V4. No outlines, rings or large orbs. */
+.pnr-page .pnr-trust .pnr-guarantee-responsive-art .pnr-shield-particle-field{
+ position:absolute;left:14%;top:1%;width:35%;height:76%;
+ z-index:4;display:block;pointer-events:none;overflow:visible;isolation:isolate;
 }
-.pnr-page .pnr-shield-energy-lines{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-.pnr-page .pnr-shield-energy-track{stroke:transparent;stroke-width:1.1}
-.pnr-page .pnr-shield-energy-trail{
- stroke:#caff91;stroke-width:3.2;stroke-linecap:round;
- stroke-dasharray:95 850;stroke-dashoffset:950;opacity:0;
- filter:drop-shadow(0 0 7px rgba(210,255,161,1)) drop-shadow(0 0 15px rgba(90,255,48,.95));
- animation:pnrShieldEdgeSweep 5.3s linear infinite;
+.pnr-page .pnr-trust .pnr-shield-particle{
+ position:absolute;display:block;aspect-ratio:1;border-radius:50%;
+ background:#a7ff7c;
+ box-shadow:0 0 2px rgba(184,255,152,.8),0 0 5px rgba(92,255,49,.42);
+ opacity:0;transform:translate3d(0,0,0) scale(.5);
+ will-change:transform,opacity;
+ animation:pnrShieldParticleErupt 3s cubic-bezier(.19,.54,.37,1) infinite;
 }
-.pnr-page .pnr-shield-energy-logo{
- position:absolute;left:33%;top:21%;width:34%;height:17%;
- border-radius:50%;background:radial-gradient(ellipse at center,rgba(174,255,108,.30),rgba(110,255,66,.12) 46%,transparent 75%);
- mix-blend-mode:screen;filter:blur(8px);opacity:.12;
- animation:pnrShieldLogoCharge 6.8s ease-in-out infinite;
-}
-.pnr-page .pnr-shield-energy-glint{
- position:absolute;left:8%;top:2%;width:84%;height:42%;
- background:linear-gradient(107deg,transparent 40%,rgba(205,255,173,.23) 48%,rgba(255,255,255,.34) 50%,rgba(166,255,101,.15) 53%,transparent 60%);
- clip-path:polygon(50% 0,100% 17%,100% 100%,0 100%,0 17%);
- mix-blend-mode:screen;opacity:0;transform:translateX(-70%);
- animation:pnrShieldMetalGlint 6.8s ease-in-out infinite;
-}
-.pnr-page .pnr-shield-energy-spark{
- position:absolute;width:3px;height:8px;border-radius:60% 60% 50% 50%;
- background:linear-gradient(to bottom,#eaffd6 0%,#a1ff4e 60%,rgba(103,255,51,0) 100%);box-shadow:0 0 7px 1px rgba(210,255,161,1),0 0 17px 3px rgba(120,255,67,.85);
- opacity:0;animation:pnrShieldCornerSpark 4.8s cubic-bezier(.24,.62,.35,1) infinite;
-}
-.pnr-page .pnr-shield-energy-spark--a{left:17%;top:13%;--dx:-32px;--dy:-55px;animation-delay:-.3s}
-.pnr-page .pnr-shield-energy-spark--b{left:82%;top:13%;--dx:30px;--dy:-58px;animation-delay:-1.3s}
-.pnr-page .pnr-shield-energy-spark--c{left:23%;top:9%;--dx:-22px;--dy:-43px;animation-delay:-2.6s}
-.pnr-page .pnr-shield-energy-spark--d{left:77%;top:9%;--dx:26px;--dy:-46px;animation-delay:-3.7s}
-.pnr-page .pnr-shield-energy-spark--e{left:12%;top:31%;--dx:-38px;--dy:-32px;animation-delay:-.9s}
-.pnr-page .pnr-shield-energy-spark--f{left:88%;top:31%;--dx:37px;--dy:-35px;animation-delay:-2s}
-.pnr-page .pnr-shield-energy-spark--g{left:14%;top:50%;--dx:-31px;--dy:23px;animation-delay:-3.1s}
-.pnr-page .pnr-shield-energy-spark--h{left:86%;top:50%;--dx:32px;--dy:20px;animation-delay:-4.2s}
-@keyframes pnrShieldEdgeSweep{
- 0%{stroke-dashoffset:950;opacity:0}
- 8%{opacity:1}
- 75%{stroke-dashoffset:0;opacity:1}
- 90%,100%{stroke-dashoffset:-180;opacity:0}
-}
-@keyframes pnrShieldLogoCharge{
- 0%,35%,100%{opacity:.08;transform:scale(.92)}
- 48%,58%{opacity:.82;transform:scale(1.13)}
- 76%{opacity:.12;transform:scale(.96)}
-}
-@keyframes pnrShieldMetalGlint{
- 0%,36%,100%{opacity:0;transform:translateX(-70%)}
- 43%{opacity:.77}
- 55%{opacity:0;transform:translateX(75%)}
-}
-@keyframes pnrShieldCornerSpark{
- 0%,7%,100%{opacity:0;transform:translate3d(0,0,0) scale(.65)}
- 12%{opacity:1;transform:translate3d(0,0,0) scale(1.65)}
- 32%{opacity:1;transform:translate3d(calc(var(--dx) * .24),calc(var(--dy) * .22),0) scale(1.32)}
- 58%{opacity:.92;transform:translate3d(calc(var(--dx) * .65),calc(var(--dy) * .64),0) scale(1.06)}
- 86%{opacity:.0;transform:translate3d(var(--dx),var(--dy),0) scale(.3)}
+@keyframes pnrShieldParticleErupt{
+ 0%,7%{opacity:0;transform:translate3d(0,0,0) scale(.3)}
+ 16%{opacity:.92;transform:translate3d(0,-8px,0) scale(1)}
+ 36%{opacity:.88;transform:translate3d(calc(var(--particle-drift) * .22),calc(var(--particle-rise) * .36),0) scale(1)}
+ 65%{opacity:.65;transform:translate3d(calc(var(--particle-drift) * .7),calc(var(--particle-rise) * .75),0) scale(.8)}
+ 88%,100%{opacity:0;transform:translate3d(var(--particle-drift),var(--particle-rise),0) scale(.2)}
 }
 @media(max-width:767px){
- .pnr-page .pnr-guarantee-responsive-art .pnr-shield-internal-energy{
-  left:25%;top:7%;width:50%;height:47%;
+ .pnr-page .pnr-trust .pnr-guarantee-responsive-art .pnr-shield-particle-field{
+  left:16%;top:1%;width:68%;height:57%;
  }
- .pnr-page .pnr-shield-energy-trail{stroke-width:1.8}
+ .pnr-page .pnr-trust .pnr-shield-particle{box-shadow:0 0 3px rgba(132,255,85,.72)}
 }
 @media(prefers-reduced-motion:reduce){
- .pnr-page .pnr-shield-internal-energy{display:none!important}
+ .pnr-page .pnr-trust .pnr-shield-particle-field{display:none!important}
 }
