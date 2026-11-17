@@ -2105,3 +2105,62 @@
  .pnr-page .pnr-mobile-flag-switch button{transition:none!important}
  .pnr-page .pnr-orb-art{animation:none!important}
 }
+
+
+/* Hero mobile polish — restrained cinematic entrance and responsive rhythm. */
+@keyframes pnrHeroIntroRise{
+ from{opacity:0;transform:translate3d(0,16px,0)}
+ to{opacity:1;transform:translate3d(0,0,0)}
+}
+@keyframes pnrHeroCTAglow{
+ 0%,100%{box-shadow:0 5px 24px rgba(160,255,100,.12)}
+ 50%{box-shadow:0 6px 32px rgba(160,255,100,.27)}
+}
+@keyframes pnrHeroSceneGlow{
+ 0%,100%{opacity:.55;transform:scale(.96)}
+ 50%{opacity:.9;transform:scale(1.035)}
+}
+@media(max-width:767px){
+ .pnr-page .pnr-hero--premium{padding-top:24px!important}
+ .pnr-page .pnr-hero--premium .pnr-pill{
+  animation:pnrHeroIntroRise .65s cubic-bezier(.2,.8,.2,1) both!important;
+ }
+ .pnr-page .pnr-hero--premium .pnr-hero-copy h1{
+  animation:pnrHeroIntroRise .8s .12s cubic-bezier(.2,.8,.2,1) both!important;
+ }
+ .pnr-page .pnr-hero--premium .pnr-hero-desc{
+  margin-top:13px!important;line-height:1.48!important;
+  animation:pnrHeroIntroRise .75s .23s cubic-bezier(.2,.8,.2,1) both!important;
+ }
+ .pnr-page .pnr-hero--premium .pnr-actions{
+  margin-top:16px!important;gap:9px!important;
+  animation:pnrHeroIntroRise .8s .32s cubic-bezier(.2,.8,.2,1) both!important;
+ }
+ .pnr-page .pnr-hero--premium .pnr-actions .pnr-btn{
+  transition:transform .2s ease,box-shadow .2s ease,background .2s ease!important;
+ }
+ .pnr-page .pnr-hero--premium .pnr-actions .pnr-btn:active{transform:scale(.975)!important}
+ .pnr-page .pnr-hero--premium .pnr-actions .pnr-btn-primary{
+  animation:pnrHeroCTAglow 4.8s ease-in-out 1.2s infinite!important;
+ }
+ .pnr-page .pnr-hero--premium .pnr-hero-scene{
+  position:relative!important;margin-top:7px!important;
+ }
+ .pnr-page .pnr-hero--premium .pnr-hero-scene::before{
+  content:"";position:absolute;z-index:0;pointer-events:none;
+  inset:12% 9% 5%;border-radius:50%;
+  background:radial-gradient(ellipse,rgba(90,255,112,.16),transparent 67%);
+  filter:blur(16px);animation:pnrHeroSceneGlow 6.2s ease-in-out infinite;
+ }
+ .pnr-page .pnr-hero--premium .pnr-hero-image-stage{position:relative;z-index:1}
+}
+@media(prefers-reduced-motion:reduce){
+ .pnr-page .pnr-hero--premium .pnr-pill,
+ .pnr-page .pnr-hero--premium .pnr-hero-copy h1,
+ .pnr-page .pnr-hero--premium .pnr-hero-desc,
+ .pnr-page .pnr-hero--premium .pnr-actions,
+ .pnr-page .pnr-hero--premium .pnr-actions .pnr-btn-primary,
+ .pnr-page .pnr-hero--premium .pnr-hero-scene::before{
+  animation:none!important;opacity:1!important;transform:none!important;
+ }
+}
