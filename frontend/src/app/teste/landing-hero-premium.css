@@ -2812,3 +2812,19 @@ body .pnr-page.pnr-shared-footer footer.pnr-footer.pnr-footer-onesignal::after{
  65%{opacity:.58;transform:translate3d(calc(var(--particle-drift) * .3),calc(var(--particle-rise) * .23),0) scale(.6)}
  88%,100%{opacity:0;transform:translate3d(calc(var(--particle-drift) * .45),calc(var(--particle-rise) * .35),0) scale(.2)}
 }
+
+/* English copy is longer: keep it on the same visual scale as the PT heading. */
+@media(min-width:651px){
+ .pnr-page .pnr-styles.pnr-styles--en .pnr-section-heading{
+  margin-bottom:clamp(18px,2.2vw,30px)!important;
+  padding-top:0!important;
+ }
+ .pnr-page .pnr-styles.pnr-styles--en .pnr-section-heading h2{
+  font-size:clamp(29px,3.5vw,52px)!important;
+  line-height:1.12!important;letter-spacing:-.045em!important;
+  max-width:100%!important;
+ }
+ .pnr-page .pnr-styles.pnr-styles--en .pnr-section-heading>p:last-child{
+  margin-top:12px!important;
+ }
+}
