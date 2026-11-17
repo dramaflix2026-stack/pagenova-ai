@@ -1,0 +1,40 @@
+name: New PageNova landing migration preflight
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "frontend/src/app/teste/**"
+      - "frontend/public/gallery-styles/**"
+      - "frontend/public/images/**"
+      - "frontend/public/landing-hero/**"
+      - "frontend/public/landing-premium/**"
+      - "frontend/scripts/test-marketing-landing-migration.mjs"
+      - ".github/workflows/marketing-landing-migration.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  landing-preflight:
+    name: Trial, assets, types and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Validate real auth/trial paths and approved assets
+        run: node --test frontend/scripts/test-marketing-landing-migration.mjs
+      - name: Install frontend dependencies
+        run: npm ci --prefix frontend --ignore-scripts --no-audit --no-fund
+      - name: Typecheck frontend
+        working-directory: frontend
+        run: npx tsc --noEmit
+      - name: Compile landing in the current main application
+        working-directory: frontend
+        run: npm run build
