@@ -838,21 +838,67 @@ export default function BuilderV2() {
   const [draftRecoveryFailed,setDraftRecoveryFailed]=useState(false);
   const [historyRecoveryFailed,setHistoryRecoveryFailed]=useState(false);
   const [cloudStatus, setCloudStatus] = useState("Carregando histórico na nuvem...");
+
   const [cloudVersions, setCloudVersions] = useState<SavedVersion[]>([]);
+  const [cloudDraftStatus,setCloudDraftStatus]=useState("Rascunho local preservado");
+  const cloudDraftRevisionRef=useRef(0);
+  const cloudDraftProjectIdRef=useRef<string|null>(null);
+  const cloudDraftBlockedRef=useRef(false);
+  const cloudDraftQueueRef=useRef<Promise<void>>(Promise.resolve());
+  // Optimistic, sequential saves: never silently overwrite edits from another tab.
+  function persistCloudDraft(snapshot:Site):Promise<void>{
+    if(!snapshot.id||!snapshot.blocks.length)return Promise.resolve();
+    const id=snapshot.id;
+    const task=cloudDraftQueueRef.current.catch(()=>undefined).then(async()=>{
+      if(cloudDraftBlockedRef.current)throw new Error("Conflito de versões: sincronização suspensa, rascunho local preservado.");
+      if(cloudDraftProjectIdRef.current!==id){
+        cloudDraftProjectIdRef.current=id;
+        cloudDraftRevisionRef.current=0;
+      }
+      const response=await fetch("/api/builder-v2/draft",{
+        method:"PUT",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({site:snapshot,baseRevision:cloudDraftRevisionRef.current}),
+        credentials:"same-origin",cache:"no-store"
+      });
+      if(!response.ok){
+        if(response.status===409)cloudDraftBlockedRef.current=true;
+        const result=await response.json().catch(()=>null) as {error?:string}|null;
+        throw new Error(result?.error||"Não foi possível sincronizar este rascunho.");
+      }
+      const result=await response.json() as {revision:number};
+      if(!Number.isSafeInteger(result.revision)||result.revision<1)throw new Error("Nuvem não confirmou o salvamento.");
+      if(cloudDraftProjectIdRef.current===id)cloudDraftRevisionRef.current=result.revision;
+    });
+    cloudDraftQueueRef.current=task.catch(()=>undefined);
+    return task;
+  }
+  useEffect(()=>{
+    if(!loaded||!draftHydrated||!storageProjectReady||draftRecoveryFailed||
+       !site.id||!site.blocks.length||cloudDraftBlockedRef.current)return;
+    const snapshot=structuredClone(site);
+    const timer=window.setTimeout(()=>{
+      setCloudDraftStatus("Salvando rascunho na nuvem...");
+      void persistCloudDraft(snapshot).then(()=>setCloudDraftStatus("Rascunho sincronizado na nuvem"))
+        .catch(error=>setCloudDraftStatus(error instanceof Error?error.message:"Nuvem indisponível; cópia local preservada"));
+    },950);
+    return()=>window.clearTimeout(timer);
+  },[site,loaded,draftHydrated,storageProjectReady,draftRecoveryFailed]);
   useEffect(() => {
+    if(!loaded||!draftHydrated||!site.id||!site.blocks.length)return;
     let active = true;
-    fetch("/api/builder-v2/versions", { cache: "no-store" }).then(async response => {
-      if (!response.ok) throw Error("unavailable");
-      const result: { versions?: SavedVersion[] } = await response.json();
-      if (active) { setCloudVersions(result.versions ?? []); setCloudStatus("Histórico na nuvem conectado"); }
-    }).catch(() => { if (active) setCloudStatus("Nuvem indisponível — histórico local preservado"); });
-    return () => { active = false; };
-  }, []);
+    setCloudVersions([]);
+    fetch("/api/builder-v2/versions?projectId="+encodeURIComponent(site.id),{cache:"no-store"}).then(async response=>{
+      if(!response.ok)throw Error("unavailable");
+      const result:{versions?:SavedVersion[]}=await response.json();
+      if(active){setCloudVersions((result.versions??[]).filter(v=>v.site?.id===site.id));setCloudStatus("Histórico na nuvem conectado");}
+    }).catch(()=>{if(active)setCloudStatus("Nuvem indisponível — histórico local preservado");});
+    return()=>{active=false;};
+  },[loaded,draftHydrated,site.id]);
   async function saveCloudVersion(snapshot: Site, label: string) {
     try {
       const response = await fetch("/api/builder-v2/versions", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ site: snapshot, label })
+        body: JSON.stringify({ site: snapshot, projectId:snapshot.id, label })
       });
       if (!response.ok) throw Error("save failed");
       const result: { version: SavedVersion } = await response.json();
@@ -988,7 +1034,7 @@ export default function BuilderV2() {
     catch{setStorageError("O histórico atingiu o limite de armazenamento do navegador.");}
   },[versions,loaded,draftHydrated,historyRecoveryFailed,activeStorageKey]);
   function recordVersion(previous: Site, label: string) { if (!previous.blocks.length) return; const snapshot = structuredClone(previous); setVersions(prev => [...prev.slice(-24), { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, at: new Date().toISOString(), label, site: snapshot }]); void saveCloudVersion(snapshot, label); }
-  function restoreVersion(version: SavedVersion) { if (busy || !window.confirm(`Restaurar a versão de ${new Date(version.at).toLocaleString("pt-BR")}? A versão atual será guardada no histórico.`)) return; recordVersion(site, "Antes da restauração"); setHistory(prev=>[...prev.slice(-19),site]); setRedoHistory([]); setSite(structuredClone(version.site)); setMessages(prev=>[...prev,{role:"assistant",text:"Versão restaurada com sucesso."}]); setShowVersions(false); }
+  function restoreVersion(version: SavedVersion) { if(version.site.id!==site.id){setStorageError("Esta versão pertence a outro projeto e não pode ser restaurada aqui.");return;} if (busy || !window.confirm(`Restaurar a versão de ${new Date(version.at).toLocaleString("pt-BR")}? A versão atual será guardada no histórico.`)) return; recordVersion(site, "Antes da restauração"); setHistory(prev=>[...prev.slice(-19),site]); setRedoHistory([]); setSite(structuredClone(version.site)); setMessages(prev=>[...prev,{role:"assistant",text:"Versão restaurada com sucesso."}]); setShowVersions(false); }
   function applyGlobalAlignment(current: Site, prompt: string): {site: Site; summary: string} | null {
     const normalized = prompt.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g, "");
     const align = /centraliz|alinhe?.*centro|alinh.*centro/.test(normalized) ? "center" :
@@ -2111,6 +2157,7 @@ export default function BuilderV2() {
         const generatedId=requestSite.id!;
         window.history.replaceState(null,"","/app/builder-v2?project="+encodeURIComponent(generatedId));
         setActiveStorageKey(storageKey+":project:"+generatedId);
+        cloudDraftProjectIdRef.current=generatedId;cloudDraftRevisionRef.current=0;cloudDraftBlockedRef.current=false;
       }
       let incoming = data.site as Site;
       if(shouldCreateProject){incoming.kind=targetKind;incoming.properties=[];incoming.id=requestSite.id;setSiteCategory(targetKind);}
@@ -2210,13 +2257,19 @@ export default function BuilderV2() {
       setMessages(prev => [...prev, { role: "assistant", text: error instanceof Error ? error.message : "Erro ao editar. O projeto foi preservado." }]);
     } finally { setBusy(false); }
   }
-  function newProject() { if (busy || publishing) return; recordVersion(site, "Antes de criar novo site");setHistory([]);setRedoHistory([]); const newId=crypto.randomUUID();window.history.replaceState(null,"","/app/builder-v2?project="+encodeURIComponent(newId));setActiveStorageKey(storageKey+":project:"+newId);setSite({...initial,id:newId,kind:siteCategory,properties:[]});setPublishError("");setPublishNotice("");setSelectedNiche(""); setMessages([{role:"assistant",text:"Novo projeto iniciado. Descreva o site que deseja criar."}]); setInstruction(""); setReference(null);setPropertyFiles([]);setInstitutionalFiles([]);setVoiceNotice(""); setGenerationError(""); }
+  function newProject() { if (busy || publishing) return; cloudDraftProjectIdRef.current=null;cloudDraftRevisionRef.current=0;cloudDraftBlockedRef.current=false;recordVersion(site, "Antes de criar novo site");setHistory([]);setRedoHistory([]); const newId=crypto.randomUUID();window.history.replaceState(null,"","/app/builder-v2?project="+encodeURIComponent(newId));setActiveStorageKey(storageKey+":project:"+newId);setSite({...initial,id:newId,kind:siteCategory,properties:[]});setPublishError("");setPublishNotice("");setSelectedNiche(""); setMessages([{role:"assistant",text:"Novo projeto iniciado. Descreva o site que deseja criar."}]); setInstruction(""); setReference(null);setPropertyFiles([]);setInstitutionalFiles([]);setVoiceNotice(""); setGenerationError(""); }
   async function publishSite() {
     if(publishing||busy||site.blocks.length<1)return;
     const current:Site=prepareTP1MakeupSite({...site,kind:siteCategory,id:site.id||crypto.randomUUID(),niche:site.niche||restaurantSegment||selectedNiche||undefined,realEstateWhatsapp:siteCategory==="real-estate"?realEstateWhatsapp:site.realEstateWhatsapp,properties:siteCategory==="real-estate"?properties:site.properties},selectedNiche);
     setPublishing(true);setPublishError("");setPublishNotice("");
     setSite(current);
     try{
+      // Publication requires a durable copy of the exact outgoing snapshot.
+      const stamp=Date.now();
+      await savePageNovaProject("builder-v2-site:"+current.id,{kind:"builder-v2-site",id:current.id,title:current.title,site:current,updatedAt:stamp});
+      await savePageNovaProject("builder-draft:"+activeStorageKey,{site:current,updatedAt:stamp});
+      await persistCloudDraft(current);
+      setCloudDraftStatus("Rascunho sincronizado na nuvem");
       let response:Response|undefined;
       for(let attempt=0;attempt<2;attempt++){
         try{
@@ -2343,7 +2396,7 @@ export default function BuilderV2() {
 </details>
     {site.blocks.length>0&&<button type="button" onClick={()=>document.getElementById("pn-builder-site-preview")?.scrollIntoView({behavior:"smooth",block:"start"})}
     className="inline-flex items-center gap-1 rounded-lg border border-white/15 px-3 py-2 text-xs text-white/75 transition hover:bg-white/10">Ver prévia <ArrowRight size={13}/></button>}
-</div>{site.blocks.length>0&&<p className="mb-3 text-[11px] text-white/40" role="status">{cloudStatus}</p>}<div aria-live="polite" className={site.blocks.length||messages.length>1?"mb-4 flex-1 space-y-3 overflow-y-auto":"hidden"}>{messages.map((m,i)=><div key={i} className={`rounded-xl p-3 text-sm ${m.role === "user" ? "ml-7 bg-lime-300 text-black" : "mr-7 bg-white/10"}`}>{m.text}</div>)}</div><div className="mb-3">{(reviewCandidate||learningSyncNotice||site.blocks.length>0)&&<div className="rounded-xl border border-white/15 p-3 text-xs"><p className="mb-2 font-semibold text-lime-300">Aprendizado da inteligência artificial</p><p className="mb-2 text-white/65">Ao aprovar ou reprovar uma alteração, você ajuda a IA a identificar quais edições funcionam melhor. O histórico é usado para aprimorar os próximos resultados.</p>{!reviewCandidate&&<p className="mb-2 text-amber-200">A IA utiliza suas avaliações para melhorar futuras edições. Ainda não há uma alteração aguardando sua avaliação nesta sessão.</p>}{reviewCandidate&&<p className="mb-2">Ajude o motor a aprender: esta edição específica ficou correta na prévia?</p>}{approvedExperienceCount!==null&&<p className="mb-2 text-white/50">Experiências aprovadas e aplicadas (aptas ao aprendizado): {approvedExperienceCount}</p>}{cloudLearningCounts&&<p className="mb-2 text-white/60">Supabase (últimos 1000): {cloudLearningCounts.total} edições · {cloudLearningCounts.approved} aprovadas · {cloudLearningCounts.rejected} reprovadas · {cloudLearningCounts.pending} pendentes</p>}{learningSyncNotice&&<p role="status" className="mb-2 text-amber-200">{learningSyncNotice}</p>}{reviewCandidate&&reviewCandidate.status==="pending"?<div className="flex flex-wrap gap-2"><button type="button" onClick={()=>void reviewLastEdit("approved")} disabled={reviewSubmitting} className="rounded-lg bg-lime-300 px-3 py-2 font-semibold text-black">Sim, aprovar</button><button type="button" onClick={()=>void reviewLastEdit("rejected")} disabled={reviewSubmitting} className="rounded-lg border border-white/30 px-3 py-2">Não funcionou</button></div>:reviewCandidate?<p className="text-lime-300">Avaliação registrada: {reviewCandidate.status==="approved"?"aprovada":"reprovada"}.</p>:null}</div>}</div><label htmlFor="pn-builder-chat-input" className="mb-2 block text-left text-sm font-bold text-lime-300">✍️ Digite aqui o que deseja criar ou alterar</label><div className="pn-chat-composer mb-2 rounded-2xl border border-white/20 bg-[#0b1511] p-3 transition focus-within:border-lime-300/65 focus-within:shadow-[0_0_0_3px_rgba(180,245,77,.045)]">
+</div>{site.blocks.length>0&&<p className="mb-3 text-[11px] text-white/40" role="status">{cloudStatus} · {cloudDraftStatus}</p>}<div aria-live="polite" className={site.blocks.length||messages.length>1?"mb-4 flex-1 space-y-3 overflow-y-auto":"hidden"}>{messages.map((m,i)=><div key={i} className={`rounded-xl p-3 text-sm ${m.role === "user" ? "ml-7 bg-lime-300 text-black" : "mr-7 bg-white/10"}`}>{m.text}</div>)}</div><div className="mb-3">{(reviewCandidate||learningSyncNotice||site.blocks.length>0)&&<div className="rounded-xl border border-white/15 p-3 text-xs"><p className="mb-2 font-semibold text-lime-300">Aprendizado da inteligência artificial</p><p className="mb-2 text-white/65">Ao aprovar ou reprovar uma alteração, você ajuda a IA a identificar quais edições funcionam melhor. O histórico é usado para aprimorar os próximos resultados.</p>{!reviewCandidate&&<p className="mb-2 text-amber-200">A IA utiliza suas avaliações para melhorar futuras edições. Ainda não há uma alteração aguardando sua avaliação nesta sessão.</p>}{reviewCandidate&&<p className="mb-2">Ajude o motor a aprender: esta edição específica ficou correta na prévia?</p>}{approvedExperienceCount!==null&&<p className="mb-2 text-white/50">Experiências aprovadas e aplicadas (aptas ao aprendizado): {approvedExperienceCount}</p>}{cloudLearningCounts&&<p className="mb-2 text-white/60">Supabase (últimos 1000): {cloudLearningCounts.total} edições · {cloudLearningCounts.approved} aprovadas · {cloudLearningCounts.rejected} reprovadas · {cloudLearningCounts.pending} pendentes</p>}{learningSyncNotice&&<p role="status" className="mb-2 text-amber-200">{learningSyncNotice}</p>}{reviewCandidate&&reviewCandidate.status==="pending"?<div className="flex flex-wrap gap-2"><button type="button" onClick={()=>void reviewLastEdit("approved")} disabled={reviewSubmitting} className="rounded-lg bg-lime-300 px-3 py-2 font-semibold text-black">Sim, aprovar</button><button type="button" onClick={()=>void reviewLastEdit("rejected")} disabled={reviewSubmitting} className="rounded-lg border border-white/30 px-3 py-2">Não funcionou</button></div>:reviewCandidate?<p className="text-lime-300">Avaliação registrada: {reviewCandidate.status==="approved"?"aprovada":"reprovada"}.</p>:null}</div>}</div><label htmlFor="pn-builder-chat-input" className="mb-2 block text-left text-sm font-bold text-lime-300">✍️ Digite aqui o que deseja criar ou alterar</label><div className="pn-chat-composer mb-2 rounded-2xl border border-white/20 bg-[#0b1511] p-3 transition focus-within:border-lime-300/65 focus-within:shadow-[0_0_0_3px_rgba(180,245,77,.045)]">
   <form onSubmit={e=>{e.preventDefault();void send();}}>
     <textarea id="pn-builder-chat-input" ref={composerRef} aria-label="Descreva a criação ou alteração"
       value={instruction} onChange={e=>setInstruction(e.target.value)}
