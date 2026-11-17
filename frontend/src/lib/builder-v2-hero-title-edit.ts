@@ -1,8 +1,8 @@
-import type {UniversalSite} from "./builder-v2-universal-operations.ts";
+type HeroTitleSite={blocks:{id:string;type:string;text?:string;section?:string;textExplicit?:boolean}[];universalHeroHeadingBlockId?:string};
 const heroSections=/^(?:hero|inicio|início|home|capa|principal|apresentacao|apresentação|banner)(?:[-_].*)?$/i;
 export type HeroTitleEdit<T>={ok:true;site:T;changedIds:[string];headline:string}|{ok:false;error:string};
 /** Isolated visual edit independent of business niche. Reuses an actual heading block. */
-export function applyIsolatedHeroTitleEdit<T extends UniversalSite>(site:T,instruction:string):HeroTitleEdit<T>|null{
+export function applyIsolatedHeroTitleEdit<T extends HeroTitleSite>(site:T,instruction:string):HeroTitleEdit<T>|null{
  const match=instruction.trim().match(/^(?:altere|mude|troque|substitua|atualize|modifique)\s+(?:(?:somente|apenas)\s+)?(?:o\s+)?t[ií]tulo\s+(?:principal|da\s+capa|do\s+hero)\s+(?:(?:da|do)\s+(?:se[cç][aã]o\s+)?(?:inicial|capa|hero|home|site))?\s*(?:para|por)\s*["“']([^"“”']{2,120})["”']([\s\S]*)$/iu);
  if(!match)return null;
  const headline=match[1].trim();
