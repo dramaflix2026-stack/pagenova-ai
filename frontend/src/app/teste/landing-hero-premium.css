@@ -2763,3 +2763,15 @@
   .pnr-page .pnr-orb-art.pnr-orb-particles { animation:none!important; }
   .pnr-page .pnr-orb-particle-canvas { display:none!important; }
 }
+
+/* Seamless footer transition — blend the near-black globe section into the footer.
+   Scoped to the shared PageNova landing footer; leave content, geometry and hover states intact. */
+body .pnr-page.pnr-shared-footer footer.pnr-footer.pnr-footer-onesignal{
+ border-top:0!important;
+ background:linear-gradient(180deg,#000 0%,#010603 10%,#030c07 30%,#06140c 74%,#07160d 100%)!important;
+ box-shadow:none!important;
+}
+body .pnr-page.pnr-shared-footer footer.pnr-footer.pnr-footer-onesignal::before,
+body .pnr-page.pnr-shared-footer footer.pnr-footer.pnr-footer-onesignal::after{
+ content:none!important;display:none!important;
+}
