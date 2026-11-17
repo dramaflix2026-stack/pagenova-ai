@@ -2258,14 +2258,28 @@ export default function BuilderV2() {
       if(site.cinematic?.mode && site.cinematic.mode!=="static" && incoming.cinematic?.mode!==site.cinematic.mode) incoming={...incoming,cinematic:{...site.cinematic,mode:site.cinematic.mode}};
       incoming=prepareTP1MakeupSite(incoming,shouldCreateProject?incoming.niche:selectedNiche);
       setSite(incoming);
-      // Every AI-assisted edit of an existing site must enter the learning queue.
-      // Previously only scoped generated-copy edits were tracked, leaving other
-      // successful edits invisible to the review panel and Supabase.
+      // Delivery 7 regression follow-up: the AI editor may change a JSON
+      // heading that a premium renderer does NOT actually display. The real
+      // preview DOM — not the API summary — must decide whether learning records
+      // this existing-site mutation as successful.
       if(!creatingNewSite&&site.blocks.length>0){
-        const changed=JSON.stringify(site.blocks)!==JSON.stringify(incoming.blocks);
-        recordEditorLearningEvent(site.niche||"",prompt,changed?"applied":"rejected",
-          scopedCopy&&"intent" in scopedCopy&&scopedCopy.intent.generateText?"scoped-copy":"ai-editor",site.briefingLayoutVariant||"01");
-        if(changed)captureReviewCandidate();
+        const previousBlocks=new Map(site.blocks.map(b=>[b.id,b]));
+        const nextIds=new Set(incoming.blocks.map(b=>b.id));
+        const changedIds=[
+          ...incoming.blocks.filter(b=>JSON.stringify(previousBlocks.get(b.id))!==JSON.stringify(b)).map(b=>b.id),
+          ...site.blocks.filter(b=>!nextIds.has(b.id)).map(b=>b.id)
+        ];
+        const visual=changedIds.length?planUniversalVisualProof(site,incoming,changedIds):null;
+        if(visual?.ok){
+          pendingUniversalVisualProofRef.current={trace:activeSubmissionTraceRef.current,
+            prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",
+            contract:visual.contract,siteAfter:incoming};
+        }else{
+          recordEditorLearningEvent(site.niche||"",prompt,"rejected","ai-editor-visual-unverifiable",
+            site.briefingLayoutVariant||"01",undefined,undefined,activeSubmissionTraceRef.current);
+          setMessages(prev=>[...prev,{role:"assistant",
+            text:"A IA retornou dados, mas não foi possível comprovar essa edição na prévia. Não aprove como sucesso; o resultado ficou registrado para diagnóstico."}]);
+        }
       }
       let finishedSite=incoming;
        if (!site.blocks.length || creatingNewSite) {
@@ -2309,7 +2323,7 @@ export default function BuilderV2() {
          }
        }
        setGenerationError("");
-       setMessages(prev=>[...prev,{role:"assistant",text:data.summary||"Alteração aplicada."}]);
+       setMessages(prev=>[...prev,{role:"assistant",text:creatingNewSite||!site.blocks.length?(data.summary||"Site gerado."): "Edição recebida. Verificando o resultado visual antes de confirmar o sucesso."}]);
        setInstruction(photoApplyFailed?prompt:"");setReference(null);
     } catch (error) {
       recordEditorPathFailureOnce((!site.blocks.length||isFullSiteCreationBrief(prompt))?"site-generation":"ai-editor");
