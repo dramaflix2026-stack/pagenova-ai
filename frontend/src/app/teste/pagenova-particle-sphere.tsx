@@ -53,6 +53,15 @@ export function PageNovaParticleSphere({ language = "pt" }: { language?: "pt" | 
     let targetY = 0;
     let angle = 0;
     let lastTime = 0;
+    // A faint energy core, surface pulses and pointer magnetism share
+    // the existing canvas (no new canvas, WebGL context or external asset).
+    let pointerX = 0;
+    let pointerY = 0;
+    let magnetTarget = 0;
+    let magnetStrength = 0;
+    let pulseStart = -5000;
+    let pulseX = 0;
+    let pulseY = -0.9;
     let glow: CanvasGradient;
     const palette = ["#60df68", "#88ff70", "#c5ff91"];
     const alphaLevels = [0.43, 0.54, 0.65, 0.76];
@@ -98,6 +107,10 @@ export function PageNovaParticleSphere({ language = "pt" }: { language?: "pt" | 
       zone.accumulator = 0;
       zone.nextAt = elapsed + interval(4200, 8000);
       lastEmissionAt = elapsed;
+      // Each eruption releases a wave through nearby surface particles.
+      pulseStart = elapsed;
+      pulseX = zone.x;
+      pulseY = zone.y;
     };
 
     const resize = () => {
@@ -154,6 +167,7 @@ export function PageNovaParticleSphere({ language = "pt" }: { language?: "pt" | 
       const smooth = 1 - Math.exp(-dt / 85);
       tiltX += (targetX - tiltX) * smooth;
       tiltY += (targetY - tiltY) * smooth;
+      magnetStrength += (magnetTarget - magnetStrength) * (1 - Math.exp(-dt / 150));
 
       ctx.clearRect(0, 0, width, height);
       const cx = width / 2;
@@ -164,6 +178,22 @@ export function PageNovaParticleSphere({ language = "pt" }: { language?: "pt" | 
       ctx.arc(cx, cy, radius * 1.28, 0, Math.PI * 2);
       ctx.fill();
 
+      // The core charges softly before a pulse and settles afterward.
+      const pulseAge = elapsed - pulseStart;
+      const pulseActive = pulseAge >= 0 && pulseAge < 1550;
+      const waveProgress = pulseActive ? pulseAge / 1550 : 1;
+      const corePulse = 0.5 + 0.5 * Math.sin(elapsed * 0.0017);
+      const charge = pulseActive ? Math.sin(Math.PI * waveProgress) : 0;
+      const coreRadius = radius * (0.55 + charge * 0.08);
+      const coreGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreRadius);
+      coreGlow.addColorStop(0, "rgba(104,255,110," + (0.025 + 0.018 * corePulse + charge * 0.035) + ")");
+      coreGlow.addColorStop(0.52, "rgba(74,205,90," + (0.015 + charge * 0.018) + ")");
+      coreGlow.addColorStop(1, "rgba(30,105,46,0)");
+      ctx.fillStyle = coreGlow;
+      ctx.beginPath();
+      ctx.arc(cx, cy, coreRadius, 0, Math.PI * 2);
+      ctx.fill();
+
       const yaw = angle + tiltY;
       const pitch = -0.16 + tiltX;
       const cyaw = Math.cos(yaw), syaw = Math.sin(yaw);
@@ -172,19 +202,44 @@ export function PageNovaParticleSphere({ language = "pt" }: { language?: "pt" | 
       // Batch draw calls: 12 path fills instead of 2,400 individual fills.
       // This avoids expensive canvas state changes per particle.
       const batches = Array.from({ length: 12 }, () => new Path2D());
+      // A single bright batch outlines the energy wave without a solid ring.
+      const pulseDots = new Path2D();
+      const pointerRadius = radius * 0.53;
+      const attractSq = pointerRadius * pointerRadius;
       for (const p of points) {
         const xx = p.x * cyaw + p.z * syaw;
         const zz = p.z * cyaw - p.x * syaw;
         const yy = p.y * cpitch - zz * spitch;
         const depth = p.y * spitch + zz * cpitch;
         const perspective = 1 + depth * 0.035;
-        const px = cx + xx * radius * perspective;
-        const py = cy + yy * radius * perspective;
+        let px = cx + xx * radius * perspective;
+        let py = cy + yy * radius * perspective;
+        // Magnetic response limited to the cursor vicinity and to the
+        // forward-facing surface; sphere remains round when pointer leaves.
+        if (magnetStrength > 0.004 && depth > -0.25) {
+          const dx = pointerX - px;
+          const dy = pointerY - py;
+          const distanceSq = dx * dx + dy * dy;
+          if (distanceSq < attractSq) {
+            const field = Math.pow(1 - distanceSq / attractSq, 2) * magnetStrength;
+            px += dx * field * 0.15;
+            py += dy * field * 0.15;
+          }
+        }
         const twinkle = 0.92 + 0.08 * Math.sin(time * 0.00115 + p.phase);
         const dotRadius = Math.max(0.4, p.size * dotScale * (0.94 + 0.10 * depth) * twinkle);
         const depthBand = Math.min(3, Math.max(0, Math.floor((depth + 1) * 2)));
         batches[p.colorIndex * 4 + depthBand].moveTo(px + dotRadius, py);
         batches[p.colorIndex * 4 + depthBand].arc(px, py, dotRadius, 0, Math.PI * 2);
+        if (pulseActive && depth > -0.35) {
+          const waveDistance = Math.hypot(xx - pulseX, yy - pulseY);
+          const waveFront = waveProgress * 2.7;
+          if (Math.abs(waveDistance - waveFront) < 0.055) {
+            const pointRadius = dotRadius * (1.35 + 0.35 * Math.sin(Math.PI * waveProgress));
+            pulseDots.moveTo(px + pointRadius, py);
+            pulseDots.arc(px, py, pointRadius, 0, Math.PI * 2);
+          }
+        }
       }
       for (let c = 0; c < 3; c++) {
         ctx.fillStyle = palette[c];
@@ -194,6 +249,12 @@ export function PageNovaParticleSphere({ language = "pt" }: { language?: "pt" | 
         }
       }
       ctx.globalAlpha = 1;
+      if (pulseActive) {
+        ctx.fillStyle = "#baff9c";
+        ctx.globalAlpha = Math.sin(Math.PI * waveProgress) * 0.65;
+        ctx.fill(pulseDots);
+        ctx.globalAlpha = 1;
+      }
 
       // Small green plume with outward drift, gravity and transparent fade.
       // Sparks are drawn in one path per color/fade group for low canvas overhead.
@@ -242,8 +303,15 @@ export function PageNovaParticleSphere({ language = "pt" }: { language?: "pt" | 
       const rect = stage.getBoundingClientRect();
       targetY = ((event.clientX - rect.left) / rect.width - 0.5) * 0.38;
       targetX = ((event.clientY - rect.top) / rect.height - 0.5) * -0.28;
+      pointerX = event.clientX - rect.left;
+      pointerY = event.clientY - rect.top;
+      magnetTarget = 1;
     };
-    const onLeave = () => { targetX = 0; targetY = 0; };
+    const onLeave = () => {
+      targetX = 0;
+      targetY = 0;
+      magnetTarget = 0;
+    };
     const observer = new IntersectionObserver(([entry]) => {
       visible = entry.isIntersecting && !document.hidden;
       if (visible) start(); else stop();
