@@ -12,6 +12,7 @@ import {diagnoseUniversalEditFailure,verifyUniversalEditResult} from "@/lib/buil
 import {findUniversalPreviewSections,universalPreviewSectionSelectors} from "@/lib/builder-v2-universal-preview-sections";
 import {planUniversalPreviewMove,auditUniversalPreviewMove,type UniversalPreviewMoveContract} from "@/lib/builder-v2-universal-preview-postconditions";
 import {planUniversalVisualProof,auditUniversalVisualProof,type UniversalVisualProof} from "@/lib/builder-v2-editor-visual-proof";
+import {captureUniversalRegressionSentinels,auditUniversalRegressionSentinels,type RegressionSentinel} from "@/lib/builder-v2-regression-guard";
 import {resolveUniversalSection} from "@/lib/builder-v2-universal-targets";
 import {classifyUniversalFeedback,inferUniversalFeedbackFailureCode} from "@/lib/builder-v2-universal-feedback";
 import {learnReviewedExecutionRoute} from "@/lib/builder-v2-universal-online-learning";
@@ -511,7 +512,7 @@ export default function BuilderV2() {
   const pendingBackgroundVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;color:string;solution?:EditorSolutionMemory|null;reuse?:{sourceEventId:string;technique:string};trace?:EditorSubmissionTrace|null}|null>(null);
   const pendingSectionPhotoVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;src:string;solution?:EditorSolutionMemory|null;trace?:EditorSubmissionTrace|null}|null>(null);
   const pendingMoveVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;contract:UniversalPreviewMoveContract;solution?:EditorSolutionMemory|null;reuse?:{sourceEventId:string;technique:string};trace?:EditorSubmissionTrace|null}|null>(null);
-  const pendingUniversalVisualProofRef=useRef<{prompt:string;niche:string;variant:string;contract:UniversalVisualProof;siteAfter:Site;strategy?:string;solution?:EditorSolutionMemory|null;reuse?:{sourceEventId:string;technique:string};trace?:EditorSubmissionTrace|null}|null>(null);
+  const pendingUniversalVisualProofRef=useRef<{prompt:string;niche:string;variant:string;contract:UniversalVisualProof;siteAfter:Site;regressionSentinels:RegressionSentinel[];strategy?:string;solution?:EditorSolutionMemory|null;reuse?:{sourceEventId:string;technique:string};trace?:EditorSubmissionTrace|null}|null>(null);
   const [previewVisualAudit,setPreviewVisualAudit]=useState<string|null>(null);
   useEffect(()=>{
     const styles=(site as unknown as Record<string,unknown>).universalSectionStyles as Record<string,{backgroundColor?:string;headingColor?:string;textColor?:string}>|undefined;
@@ -648,9 +649,11 @@ export default function BuilderV2() {
       const doc=iframe?.contentDocument,win=iframe?.contentWindow;
       const root=doc?.getElementById("pn-v2-preview-root")||doc?.body;
       const stale=site!==pending.siteAfter;
-      const result=stale?{ok:false,reason:"Outra versão do site foi carregada antes da conferência."}:
+      const positive=stale?{ok:false,reason:"Outra versão do site foi carregada antes da conferência."}:
         root&&win?auditUniversalVisualProof(root,win,pending.contract):
         {ok:false,reason:"A prévia não está disponível para conferir a edição."};
+      const result=positive.ok&&root&&win
+        ?auditUniversalRegressionSentinels(root,win,pending.regressionSentinels):positive;
       if(result.ok){
         pendingUniversalVisualProofRef.current=null;window.clearInterval(timer);
         recordEditorLearningEvent(pending.niche,pending.prompt,"applied",pending.strategy||"universal-five-types-visual-verified",
@@ -1644,6 +1647,12 @@ export default function BuilderV2() {
           setMessages(prev=>[...prev,{role:"assistant",text:"Edição não aplicada: "+universalProof.reason+" A prévia não poderia comprovar essa alteração."}]);
           return;
         }
+        const regressionFrame=previewVisualAuditRef.current?.querySelector("iframe");
+        const regressionDoc=regressionFrame?.contentDocument;
+        const regressionWin=regressionFrame?.contentWindow;
+        const regressionRoot=regressionDoc?.getElementById("pn-v2-preview-root")||regressionDoc?.body;
+        const regressionSentinels=universalProof?.ok&&regressionRoot&&regressionWin
+          ?captureUniversalRegressionSentinels(regressionRoot,regressionWin,site,result.site,result.changedIds):[];
         const verifiedSolution=captureVerifiedEditorSolution(site,result.site,result.changedIds,{niche:site.niche,model:site.briefingLayoutVariant,family:String(resolveBriefingFamily(site.niche||"")||""),template:site.templateId});
         // A source is attributed only when it CHANGED the route and the new
         // mutation is verified, never merely because an old memory was read.
@@ -1653,7 +1662,7 @@ export default function BuilderV2() {
         if(movementPlan)pendingMoveVisualReviewRef.current={trace:activeSubmissionTraceRef.current,prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",contract:movementPlan,solution:verifiedSolution,reuse:learnedReuse};
         if(universalProof?.ok)pendingUniversalVisualProofRef.current={trace:activeSubmissionTraceRef.current,
           prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",contract:universalProof.contract,
-          siteAfter:result.site,solution:verifiedSolution,reuse:learnedReuse};
+          siteAfter:result.site,regressionSentinels,solution:verifiedSolution,reuse:learnedReuse};
         // Memory-guided section backgrounds require a DOM check before an
         // applied event or reuse attribution can ever be recorded.
         const backgroundStyleId=guidedBackgroundApplied?result.changedIds.find(id=>id.startsWith("section-style:")):undefined;

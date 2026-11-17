@@ -3,6 +3,7 @@
  * Supabase persistence adapter and RLS policies are verified.
  */
 import type {UniversalBlock,UniversalSite} from "./builder-v2-universal-operations.ts";
+import {auditUniversalRegressionState} from "./builder-v2-regression-guard.ts";
 
 export type UniversalLearningVerdict="approved"|"rejected"|"pending";
 export type UniversalLearningOutcome="applied"|"already-correct"|"failed"|"unverified";
@@ -78,6 +79,8 @@ export function rankApprovedUniversalExperiences(records:readonly UniversalLearn
 export function verifyUniversalEditResult<T extends UniversalSite>(before:T,after:T,changedIds:readonly string[]):{ok:boolean;reason:string}{
  const reject=(reason:string)=>({ok:false,reason});
  if(!changedIds.length)return reject("Nenhuma alteração identificada.");
+ const regression=auditUniversalRegressionState(before,after,changedIds);
+ if(!regression.ok)return reject(regression.reason);
  const oldBlocks=new Map(before.blocks.map(b=>[b.id,b]));
  const nextBlocks=new Map(after.blocks.map(b=>[b.id,b]));
  const ids=new Set(changedIds);
