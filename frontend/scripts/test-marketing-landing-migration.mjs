@@ -10,15 +10,23 @@ const signup = content("src/app/cadastro/page.tsx");
 const login = content("src/app/login/page.tsx");
 const packages = content("src/app/teste/montar-pacote/page.tsx");
 
-test("new landing is isolated from the existing public homepage", () => {
+test("official homepage stays legacy until the explicit v2 feature flag", () => {
   assert.ok(existsSync(resolve(root, "src/app/teste/page.tsx")));
   assert.ok(existsSync(resolve(root, "src/app/teste/layout.tsx")));
-  assert.match(content("src/app/page.tsx"), /PageNovaLandingMotion/);
+  const home = content("src/app/page.tsx");
+  assert.match(home, /PageNovaLandingMotion/);
+  assert.ok(home.includes('process.env.PAGENOVA_PUBLIC_LP === "v2"'));
+  assert.ok(home.includes('<LandingShell><LandingRevamp official initialLanguage="pt"'));
+  for (const locale of ["en", "es"]) {
+    const page = content("src/app/" + locale + "/page.tsx");
+    assert.ok(page.includes('process.env.PAGENOVA_PUBLIC_LP === "v2"'));
+    assert.ok(page.includes('initialLanguage="' + locale + '"'));
+    assert.ok(page.includes('LocalizedMarketing lang="' + locale + '"'));
+  }
 });
 
-test("new landing keeps the existing login and five-day free-trial entry", () => {
-  const signupLinks = landing.match(/\/cadastro\?trial=1/g) ?? [];
-  assert.ok(signupLinks.length >= 4, "All four sign-up CTAs must preserve the trial query");
+test("existing login, cadastro and five-day free trial are preserved", () => {
+  assert.ok((landing.match(/\/cadastro\?trial=1/g) ?? []).length >= 4);
   assert.doesNotMatch(landing, /href="\/cadastro"/);
   assert.match(landing, /href="\/login"/);
   assert.match(signup, /teste gr[aá]tis de 5 dias/i);
@@ -27,7 +35,7 @@ test("new landing keeps the existing login and five-day free-trial entry", () =>
 });
 
 test("approved PT/EN/ES gallery and guarantee assets exist", () => {
-  for (const path of [
+  const files = [
     "public/gallery-styles/institucional-desktop.webp",
     "public/gallery-styles/cinematografico-desktop.webp",
     "public/gallery-styles/3d-imersivo-desktop.webp",
@@ -39,15 +47,45 @@ test("approved PT/EN/ES gallery and guarantee assets exist", () => {
     "public/gallery-styles/es/banner 3d imersivo espanhol.png",
     "public/images/en/garantia-7-dias-en-pt-layout.svg",
     "public/images/en/garantia-7-dias-en-mobile.png",
-  ]) assert.ok(existsSync(resolve(root, path)), `Missing approved asset: ${path}`);
+  ];
+  for (const path of files) assert.ok(existsSync(resolve(root, path)), "Missing approved asset: " + path);
 });
 
-test("package builder has checkout destinations without creating a new payment backend", () => {
-  assert.match(landing, /\/teste\/montar-pacote\?plan=/);
-  const checkoutUrls = packages.match(/https:\/\/pay\.kiwify\.com\.br\/[A-Za-z0-9]+/g) ?? [];
-  assert.ok(checkoutUrls.length >= 13, "Expected the 13 configured Kiwify checkout links");
-  assert.match(packages, /Nenhuma compra [ée] feita nesta p[aá]gina/);
+test("preview and official landing routes use their own navigation and package paths", () => {
+  assert.ok(landing.includes('const homePath=official?'));
+  assert.ok(landing.includes('const packagePath=official?"/montar-pacote":"/teste/montar-pacote"'));
+  assert.ok(landing.includes('href={packagePath+"?plan="'));
+  assert.ok(landing.includes('window.location.assign(value==="pt"?"/"'));
+  const shell = content("src/app/teste/landing-shell.tsx");
+  assert.match(shell, /Poppins\(/);
+  assert.ok(shell.includes("mobile-polish.css"));
+  const officialPackage = content("src/app/montar-pacote/page.tsx");
+  assert.ok(officialPackage.includes('process.env.PAGENOVA_PUBLIC_LP !== "v2"'));
+  assert.ok(officialPackage.includes('redirect("/teste/montar-pacote")'));
 });
 
-// Live Kiwify checkout and webhook validation require sandbox/test-account checks.
-// This test intentionally does NOT claim that a checkout or subscription was completed.
+test("new package checkout paths are gated; legacy plans remain accessible", () => {
+  const urls = packages.match(/https:\/\/pay\.kiwify\.com\.br\/[A-Za-z0-9]+/g) ?? [];
+  assert.ok(urls.length >= 13, "All original package links remain for approved preview");
+  assert.ok(packages.includes("checkoutDisabled"));
+  assert.ok(packages.includes("pagenova-landing-teste-production.up.railway.app"));
+  assert.ok(packages.includes("cadastro?trial=1"));
+  const previousPlans = content("src/app/planos-atuais/page.tsx");
+  assert.ok(previousPlans.includes("https://pay.kiwify.com.br/a13pNpS"));
+  const webhook = content("src/app/api/webhooks/kiwify/route.ts");
+  assert.ok(webhook.includes("isSupportedPageNovaProduct"));
+});
+
+test("Meta Pixel PageView is routed to only one dataset", () => {
+  const pixel = content("src/components/meta-pixel.tsx");
+  assert.ok(pixel.includes("2101736870240618"));
+  assert.ok(pixel.includes("1051066844418593"));
+  assert.ok(pixel.includes('"trackSingle", pixelId, "PageView"'));
+  assert.ok(pixel.includes("PUBLIC_LANDING_ROUTES"));
+  assert.doesNotMatch(pixel, /fbq\(['"]track['"]/);
+  const layout = content("src/app/layout.tsx");
+  assert.ok(layout.includes('newLandingEnabled={process.env.PAGENOVA_PUBLIC_LP === "v2"}'));
+});
+
+// These static gates do not claim that purchases, trial expirations or Meta Events Manager callbacks
+// were tested against live providers. Those require safe end-to-end validation before cutover.
