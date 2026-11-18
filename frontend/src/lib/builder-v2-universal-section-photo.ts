@@ -20,7 +20,10 @@ export function canonicalPhotoSection(label:string):string|null{
 const classroomPhoto="https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1400&q=85";
 export function curatedRealSectionPhoto(description:string):string|null{
  const text=norm(description);
- return /(?:estudant|alun|sala de aula|classroom|escola|educacao)/.test(text)?classroomPhoto: /(?:violao|guitarra|musica|professor)/.test(text)?"https://images.unsplash.com/photo-1758525864570-a78364675d0b?auto=format&fit=crop&w=1400&q=85":null;
+ // Prefer the actual subject over incidental words such as "aluno".
+ // Reuse an existing music-school asset already present in TP10 Model 2.
+ if(/(?:violao|guitarra|musica|professor)/.test(text))return "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=1400&q=85";
+ return /(?:estudant|alun|sala de aula|classroom|escola|educacao)/.test(text)?classroomPhoto:null;
 }
 export function readUniversalSectionPhoto(overrides:Record<string,string>|undefined,section:string,fallback:string):string{
  const src=overrides?.[section];
