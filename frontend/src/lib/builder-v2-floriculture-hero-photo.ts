@@ -27,11 +27,11 @@ export function isExplicitFloriculturePeonyHeroIntent(instruction:string):boolea
 /** Recognizes the specific rose request without conflating roses with peonies. */
 export function isExplicitFloricultureRoseHeroIntent(instruction:string):boolean{
  if(!isExplicitImageChangeRequest(instruction))return false;
- const first=normalize(instruction.split(/\\.\\s+(?=[A-ZÀ-Ú])/u)[0]||"");
- const rest=instruction.trim().split(/\\.\\s+(?=[A-ZÀ-Ú])/u).slice(1).map(normalize);
- if(rest.some(c=>!preserve.test(c)||/\\b(?:adicione|remova|exclua|insira|crie|centralize|mova|troque|substitua)\\b/.test(c)))return false;
- return /^(?:substitua|troque|altere|mude)\\s+(?:(?:somente|apenas|exclusivamente)\\s+)?(?:a\\s+)?(?:imagem|foto|fotografia)\\s+(?:principal\\s+)?(?:do\\s+hero|da\\s+capa|do\\s+banner)\\s+(?:por|pela|para)\\s+/.test(first)&&
- /\\b(?:buque|arranjo)\\b/.test(first)&&/\\brosas?\\b/.test(first)&&/\\bbrancas?\\b/.test(first)&&/\\b(?:cor-de-rosa|rosa|rosadas?)\\b/.test(first);
+ const first=normalize(instruction.split(/\.\s+(?=[A-ZÀ-Ú])/u)[0]||"");
+ const rest=instruction.trim().split(/\.\s+(?=[A-ZÀ-Ú])/u).slice(1).map(normalize);
+ if(rest.some(c=>!preserve.test(c)||/\b(?:adicione|remova|exclua|insira|crie|centralize|mova|troque|substitua)\b/.test(c)))return false;
+ return /^(?:substitua|troque|altere|mude)\s+(?:(?:somente|apenas|exclusivamente)\s+)?(?:a\s+)?(?:imagem|foto|fotografia)\s+(?:principal\s+)?(?:do\s+hero|da\s+capa|do\s+banner)\s+(?:por|pela|para)\s+/.test(first)&&
+ /\b(?:buque|arranjo)\b/.test(first)&&/\brosas?\b/.test(first)&&/\bbrancas?\b/.test(first)&&/\b(?:cor-de-rosa|rosa|rosadas?)\b/.test(first);
 }
 
 export function applyVerifiedFloricultureHeroPhoto<T extends UniversalSite>(
