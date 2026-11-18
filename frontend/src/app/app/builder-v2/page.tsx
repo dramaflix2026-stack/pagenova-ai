@@ -1456,8 +1456,29 @@ export default function BuilderV2() {
       if(premiumBackground){
         if(!premiumBackground.ok){
           const explanation=premiumBackground.error;
-          // Idempotent color requests are not extra learning successes.
-          setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:explanation}]);
+          // A repeated command can be visually correct while changing ZERO
+          // values. Such a request is an observation, NOT a new applied edit,
+          // so it must never inflate first-try precision or approved memories.
+          if(explanation.startsWith("A cor já está registrada.")){
+            const savedStyles=(site as Record<string,unknown>).universalSectionStyles as Record<string,{backgroundColor?:string}>|undefined;
+            const existingColor=savedStyles?.produtos?.backgroundColor?.toUpperCase()||"";
+            const iframe=previewVisualAuditRef.current?.querySelector("iframe");
+            const doc=iframe?.contentDocument,win=iframe?.contentWindow;
+            const root=doc?.getElementById("pn-v2-preview-root")||doc?.body;
+            const contract:UniversalVisualProof={version:1,tasks:[{
+              kind:"section-color",section:"produtos",color:existingColor,target:"background"
+            }]};
+            const observed=root&&win&&/^#[A-F0-9]{6}$/.test(existingColor)
+              ?auditUniversalVisualProof(root,win,contract)
+              :{ok:false,reason:"Prévia indisponível para comprovar a cor já salva."};
+            setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",
+              text:observed.ok
+                ?"A cor "+existingColor+" já estava aplicada e foi conferida na prévia. Este envio não produziu uma nova edição; não será contado como acerto nem como novo aprendizado."
+                :"A cor "+existingColor+" já consta no projeto, mas não foi confirmada visualmente: "+observed.reason+" Não aprove esta tentativa como uma edição aplicada."}]);
+            setLearningSyncNotice("Pedido sem alteração nova: a conferência visual não cria registro de edição no Machine Learning.");
+          }else{
+            setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:explanation}]);
+          }
           setInstruction("");
           return;
         }
