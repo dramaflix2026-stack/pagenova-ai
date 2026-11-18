@@ -84,12 +84,12 @@ export function applyRenderedFloricultureSectionCreation<T extends UniversalSite
 /** Single-anchor placement for the rendered TP6 M01 footer. No invented second anchor. */
 export function applyFloralBeforeFooterCards<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
  if(!allowed(site)||!site.blocks?.length)return null;
- const first=instruction.split(/\\.\\s+(?=[A-ZÀ-Ú])/u)[0]||"";
- const match=first.match(/^\\s*(?:adicione|crie|inclua|insira)\\s+uma\\s+(?:nova\\s+)?se[cç][aã]o\\s+(?:chamada|denominada)\\s+["“]?([^"”]+?)["”]?\\s*,?\\s+imediatamente\\s+antes\\s+do\\s+rodap[eé]/iu);
+ const first=instruction.split(/\.\s+(?=[A-ZÀ-Ú])/u)[0]||"";
+ const match=first.match(/^\s*(?:adicione|crie|inclua|insira)\s+uma\s+(?:nova\s+)?se[cç][aã]o\s+(?:chamada|denominada)\s+["“]?([^"”]+?)["”]?\s*,?\s+imediatamente\s+antes\s+do\s+rodap[eé]/iu);
  if(!match)return null;
  const name=quote(match[1]);
  if(name.length<3||name.length>90)return {ok:false,error:"Título inválido; nenhuma edição aplicada."};
- const requested=first.match(/\\b(?:com|contendo)\\s+tr[eê]s\\s+cards?\\s*:\\s*(.+)$/iu);
+ const requested=first.match(/\b(?:com|contendo)\s+tr[eê]s\s+cards?\s*:\s*(.+)$/iu);
  if(!requested)return {ok:false,error:"Informe os três títulos dos cards; nenhuma edição aplicada."};
  const titles=[...requested[1].matchAll(/["“]([^"”]+)["”]/gu)].map(x=>x[1].trim());
  if(titles.length!==3||new Set(titles.map(normalized)).size!==3)return {ok:false,error:"Não foram identificados três cards distintos; nenhuma edição aplicada."};
