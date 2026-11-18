@@ -1,6 +1,6 @@
 /** Rendered TP6 retail edits: the response is successful only when the visual template reads it. */
 export type TP6RetailCard={title:string;description:string};
-export type TP6RetailAddedSection={id:string;name:string;title:string;description:string;cards:TP6RetailCard[];background?:string;cardRadius?:number};
+export type TP6RetailAddedSection={id:string;name:string;title:string;description:string;cards:TP6RetailCard[];background?:string;cardRadius?:number;placement?:"before-footer"};
 export type TP6RetailVisualEdits={
  historyTitle?:string;collectionBackground?:string;collectionHeadingColor?:string;
  firstCollectionCard?:TP6RetailCard;addedSections?:TP6RetailAddedSection[];
