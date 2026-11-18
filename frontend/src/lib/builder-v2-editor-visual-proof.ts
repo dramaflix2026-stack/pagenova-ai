@@ -83,7 +83,7 @@ export function planUniversalVisualProof(before:UniversalSite,after:UniversalSit
   if(!previous||!current)return fail('Alteração não verificável.');
   let count=0;
   const newlyProjectedHero=after.universalHeroHeadingBlockId===id&&before.universalHeroHeadingBlockId!==id;
-  if((current.text!==previous.text||newlyProjectedHero)&&current.type!=='image'){
+  if((current.text!==previous.text||newlyProjectedHero||(current.textExplicit===true&&previous.textExplicit!==true))&&current.type!=='image'){
    if(typeof current.text!=='string')return fail('Texto resultante inválido.');
    tasks.push({kind:'block-text',id,text:current.text});count++;
   }
