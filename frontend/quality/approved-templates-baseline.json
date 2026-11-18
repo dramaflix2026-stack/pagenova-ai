@@ -131,8 +131,8 @@
       "path": "src/components/builder-v2-tp10-model3.tsx",
       "blobSha": "45824e42f82dd813703358d326dcc398ab6f6b4d",
       "approvedBindingRevision": {
-        "sha": "495b076f108411da710eb1ca07c0f406dbc6a9bf",
-        "reason": "Fix persisted explicit music academy About heading not rendering when the stored block section alias differs from the template resolver; default layout unchanged."
+        "sha": "7468a69fcf498389bf2dba34c82c194f750856d3",
+        "reason": "Type-safe niche guard for persisted TP10 music school About heading binding; preserves approved default visual layout."
       }
     },
     {
