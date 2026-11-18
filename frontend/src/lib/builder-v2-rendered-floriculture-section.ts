@@ -36,6 +36,12 @@ export function applyRenderedFloricultureSectionCreation<T extends UniversalSite
  const firstLine=instruction.split(/(?<!\d)\.\s*(?:\n|$)/)[0];
  const following=firstLine.match(/\b(?:imediatamente\s+|logo\s+)?(?:depois|ap[oó]s)\s+(?:(?:da|do|de)\s+)?(?:se[cç][aã]o\s+)?(.+?)(?=\s+e\s+(?:imediatamente\s+)?antes\b|\s*,\s*(?:e\s+)?antes\b|[.!?]|$)/iu);
  const preceding=firstLine.match(/\b(?:e\s+)?(?:imediatamente\s+)?antes\s+(?:(?:da|do|de)\s+)?(?:se[cç][aã]o\s+)?(.+?)(?=[.!?]|$)/iu);
+ // "Immediately before the footer" is already a complete placement constraint.
+ // Never ask the customer to supply the preceding section for this request.
+ const footerOnly=/\b(?:imediatamente\s+|logo\s+)?antes\s+(?:(?:do|da)\s+)?(?:rodap[eé]|footer)\b/iu.test(firstLine);
+ if(footerOnly&&!following){
+  return {ok:false,error:"A posição antes do rodapé foi reconhecida automaticamente, mas a inserção ainda não possui comprovação visual neste layout. Nenhuma alteração aplicada; não aprove esta tentativa."};
+ }
  if(!following||!preceding)return {ok:false,error:"Informe duas referências: depois de qual seção e antes de qual seção. Nenhuma alteração aplicada."};
  const after=resolveRenderedFloralAnchor(following[1]),before=resolveRenderedFloralAnchor(preceding[1]);
  if(!after||!before)return {ok:false,error:"A referência visual não foi identificada: depois de '"+quote(following[1])+"', antes de '"+quote(preceding[1])+"'. Nenhuma alteração aplicada."};
@@ -74,6 +80,32 @@ export function applyRenderedFloricultureSectionCreation<T extends UniversalSite
  return {...result,site:{...result.site,universalSectionEvents:[...events,placement]} as T};
 }
 
+
+/** Single-anchor placement for the rendered TP6 M01 footer. No invented second anchor. */
+export function applyFloralBeforeFooterCards<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
+ if(!allowed(site)||!site.blocks?.length)return null;
+ const first=instruction.split(/\\.\\s+(?=[A-ZÀ-Ú])/u)[0]||"";
+ const match=first.match(/^\\s*(?:adicione|crie|inclua|insira)\\s+uma\\s+(?:nova\\s+)?se[cç][aã]o\\s+(?:chamada|denominada)\\s+["“]?([^"”]+?)["”]?\\s*,?\\s+imediatamente\\s+antes\\s+do\\s+rodap[eé]/iu);
+ if(!match)return null;
+ const name=quote(match[1]);
+ if(name.length<3||name.length>90)return {ok:false,error:"Título inválido; nenhuma edição aplicada."};
+ const requested=first.match(/\\b(?:com|contendo)\\s+tr[eê]s\\s+cards?\\s*:\\s*(.+)$/iu);
+ if(!requested)return {ok:false,error:"Informe os três títulos dos cards; nenhuma edição aplicada."};
+ const titles=[...requested[1].matchAll(/["“]([^"”]+)["”]/gu)].map(x=>x[1].trim());
+ if(titles.length!==3||new Set(titles.map(normalized)).size!==3)return {ok:false,error:"Não foram identificados três cards distintos; nenhuma edição aplicada."};
+ const id=floricultureCustomSectionId(name);
+ const current=(site as T&{tp6RetailEdits?:{addedSections?:Array<{id:string}>}}).tp6RetailEdits;
+ if(current?.addedSections?.some(s=>s.id===id))return {ok:false,error:"Essa seção já existe; nenhuma duplicação aplicada."};
+ const descriptions=[
+  "Renove a água do vaso com frequência para manter as flores frescas por mais tempo.",
+  "Prefira um local arejado, com luz indireta, longe do calor excessivo.",
+  "Corte as pontas dos caules em diagonal para facilitar a absorção de água."
+ ];
+ const cards=titles.map((title,i)=>({title,description:descriptions[i]}));
+ const before=site as T&{tp6RetailEdits?:{addedSections?:Array<{id:string}>}};
+ const after={...before,tp6RetailEdits:{...(before.tp6RetailEdits||{}),addedSections:[...((before.tp6RetailEdits?.addedSections||[]) as Array<{id:string}>),{id,name,title:name,description:"Cuidados simples para manter suas flores bonitas por mais tempo.",cards,placement:"before-footer"}]}} as T;
+ return {ok:true,site:after,changedIds:["tp6-before-footer-"+id]};
+}
 
 /** Move only an existing, uniquely identified custom florist section.
  * The two editorial anchors are renderer-owned IDs absent from site.blocks;
