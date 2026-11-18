@@ -44,6 +44,12 @@ const faqs=[
 ] as const;
 const galleryNames=["Detalhes que encantam","Flores de estação","Composições autorais","Texturas naturais","Celebrações especiais","Beleza no cotidiano"];
 const safePhoto=(src:unknown)=>typeof src==="string"&&/^https:\/\/(?:images\.unsplash\.com|[\w.-]+\.supabase\.co|[\w.-]+\.cloudinary\.com)\//i.test(src);
+const sameOriginPhoto=(src:string):string=>{
+ const match=src.match(/^https:\/\/images\.unsplash\.com\/(photo-\d{10,15}-[a-z0-9]{8,20})(?:\?|$)/i);
+ if(!match)return src;
+ const width=src.match(/[?&]w=(160|640|960|1200|1600)(?:&|$)/)?.[1]||"960";
+ return "/api/floral-image?id="+encodeURIComponent(match[1])+"&w="+width;
+};
 const validEmail=(v:string)=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)&&v.length<=254;
 
 export function TP6FloricultureModel1({brand,headline,description,images,edits,reviews=[],whatsapp,email,address,heroImage,headlineBlockId,sectionBackgroundOverride,heroPhotoOverride}:Props){
@@ -52,12 +58,12 @@ export function TP6FloricultureModel1({brand,headline,description,images,edits,r
  const [lightbox,setLightbox]=useState<number|null>(null);
  const [name,setName]=useState(""),[telephone,setTelephone]=useState(""),[occasion,setOccasion]=useState(""),[message,setMessage]=useState("");
  const bank=images.filter(safePhoto);
- const photo=(i:number)=>bank.length?bank[i%bank.length]:photosFallback[i%photosFallback.length];
+ const photo=(i:number)=>sameOriginPhoto(bank.length?bank[i%bank.length]:photosFallback[i%photosFallback.length]);
  const brandName=brand.trim()||"Jardim de Âmbar — Atelier Floral";
  const brandShort=brandName.split(/\s+[—–-]\s+/)[0];
  const heroTitle=headline?.trim()||"Flores que transformam momentos em memórias";
  const heroCopy=description?.trim()||"Buquês autorais, arranjos personalizados e experiências florais criadas com afeto.";
- const mainPhoto=safePhoto(heroPhotoOverride)?heroPhotoOverride!:safePhoto(heroImage)?heroImage!:photo(2);
+ const mainPhoto=safePhoto(heroPhotoOverride)?sameOriginPhoto(heroPhotoOverride!):safePhoto(heroImage)?sameOriginPhoto(heroImage!):photo(2);
  const whats=(whatsapp||"").replace(/\D/g,""),hasWhats=whats.length>=10&&whats.length<=15;
  const mail=email?.trim()||"",hasMail=validEmail(mail),canContact=hasWhats||hasMail;
  const color=sectionBackgroundOverride&&/^#[a-f\d]{6}$/i.test(sectionBackgroundOverride)?sectionBackgroundOverride:edits?.collectionBackground&&/^#[a-f\d]{6}$/i.test(edits.collectionBackground)?edits.collectionBackground:undefined;
@@ -71,8 +77,8 @@ export function TP6FloricultureModel1({brand,headline,description,images,edits,r
  const reviewCards=Array.from({length:6},(_,i)=>{
   const real=reviews.filter(r=>r.name?.trim()&&r.quote?.trim())[i];
   return real?{name:real.name,role:real.role||"Avaliação cadastrada",quote:real.quote,
-   image:safePhoto(real.photo)?real.photo!:portraits[i],demo:false}
-   :{name:examples[i][0],role:examples[i][1],quote:examples[i][2],image:portraits[i],demo:true};
+   image:sameOriginPhoto(safePhoto(real.photo)?real.photo!:portraits[i]),demo:false}
+   :{name:examples[i][0],role:examples[i][1],quote:examples[i][2],image:sameOriginPhoto(portraits[i]),demo:true};
  });
  const addressRegistered=!!address?.trim();
  const displayAddress=address?.trim()||"Rua das Flores Imaginárias, 100 — Pinheiros, São Paulo/SP";
