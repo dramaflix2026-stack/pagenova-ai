@@ -2462,7 +2462,7 @@ export default function BuilderV2() {
         // TP6 M01 Hero is rendered by a dedicated component. The generic block
         // generator cannot prove it changed that visible image. Fail closed
         // instead of recording a false applied event or mutating unrelated blocks.
-        const normalizedHeroRequest=prompt.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();
+        const normalizedHeroRequest=prompt.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
         if(site.briefingLayoutVariant==="01"&&/floricultur/i.test([site.niche||"",selectedNiche||""].join(" "))&&
           /(?:hero|capa|banner)/.test(normalizedHeroRequest)&&
           /(?:imagem|foto|fotografia)/.test(normalizedHeroRequest)&&
