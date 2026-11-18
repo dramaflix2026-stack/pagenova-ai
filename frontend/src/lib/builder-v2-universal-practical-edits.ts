@@ -28,6 +28,48 @@ const stripConstraints=(s:string)=>s.trim().replace(/\.\s*(?:preserve|mantenha|n
 
 export function applyUniversalPracticalEdit<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
  const text=stripConstraints(instruction);
+ // Reorder exactly three existing custom cards without creating or deleting blocks.
+ // Supports both heading+paragraph cards and "Title: description" paragraph cards.
+ const reorder=text.match(/^na\s+se[cç][aã]o\s+["“]?([^"”\n,]+)["”]?,?\s+reorganize\s+(?:exclusivamente\s+|somente\s+|apenas\s+)?os\s+tr[eê]s\s+cards\s+existentes\s+nesta\s+ordem\s*:\s*\n\s*1[.)-]\s*([^\n]+)\n\s*2[.)-]\s*([^\n]+)\n\s*3[.)-]\s*([^\n]+)/i);
+ if(reorder){
+  const section=resolveUniversalSection(site,reorder[1]);
+  if(!section)return fail("Seção não encontrada de forma inequívoca. Nenhuma alteração aplicada.");
+  const desired=[reorder[2],reorder[3],reorder[4]].map(value=>normalized(value.replace(/\*\*/g,"").trim()));
+  if(new Set(desired).size!==3)return fail("Os três títulos precisam ser distintos.");
+  const indexed=site.blocks.map((block,index)=>({block,index})).filter(item=>item.block.section===section);
+  const groups:{title:string;start:number;length:number;ids:string[]}[]=[];
+  for(let i=0;i<indexed.length;i++){
+   const {block,index}=indexed[i];
+   if(block.type==="paragraph"){
+    const match=String(block.text||"").match(/^([^:：—–]{2,100})\s*[:：—–]\s*(.+)$/);
+    if(match)groups.push({title:normalized(match[1]),start:index,length:1,ids:[block.id]});
+   }else if(block.type==="heading"&&i>0){
+    const next=indexed[i+1];
+    if(next?.block.type==="paragraph"&&next.index===index+1){
+     groups.push({title:normalized(String(block.text||"")),start:index,length:2,ids:[block.id,next.block.id]});
+     i++;
+    }
+   }
+  }
+  if(groups.length!==3||new Set(groups.map(group=>group.title)).size!==3||
+    desired.some(title=>!groups.some(group=>group.title===title)))
+   return fail("Os três cards solicitados não correspondem aos cards existentes. Nenhuma alteração aplicada.");
+  const sorted=[...groups].sort((a,b)=>a.start-b.start);
+  if(sorted.some((group,i)=>i>0&&group.start!==sorted[i-1].start+sorted[i-1].length))
+   return fail("Os cards não estão em uma sequência contígua. Nenhuma alteração aplicada.");
+  const start=sorted[0].start;
+  const ordered=desired.map(title=>groups.find(group=>group.title===title)!);
+  const cardBlocks=ordered.flatMap(group=>site.blocks.slice(group.start,group.start+group.length));
+  const blocks=[...site.blocks];
+  blocks.splice(start,cardBlocks.length,...cardBlocks.map(block=>{
+   if(/centralize\s+(?:exclusivamente\s+|somente\s+|apenas\s+)?os\s+t[ií]tulos/i.test(text)&&block.type==="heading")
+    return {...block,align:"center",alignExplicit:true};
+   return block;
+  }));
+  if(blocks.length!==site.blocks.length||new Set(blocks.map(block=>block.id)).size!==blocks.length)
+   return fail("A integridade dos blocos não foi comprovada. Nenhuma alteração aplicada.");
+  return {ok:true,site:{...site,blocks} as T,changedIds:ordered.flatMap(group=>group.ids)};
+ }
  // Atomic three-color section edit: never acknowledge just the first color.
  const palette=text.match(/^na\s+se[cç][aã]o\s+["“]?([^"”,]+)["”]?,?\s+altere\s+a\s+cor\s+de\s+fundo\s+para\s+(#[a-f0-9]{6}),?\s+a\s+cor\s+dos\s+t[ií]tulos\s+para\s+(#[a-f0-9]{6})\s+e\s+a\s+cor\s+das\s+descri[cç][oõ]es\s+para\s+(#[a-f0-9]{6})/i);
  if(palette){
