@@ -155,3 +155,23 @@ export function applyRenderedFloricultureSectionMove<T extends UniversalSite>(
  const changedIds=[...new Set([heading[0].id,...sourceBlocks.map(b=>b.id)])];
  return {ok:true,site:siteAfter,changedIds};
 }
+
+/** Move a TP6 renderer-owned section created before the footer, without touching its cards. */
+export function moveFloralCareSection<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
+ if(!allowed(site))return null;
+ const first=instruction.trim().split(/\.\s+(?=[A-ZÀ-Ú])/u)[0]||"";
+ const match=first.match(/^mova\s+(?:exclusivamente\s+)?a\s+se[cç][aã]o\s+["“]([^"”]+)["”]\s+para\s+imediatamente\s+depois\s+da\s+se[cç][aã]o\s+["“]([^"”]+)["”]\s+e\s+antes\s+da\s+se[cç][aã]o\s+["“]([^"”]+)["”]$/iu);
+ if(!match)return null;
+ if(resolveRenderedFloralAnchor(match[2])!=="depoimentos"||resolveRenderedFloralAnchor(match[3])!=="como-comprar")
+  return {ok:false,error:"As seções de referência não correspondem à ordem solicitada."};
+ const sourceId=floricultureCustomSectionId(match[1]);
+ const edits=(site as T&{tp6RetailEdits?:{addedSections?:Array<{id:string;placement?:string;cards?:unknown[]}>}}).tp6RetailEdits;
+ const sections=edits?.addedSections||[];
+ const matches=sections.filter(section=>section.id===sourceId);
+ if(matches.length!==1||!Array.isArray(matches[0].cards)||matches[0].cards.length!==3)
+  return {ok:false,error:"A seção original com seus três cards não foi encontrada; nenhuma alteração aplicada."};
+ if(matches[0].placement==="after-testimonials")
+  return {ok:false,error:"A seção já está entre Depoimentos e Como Comprar; nenhuma duplicação aplicada."};
+ const addedSections=sections.map(section=>section.id===sourceId?{...section,placement:"after-testimonials"}:section);
+ return {ok:true,site:{...site,tp6RetailEdits:{...edits,addedSections}} as T,changedIds:["tp6-move-"+sourceId]};
+}
