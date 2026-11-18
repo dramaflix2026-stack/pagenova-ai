@@ -1375,6 +1375,39 @@ export default function BuilderV2() {
         return;
       }
     }
+    // TP10 Model 3: deterministic edit of the fixed About heading. The AI route
+    // can return unchanged JSON for this editorial heading; do not accept that
+    // as a mutation or learning success.
+    if(site.blocks.length&&site.templateId==="prompt-adaptive"&&
+       site.briefingLayoutVariant==="03"&&resolveBriefingFamily(site.niche||"")===10&&
+       /sobre a institui[cç][aã]o/i.test(prompt)&&/Aprender é transformar\./i.test(prompt)&&
+       /A música transforma vidas\./i.test(prompt)&&!isFullSiteCreationBrief(prompt)){
+      const section=resolveUniversalSection(site,"sobre");
+      const existing=section?site.blocks.find(b=>b.section===section&&b.type==="heading"):undefined;
+      if(!section||!existing){
+        recordEditorLearningEvent(site.niche||"",prompt,"rejected","tp10-about-heading-missing",site.briefingLayoutVariant||"03");
+        setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Título Sobre não encontrado no inventário editável. Nenhuma alteração aplicada."}]);
+        return;
+      }
+      const updated={...existing,text:"A música transforma vidas.",textExplicit:true};
+      const next={...site,blocks:site.blocks.map(b=>b.id===existing.id?updated:b)};
+      const changedIds=[existing.id];
+      const regression=auditUniversalRegressionState(site,next,changedIds);
+      const proof=regression.ok?planUniversalVisualProof(site,next,changedIds):null;
+      if(!regression.ok||!proof?.ok){
+        recordEditorLearningEvent(site.niche||"",prompt,"rejected","tp10-about-heading-proof-blocked",site.briefingLayoutVariant||"03");
+        setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Alteração bloqueada: "+(!regression.ok?regression.reason:proof&&!proof.ok?proof.reason:"Prova indisponível")}]);
+        return;
+      }
+      pendingUniversalVisualProofRef.current={trace:activeSubmissionTraceRef.current,prompt,
+        niche:site.niche||"",variant:site.briefingLayoutVariant||"03",
+        contract:proof.contract,siteAfter:next,
+        regressionSentinels:captureCurrentPreviewRegression(site,next,changedIds)};
+      recordVersion(site,"Antes de editar título Sobre");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
+      setSite(next);setInstruction("");setGenerationError("");
+      setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Título atualizado no bloco da seção Sobre. Verificando a prévia antes de confirmar."}]);
+      return;
+    }
     // An explicit hero-heading request must change a real renderer-bound block,
     // not only JSON text that a protected visual template never consumes.
     // The parser is shared and safe for future renderers; enable this path
