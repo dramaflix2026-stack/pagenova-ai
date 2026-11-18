@@ -22,7 +22,7 @@ export function curatedRealSectionPhoto(description:string):string|null{
  const text=norm(description);
  // Prefer the actual subject over incidental words such as "aluno".
  // Pexels 7520984: documented real photograph of a teacher teaching a boy acoustic guitar; do not reuse microphone imagery.
- if(/(?:violao|guitarra|musica|professor)/.test(text))return "https://images.pexels.com/photos/7520984/pexels-photo-7520984.jpeg?auto=compress&cs=tinysrgb&w=1200";
+ if(/(?:violao|guitarra|musica|professor)/.test(text))return "/api/floral-image?provider=pexels&id=7520984&w=1200";
  return /(?:estudant|alun|sala de aula|classroom|escola|educacao)/.test(text)?classroomPhoto:null;
 }
 export function readUniversalSectionPhoto(overrides:Record<string,string>|undefined,section:string,fallback:string):string{
