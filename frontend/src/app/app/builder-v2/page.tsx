@@ -2459,6 +2459,20 @@ export default function BuilderV2() {
           setMessages(previous=>[...previous,{role:"user",text:prompt},{role:"assistant",text:"Uma única fotografia preparada. Verificando sua presença na seção correta da prévia."}]);
           return;
         }
+        // TP6 M01 Hero is rendered by a dedicated component. The generic block
+        // generator cannot prove it changed that visible image. Fail closed
+        // instead of recording a false applied event or mutating unrelated blocks.
+        const normalizedHeroRequest=prompt.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();
+        if(site.briefingLayoutVariant==="01"&&/floricultur/i.test([site.niche||"",selectedNiche||""].join(" "))&&
+          /(?:hero|capa|banner)/.test(normalizedHeroRequest)&&
+          /(?:imagem|foto|fotografia)/.test(normalizedHeroRequest)&&
+          /(?:substitu|troqu|alter|mud)/.test(normalizedHeroRequest)){
+          recordEditorLearningEvent(site.niche||"",prompt,"rejected","floriculture-hero-photo-unverified",site.briefingLayoutVariant||"01",undefined,undefined,activeSubmissionTraceRef.current);
+          captureReviewCandidate();
+          setMessages(previous=>[...previous,{role:"user",text:prompt},{role:"assistant",text:"A fotografia solicitada não possui uma substituição comprovada no Hero. Nenhuma edição foi aplicada. Use uma fotografia verificada compatível ou envie a imagem para troca segura; não aprove esta tentativa."}]);
+          setInstruction("");
+          return;
+        }
         const match=prompt.match(/(?:imagem|foto)\s*(?:n[uú]mero\s*)?(\d+)/i);
         const index=match?Math.max(0,Math.min(5,Number(match[1])-1)):undefined;
         const updated=await generateVisuals(site,prompt,index);
