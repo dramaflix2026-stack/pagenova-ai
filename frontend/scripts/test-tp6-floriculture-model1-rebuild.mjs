@@ -29,7 +29,9 @@ test("Floricultura Model 01 renders approved twelve-part editorial hierarchy",()
  assert.match(ui,/edits\?\.historyTitle/);
  assert.match(ui,/edits\?\.collectionBackground/);
  assert.match(ui,/edits\?\.firstCollectionCard/);
- assert.match(ui,/TP6RetailCustomSections sections=\{edits\?\.addedSections\?\.filter\(section=>section\.placement!=="before-footer"\)\}/);
+ assert.match(ui,/section\.placement!=="before-footer"&&section\.placement!=="after-testimonials"/);
+ assert.match(ui,/section\.placement==="after-testimonials"/);
+ assert.ok(ui.indexOf('section.placement==="after-testimonials"')<ui.indexOf('id="como-comprar"'),"moved section must precede process");
  assert.match(ui,/TP6RetailCustomSections sections=\{edits\?\.addedSections\?\.filter\(section=>section\.placement==="before-footer"\)\}/);
  assert.ok(ui.indexOf('section.placement==="before-footer"')<ui.indexOf('<footer className="pn-floral1-footer"'),"custom footer section must precede the real footer");
 });
