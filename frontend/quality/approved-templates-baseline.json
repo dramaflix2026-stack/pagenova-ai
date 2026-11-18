@@ -647,24 +647,24 @@
       "path": "src/components/template10-education-closing.tsx",
       "blobSha": "9b83352ee59cfa17f358ad5ab5f91fe12b63cbdf",
       "approvedBindingRevision": {
-        "sha": "5d68c966601f7e62a9c5a5400dc475da39e97ea6",
-        "reason": "User Test 05: atomic movement and contextual main-title alignment; optional FAQ custom section slot only; all TP10 default approved sections unchanged."
+        "sha": "0dea75b267edb05aaf03f5fa8a62c2f407b073e3",
+        "reason": "Functional image delivery repair: route existing education photographs and error fallback through the cached same-origin image proxy; preserve the approved layout, copy, and section structure."
       }
     },
     {
       "path": "src/components/template10-education-experience.tsx",
       "blobSha": "e163e8b2c1cdc301508637dc21a668caa7bc8345",
       "approvedBindingRevision": {
-        "sha": "8cd671997130f382c1ff87bd540f109138823c36",
-        "reason": "User Test 04 correction: custom sections anchored after TP10 testimonials render immediately after actual reviews; approved content stays identical unless a custom section is requested."
+        "sha": "4475188df84fb7c94c284fd4c815fb47b677e6a5",
+        "reason": "Functional image delivery repair: route existing education photographs and error fallback through the cached same-origin image proxy; preserve the approved layout, copy, and section structure."
       }
     },
     {
       "path": "src/components/template10-education-final.tsx",
       "blobSha": "cfb655f7b747df24a69a3d605e498fe292d2ba18",
       "approvedBindingRevision": {
-        "sha": "4923d9584de18ea74b710083599619f3e9f053ca",
-        "reason": "Explicit user approval for Fluency Hub TP10 Model 1 Dark Premium centered CTA and footer; existing anchors and contact data preserved; protected systems and other model components untouched."
+        "sha": "b665e8fb1fafa737bd39246f67ad67eac8c18e6a",
+        "reason": "Functional image delivery repair: route existing education photographs and error fallback through the cached same-origin image proxy; preserve the approved layout, copy, and section structure."
       }
     },
     {
@@ -679,8 +679,8 @@
       "path": "src/components/template10-education-sections.tsx",
       "blobSha": "90d290067371fcd26d0b545296aaac7e9f5aed49",
       "approvedBindingRevision": {
-        "sha": "7b0cbb1cbc69489d44d2383be2c15d8e03eff2d9",
-        "reason": "User Test 05: atomic movement and contextual main-title alignment; optional FAQ custom section slot only; all TP10 default approved sections unchanged."
+        "sha": "b393e043936645e64dbfe9f01360e275eaf273f0",
+        "reason": "Functional image delivery repair: route existing education photographs and error fallback through the cached same-origin image proxy; preserve the approved layout, copy, and section structure."
       }
     },
     {
