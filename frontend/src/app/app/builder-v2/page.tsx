@@ -1389,7 +1389,9 @@ export default function BuilderV2() {
         return;
       }
       const updated=existing?{...existing,text:"A música transforma vidas.",textExplicit:true}:{id:crypto.randomUUID(),type:"heading" as const,section,text:"A música transforma vidas.",textExplicit:true,color:"#ffffff",align:"left" as const};
-      const next={...site,blocks:existing?site.blocks.map(b=>b.id===existing.id?updated:b):[...site.blocks,updated]};
+      const footerIndex=site.blocks.findIndex(b=>/^(?:footer|rodap[eé])$/i.test(b.section||""));
+      const insertedBlocks=[...site.blocks];if(!existing)insertedBlocks.splice(footerIndex>=0?footerIndex:insertedBlocks.length,0,updated);
+      const next={...site,blocks:existing?site.blocks.map(b=>b.id===existing.id?updated:b):insertedBlocks};
       const changedIds=[updated.id];
       const regression=auditUniversalRegressionState(site,next,changedIds);
       const proof=regression.ok?planUniversalVisualProof(site,next,changedIds):null;
