@@ -45,7 +45,7 @@ import { applySiteMotionInstruction, hasMotionIntent, type SiteMotion } from "@/
 import {applyUniversalPaletteEdit} from "@/lib/builder-v2-universal-palette";
 import {isExplicitImageChangeRequest} from "@/lib/builder-v2-image-intent";
 import {isAutomotiveHeroPhotoIntent,applyAutomotiveHeroPhoto,automotiveMechanicWorkshopPhoto} from "@/lib/builder-v2-automotive-hero-photo";
-import {isExplicitFloriculturePeonyHeroIntent,applyVerifiedFloricultureHeroPhoto,verifiedPeonyBouquetPhoto} from "@/lib/builder-v2-floriculture-hero-photo";
+import {isExplicitFloriculturePeonyHeroIntent,isExplicitFloricultureRoseHeroIntent,applyVerifiedFloricultureHeroPhoto,verifiedPeonyBouquetPhoto,verifiedPinkWhiteRoseBouquetPhoto} from "@/lib/builder-v2-floriculture-hero-photo";
 import {parseScopedSectionPhotoRequest,isSingleSectionImageIntent,canonicalPhotoSection,curatedRealSectionPhoto,applyUniversalSectionPhoto} from "@/lib/builder-v2-universal-section-photo";
 import {institutionalImageIntent,planInstitutionalImageEdit,restoreInstitutionalSectionImages,type HeroComposition,type MediaLayout} from "@/lib/builder-v2-institutional-images";
 import {isScopedBannerCopyRequest,applyHeroBannerCopy,type HeroBannerCopy} from "@/lib/builder-v2-hero-banner-edits";
@@ -1515,9 +1515,10 @@ export default function BuilderV2() {
       // before generic AI route ranking; other niches remain unchanged.
       const floralHero=site.briefingLayoutVariant==="01"&&
         /floricultur/i.test([site.niche||"",selectedNiche||""].join(" "))&&
-        isExplicitFloriculturePeonyHeroIntent(prompt);
+         (isExplicitFloriculturePeonyHeroIntent(prompt)||isExplicitFloricultureRoseHeroIntent(prompt));
+      const floralHeroPhoto=isExplicitFloricultureRoseHeroIntent(prompt)?verifiedPinkWhiteRoseBouquetPhoto:floralHeroPhoto;
       if(floralHero&&!reference&&!institutionalFiles.length&&!propertyFiles.length){
-        const result=applyVerifiedFloricultureHeroPhoto(site,verifiedPeonyBouquetPhoto);
+        const result=applyVerifiedFloricultureHeroPhoto(site,floralHeroPhoto);
         if(!result.ok){
           setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:result.error}]);
           setInstruction("");
@@ -1529,7 +1530,7 @@ export default function BuilderV2() {
           const timeout=window.setTimeout(()=>{image.onload=null;image.onerror=null;resolve(false);},9000);
           image.onload=()=>{window.clearTimeout(timeout);resolve(image.naturalWidth>0);};
           image.onerror=()=>{window.clearTimeout(timeout);resolve(false);};
-          image.src=verifiedPeonyBouquetPhoto;
+          image.src=floralHeroPhoto;
         });
         setBusy(false);
         if(!loaded){
@@ -1542,12 +1543,12 @@ export default function BuilderV2() {
         setRedoHistory([]);setHistory(prev=>[...prev.slice(-19),site]);
         pendingHeroPhotoVisualReviewRef.current={
           prompt,niche:site.niche||"Floricultura",variant:"01",
-          strategy:"floriculture-hero-photo",src:verifiedPeonyBouquetPhoto,
+          strategy:"floriculture-hero-photo",src:floralHeroPhoto,
           before:site,trace:activeSubmissionTraceRef.current
         };
         setSite(result.site);setInstruction("");setGenerationError("");
         setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",
-          text:"Fotografia real de peônias rosas e brancas selecionada. Verificando sua exibição na capa antes de registrar a edição como aplicada."}]);
+          text:"Fotografia real selecionada para o Hero. Verificando sua exibição na capa antes de registrar a edição como aplicada."}]);
         return;
       }
       // Renderer-aware section additions are executed before generic/learned
