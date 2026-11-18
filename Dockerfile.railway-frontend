@@ -22,6 +22,10 @@ ENV NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY}
 # compiler errors independently of Next.js / its worker process.
 RUN node scripts/build-universal-utilities.mjs && node scripts/install-frigolog.mjs && npx next typegen
 RUN npx tsc --noEmit --pretty false --incremental false
+# Explicitly validate safe public LP cutover, legacy checkout guard and Pixel routing.
+RUN node --test scripts/test-marketing-landing-migration.mjs
+# Execute trial server policy against deterministic, in-memory Supabase mocks.
+RUN node --test scripts/test-marketing-trial-access.mjs
 # Stream test and TypeScript failures directly to Railway build logs for diagnosis.
 # Stream build test failures directly to Railway without duplicating or hiding output.
 RUN echo '[PageNova CI] Starting all mandatory frontend regressions and production Next.js build' && npm run build

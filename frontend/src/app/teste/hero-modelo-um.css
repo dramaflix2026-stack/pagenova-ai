@@ -1,0 +1,114 @@
+.pn-premium-hero{
+  font-family:inherit;
+  position:relative;
+  background:
+    radial-gradient(ellipse 70% 40% at 50% 5%,rgba(47,107,48,.17),transparent 82%),
+    radial-gradient(ellipse 42% 80% at -8% 36%,rgba(82,185,39,.13),transparent 80%),
+    radial-gradient(ellipse 42% 80% at 108% 36%,rgba(82,185,39,.13),transparent 80%),
+    linear-gradient(180deg,#0a190f 0%,#08170e 37%,#0a1b10 76%,#0b190f 100%);
+}
+.pn-premium-hero:before{
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 100% 25% at 50% 0%,rgba(109,255,69,.065),transparent 88%),
+    radial-gradient(ellipse 85% 30% at 50% 100%,rgba(106,255,69,.075),transparent 78%);
+}
+.pn-premium-glow{position:absolute;width:48%;height:65%;pointer-events:none;filter:blur(70px);opacity:.45}
+.pn-premium-glow-left{top:4%;left:-38%;background:radial-gradient(ellipse,#68ff143c,transparent 68%)}
+.pn-premium-glow-right{bottom:-3%;right:-40%;background:radial-gradient(ellipse,#88ff1f29,transparent 70%)}
+.pn-premium-header{
+  /* Reduce the navbar-only tint: the page's underlying glow continues below it. */
+  background:linear-gradient(180deg,rgba(9,26,15,.12),transparent);
+  border-bottom-color:rgba(155,255,120,.045);
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
+}
+.pn-premium-header:before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 100% 190% at 50% 0%,rgba(74,166,56,.025),transparent 88%);
+}
+.pn-premium-stage{isolation:isolate}
+@media(min-width:1024px){.pn-premium-stage{min-height:790px;padding-top:54px;padding-bottom:60px}
+.pn-premium-content{max-width:600px;margin-top:5px}
+.pn-premium-badge{margin-bottom:18px}
+.pn-premium-title{font-size:clamp(64px,5.6vw,93px)}
+.pn-premium-description{max-width:540px;margin-top:22px;line-height:1.6}
+.pn-premium-benefits{margin-top:72px}
+.pn-premium-arc{height:140px;border:0;box-shadow:none}
+}
+.pn-premium-content{filter:drop-shadow(0 3px 9px #06100885)}
+.pn-premium-title{text-wrap:balance;text-shadow:0 5px 22px #020b04e5;position:relative}
+.pn-premium-description{text-wrap:pretty;text-shadow:0 3px 12px #020b04}
+.pn-premium-badge{box-shadow:inset 0 1px #ffffff13}
+.pn-premium-cta-primary{box-shadow:0 0 32px #8fff3340,inset 0 1px #ffffff65}
+.pn-premium-cta-secondary{box-shadow:inset 0 1px #ffffff16}
+.pn-premium-benefit:not(:last-child){border-right:1px solid #ffffff1e}
+.pn-premium-arc{border:0!important;box-shadow:none!important;opacity:.22;background:radial-gradient(ellipse 50% 34% at 50% 100%,rgba(143,255,98,.26),transparent 82%);filter:blur(22px)}
+.pn-premium-stage:before{
+  content:"";position:absolute;pointer-events:none;bottom:0;left:0;width:100%;height:44%;z-index:1;
+  background:linear-gradient(180deg,transparent 0%,rgba(13,34,17,.09) 45%,rgba(12,28,16,.38) 74%,rgba(11,25,15,.75) 100%);
+}
+.pn-premium-arc{box-shadow:none}
+
+@media(max-width:1023px){.pn-premium-stage{min-height:0;padding-top:38px;padding-bottom:34px}.pn-premium-benefits{margin-top:10px}}
+@media(max-width:639px){.pn-premium-header>div{height:65px}
+.pn-premium-stage{padding:32px 20px 26px}
+.pn-premium-badge{padding:8px 11px;font-size:9px;letter-spacing:.07em;margin-bottom:19px}
+.pn-premium-title{font-size:clamp(38px,10vw,49px);line-height:1.07}
+.pn-premium-description{font-size:14px;line-height:1.62;max-width:360px;margin-top:20px}
+.pn-premium-ctas{margin-top:20px;gap:10px}
+.pn-premium-ctas a{min-height:48px;font-size:13px}
+.pn-premium-benefits{margin-top:8px;gap:16px 10px}
+.pn-premium-benefit{justify-content:flex-start;gap:7px;border:0!important}
+.pn-premium-benefit svg{height:19px;width:19px}
+.pn-premium-benefit span{font-size:10px}
+.pn-premium-arc{height:50px}}
+@media(prefers-reduced-motion:reduce){.pn-premium-ctas a{transition:none!important;transform:none!important}}
+
+/* One continuous surface from the navbar through the next section.
+   No hard black strip or bright terminating line. */
+.pn-premium-stage{background:transparent}
+.pn-premium-benefits{background:transparent}
+@media(max-width:639px){
+  .pn-premium-header{background:linear-gradient(180deg,rgba(9,26,15,.14),transparent)}
+  .pn-premium-arc{opacity:.12}
+}
+
+/* Ambient illumination lives on the full Hero rather than stopping with the image panels. */
+.pn-premium-hero{
+  background:
+    radial-gradient(ellipse 95% 52% at 50% 0%,rgba(59,123,55,.20),transparent 78%),
+    radial-gradient(ellipse 42% 80% at -8% 36%,rgba(82,185,39,.13),transparent 80%),
+    radial-gradient(ellipse 42% 80% at 108% 36%,rgba(82,185,39,.13),transparent 80%),
+    linear-gradient(180deg,#0a190f 0%,#08170e 37%,#0a1b10 76%,#0b190f 100%);
+}
+
+/* Mobile-first hierarchy: the showcase occupies an entire visual panel, not a tiny strip. */
+@media(max-width:639px){
+ .pn-premium-stage{padding:26px 16px 25px}
+ .pn-premium-badge{margin-bottom:16px}
+ .pn-premium-title{font-size:clamp(39px,10.5vw,49px)}
+ .pn-premium-description{margin-top:17px;line-height:1.55}
+ .pn-premium-ctas{margin-top:19px}
+ .pn-premium-benefits{margin-top:17px;gap:15px 12px;padding:0 6px}
+ .pn-premium-benefit{justify-content:flex-start}
+}
+
+/* Mobile Hero v2: same approved card artwork is a background layer, not a separate section. */
+@media(max-width:1023px){
+  .pn-premium-stage{position:relative;overflow:hidden;isolation:isolate}
+  .pn-premium-mobile-backdrop{z-index:0;pointer-events:none;overflow:hidden}
+  .pn-premium-mobile-backdrop + .pn-premium-content{z-index:10}
+}
+@media(max-width:639px){
+  .pn-premium-stage{min-height:650px;padding:38px 18px 39px;justify-content:space-between}
+  .pn-premium-content{position:relative;z-index:10;margin-top:2px}
+  .pn-premium-badge{margin-bottom:22px}
+  .pn-premium-title{text-shadow:0 3px 18px #010b06,0 0 24px #08130c}
+  .pn-premium-description{max-width:360px;text-shadow:0 2px 10px #010b06}
+  .pn-premium-benefits{position:relative;z-index:10;margin-top:47px;padding:13px 2px 0}
+}
+@media(min-width:640px) and (max-width:1023px){
+  .pn-premium-stage{min-height:630px;padding-block:60px 42px}
+  .pn-premium-benefits{margin-top:66px}
+}
