@@ -222,7 +222,7 @@ test("Test 03: the real Model 01 Hero is the unique marked image and other model
  const editor=read("../src/app/app/builder-v2/page.tsx");
  assert.match(ui,/heroPhotoOverride\?:string/);
  assert.match(ui,/data-universal-hero-photo=\{safePhoto\(heroPhotoOverride\)\?"true":undefined\}/);
- assert.match(ui,/const mainPhoto=safePhoto\(heroPhotoOverride\)\?heroPhotoOverride!/);
+ assert.match(ui,/const mainPhoto=safePhoto\(heroPhotoOverride\)\?sameOriginPhoto\(heroPhotoOverride!\)/);
  assert.match(router,/heroPhotoOverride=\{props.site.universalHeroImageOverride\}/);
  assert.match(router,/if\(variant==="01"&&retailNiche==="Floricultura"\)/);
  assert.match(editor,/isExplicitFloriculturePeonyHeroIntent\(prompt\)/);
