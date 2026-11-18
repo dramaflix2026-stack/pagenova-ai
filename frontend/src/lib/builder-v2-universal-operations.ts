@@ -98,9 +98,23 @@ export function applyUniversalOperations<T extends UniversalSite>(site:T,operati
    const index=indexOf(op.blockId);
    if(index<0||op.afterId===op.blockId)return fail("Movimentação inválida.");
    if(op.afterId!==undefined&&indexOf(op.afterId)<0)return fail("Âncora não encontrada.");
-   const [block]=blocks.splice(index,1);
-   const target=op.afterId===undefined?0:indexOf(op.afterId)+1;
-   blocks.splice(target,0,block);changedIds.push(op.blockId);
+   const block=blocks[index];
+   // In custom sections a card is represented by a heading immediately
+   // followed by its paragraph. Preserve that pair when moving the heading.
+   const paired=block.type==="heading"&&block.section?.startsWith("custom-")&&
+    blocks[index+1]?.type==="paragraph"&&blocks[index+1]?.section===block.section;
+   if(paired&&op.afterId!==undefined){
+    const anchor=blocks[indexOf(op.afterId)];
+    if(anchor.section!==block.section||anchor.type!=="heading"||
+      blocks[indexOf(op.afterId)+1]?.type!=="paragraph"||
+      blocks[indexOf(op.afterId)+1]?.section!==block.section)
+     return fail("Referência de card inválida.");
+   }
+   const moved=blocks.splice(index,paired?2:1);
+   let target=op.afterId===undefined?0:indexOf(op.afterId)+1;
+   if(paired&&op.afterId!==undefined)target++;
+   blocks.splice(target,0,...moved);
+   changedIds.push(...moved.map(item=>item.id));
   }else if(op.action==="remove-section"){
    if(!op.sectionId||!blocks.some(b=>b.section===op.sectionId))return fail("Seção não encontrada.");
    sectionEvents.push({action:"remove",section:sectionReference(op.sectionId)});
