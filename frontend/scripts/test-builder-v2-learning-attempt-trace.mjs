@@ -100,7 +100,7 @@ test("all five asynchronous visual audit paths capture original submission, incl
  const assignments=(page.match(/\.current=\{trace:activeSubmissionTraceRef\.current,/g)||[]).length;
  const successfulAudits=(page.match(/pending\.trace\)/g)||[]).length;
  const failedAudits=(page.match(/pending\.trace,undefined,/g)||[]).length;
- assert.equal(assignments,11,"all existing audits, the TP10 About heading route and the verified hero/AI entry points retain original request IDs");
+ assert.equal(assignments,12,"all existing audits, the TP10 About heading route and the verified hero/AI entry points retain original request IDs");
  assert.match(page,/tp10-about-heading-proof-blocked/,"TP10 About route remains fail-closed on invalid proof");
  assert.match(page,/if\(heroChange\)\{/);
  assert.match(page,/if\(visual\?\.ok\)\{/);
