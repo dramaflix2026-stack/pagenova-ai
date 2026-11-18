@@ -1,5 +1,5 @@
 import {applyUniversalOperations,type UniversalSite,type UniversalResult,type UniversalOperation} from "./builder-v2-universal-operations.ts";
-const norm=(value:string)=>value.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+const norm=(value:string)=>value.trim().replace(/^\*\*\s*["“]?\s*(.*?)\s*["”]?\s*\*\*$/u,"$1").replace(/^["“](.*?)["”]$/u,"$1").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
 const aliases:Record<string,string[]>={
  hero:["hero","capa","inicio","home","principal","banner"],
  about:["about","sobre","sobre nos","sobre a empresa","nossa essencia","essencia"],
