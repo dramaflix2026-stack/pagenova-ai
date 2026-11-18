@@ -1148,10 +1148,10 @@ export default function BuilderV2() {
   function recordVersion(previous: Site, label: string) { if (!previous.blocks.length) return; const snapshot = structuredClone(previous); setVersions(prev => [...prev.slice(-24), { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, at: new Date().toISOString(), label, site: snapshot }]); void saveCloudVersion(snapshot, label); }
   function restoreVersion(version: SavedVersion) { if(version.site.id!==site.id){setStorageError("Esta versão pertence a outro projeto e não pode ser restaurada aqui.");return;} if (busy || !window.confirm(`Restaurar a versão de ${new Date(version.at).toLocaleString("pt-BR")}? A versão atual será guardada no histórico.`)) return; recordVersion(site, "Antes da restauração"); setHistory(prev=>[...prev.slice(-19),site]); setRedoHistory([]); setSite(structuredClone(version.site)); setMessages(prev=>[...prev,{role:"assistant",text:"Versão restaurada com sucesso."}]); setShowVersions(false); }
   function applyScopedMusicCardOrder(current:Site,prompt:string):{site:Site;summary:string}|{error:string}|null {
-    const normalized=prompt.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"");
+    const normalized=prompt.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
     if(!/beneficios da musica/.test(normalized)||!/cards/.test(normalized)||!/autoconfianca/.test(normalized)||!/criatividade/.test(normalized)||!/concentracao/.test(normalized)||!/reorganiz|reorden|ordem/.test(normalized))return null;
     const target=["Autoconfiança","Criatividade","Concentração"];
-    const normalize=(value:string)=>value.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").trim();
+    const normalize=(value:string)=>value.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();
     const sectionHeading=current.blocks.find(b=>b.type==="heading"&&normalize(b.text)==="beneficios da musica");
     if(!sectionHeading?.section)return {error:"Não foi possível identificar com segurança a seção Benefícios da música. Nenhuma alteração aplicada."};
     const section=sectionHeading.section;
