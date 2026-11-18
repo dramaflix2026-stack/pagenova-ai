@@ -2521,7 +2521,7 @@ export default function BuilderV2() {
           if(!result.ok)throw new Error(result.error);
           const photoLoaded=await new Promise<boolean>(resolve=>{
             const check=new window.Image();
-            const timeout=window.setTimeout(()=>{check.onload=null;check.onerror=null;resolve(false);},9000);
+            const timeout=window.setTimeout(()=>{check.onload=null;check.onerror=null;resolve(false);},18000);
             check.onload=()=>{window.clearTimeout(timeout);resolve(true);};
             check.onerror=()=>{window.clearTimeout(timeout);resolve(false);};
             check.src=photo;
