@@ -1487,7 +1487,7 @@ test("single-section educational photo prompt stays one image and preserves othe
  assert.equal(request?.sectionLabel,"Nossa Abordagem");
  assert.equal(canonicalPhotoSection(request.sectionLabel),"differences");
  const photo=curatedRealSectionPhoto(request.description);
- assert.match(photo||"",/^https:\/\/images.unsplash.com\//);
+ assert.match(photo||"",/^\/api\/floral-image\?id=photo-[a-z0-9-]+&w=1200$/);
  for(const variant of ["01","02","03"]){
   const original={templateId:"prompt-adaptive",briefingLayoutVariant:variant,niche:"Cursos profissionalizantes",blocks:[
    {id:"hero",type:"heading",section:"inicio",text:"Meu futuro"},{id:"first-image",type:"image",section:"inicio",src:"https://example.com/first.jpg"},
