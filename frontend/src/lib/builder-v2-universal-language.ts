@@ -74,7 +74,8 @@ function applySingleUniversalNaturalLanguage<T extends UniversalSite>(site:T,ins
  // Keep the explicit hexadecimal value authoritative when a descriptive color precedes it.
  // Match the explicit HEX as the final authority when a color name precedes it.
  const explicitSectionBackground=instruction.match(/^(?:altere|mude|troque|coloque|defina|ajuste)\s+(?:somente\s+|apenas\s+)?(?:a\s+)?(?:cor\s+de\s+)?fundo\s+(?:da|do|de)\s+(?:se[cç][aã]o\s+(?:de\s+|da\s+|dos\s+)?)?(.+?)\s+(?:para|pra|em)\s+(?:(?:[\p{L}]+\s+){0,3})?(#[0-9a-fA-F]{6}|#[0-9a-fA-F]{3})(?=\s|[.!?]|$)/iu);
- const sectionBackground=explicitSectionBackground||backgroundPatterns.map(pattern=>instruction.match(pattern)).find(Boolean);
+ const flexibleHexBackground=instruction.match(/^(?:altere|mude|troque|coloque|defina|ajuste)\s+(?:(?:somente|apenas|exclusivamente)\s+)?(?:a\s+)?cor\s+de\s+fundo\s+(?:da|do|de)\s+se[cç][aã]o\s+(.+?)\s+(?:para|pra|em)\s+(?:[\p{L}-]+\s+){0,4}(#[0-9a-fA-F]{6}|#[0-9a-fA-F]{3})(?=\s|[.!?]|$)/iu);
+ const sectionBackground=flexibleHexBackground||explicitSectionBackground||backgroundPatterns.map(pattern=>instruction.match(pattern)).find(Boolean);
  if(sectionBackground){
   const label=sectionBackground[1].trim().replace(/,$/,"").trim().replace(/^[\s"“”\u0027‘’]+|[\s"“”\u0027‘’]+$/g,"");
   const section=resolveUniversalSection(site,label);
