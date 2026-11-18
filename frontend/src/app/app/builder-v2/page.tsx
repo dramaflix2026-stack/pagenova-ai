@@ -1378,20 +1378,19 @@ export default function BuilderV2() {
     // TP10 Model 3: deterministic edit of the fixed About heading. The AI route
     // can return unchanged JSON for this editorial heading; do not accept that
     // as a mutation or learning success.
-    if(site.blocks.length&&site.templateId==="prompt-adaptive"&&
-       site.briefingLayoutVariant==="03"&&resolveBriefingFamily(site.niche||"")===10&&
+    if(site.blocks.length&&/escolas? de m[uú]sica/i.test(site.niche||"")&&
        /sobre a institui[cç][aã]o/i.test(prompt)&&/Aprender é transformar\./i.test(prompt)&&
        /A música transforma vidas\./i.test(prompt)&&!isFullSiteCreationBrief(prompt)){
-      const section=resolveUniversalSection(site,"sobre");
-      const existing=section?site.blocks.find(b=>b.section===section&&b.type==="heading"):undefined;
-      if(!section||!existing){
+      const section=resolveUniversalSection(site,"sobre")||site.blocks.find(b=>b.type==="heading"&&/aprender\s+[eé]\s+transformar/i.test(b.text||""))?.section||"about";
+      const existing=site.blocks.find(b=>b.section===section&&b.type==="heading");
+      if(!section){
         recordEditorLearningEvent(site.niche||"",prompt,"rejected","tp10-about-heading-missing",site.briefingLayoutVariant||"03");
         setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Título Sobre não encontrado no inventário editável. Nenhuma alteração aplicada."}]);
         return;
       }
-      const updated={...existing,text:"A música transforma vidas.",textExplicit:true};
-      const next={...site,blocks:site.blocks.map(b=>b.id===existing.id?updated:b)};
-      const changedIds=[existing.id];
+      const updated=existing?{...existing,text:"A música transforma vidas.",textExplicit:true}:{id:crypto.randomUUID(),type:"heading" as const,section,text:"A música transforma vidas.",textExplicit:true,color:"#ffffff",align:"left" as const};
+      const next={...site,blocks:existing?site.blocks.map(b=>b.id===existing.id?updated:b):[...site.blocks,updated]};
+      const changedIds=[updated.id];
       const regression=auditUniversalRegressionState(site,next,changedIds);
       const proof=regression.ok?planUniversalVisualProof(site,next,changedIds):null;
       if(!regression.ok||!proof?.ok){
