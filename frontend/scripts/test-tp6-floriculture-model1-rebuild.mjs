@@ -29,7 +29,7 @@ test("Floricultura Model 01 renders approved twelve-part editorial hierarchy",()
  assert.match(ui,/edits\?\.historyTitle/);
  assert.match(ui,/edits\?\.collectionBackground/);
  assert.match(ui,/edits\?\.firstCollectionCard/);
- assert.match(ui,/TP6RetailCustomSections sections=\{edits\?\.addedSections\}/);
+ assert.match(ui,/TP6RetailCustomSections sections=\{edits\?\.addedSections\?\.filter\(section=>section\.placement==="before-footer"\)\}/);
 });
 test("Six photographic, labelled testimonials in 3x2 desktop layout",()=>{
  assert.match(ui,/Array\.from\(\{length:6\}/);
