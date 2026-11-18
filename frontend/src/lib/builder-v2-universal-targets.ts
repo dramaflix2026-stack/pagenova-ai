@@ -59,7 +59,7 @@ export function resolveUniversalSection(site:UniversalSite,label:string):string|
    site.blocks.some(b=>b.section===id&&b.type==="heading"&&aliases.about.includes(norm(String(b.text||"")))));
   if(about.length)return about.length===1?about[0]:null;
  }
- const family=Object.values(aliases).find(names=>names.includes(target));
+ const family=Object.values(aliases).find(names=>names.includes(target)||names.includes(core));
  const matches=family?sections.filter(id=>family.includes(norm(id))||site.blocks.some(b=>b.section===id&&b.type==="heading"&&family.includes(norm(String(b.text||""))))):[];
  if(matches.length===1)return matches[0];
  if(matches.length>1)return null;
