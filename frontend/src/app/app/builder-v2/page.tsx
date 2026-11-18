@@ -1382,10 +1382,24 @@ export default function BuilderV2() {
        /sobre a institui[cç][aã]o/i.test(prompt)&&/Aprender é transformar\./i.test(prompt)&&
        /A música transforma vidas\./i.test(prompt)&&!isFullSiteCreationBrief(prompt)){
       const section=resolveUniversalSection(site,"sobre")||site.blocks.find(b=>b.type==="heading"&&/aprender\s+[eé]\s+transformar/i.test(b.text||""))?.section||"about";
-      const existing=site.blocks.find(b=>b.section===section&&b.type==="heading");
+      const existing=site.blocks.find(b=>b.section===section&&b.type==="heading"&&/^(?:Aprender é transformar\.|A música transforma vidas\.)$/i.test((b.text||"").trim()))||site.blocks.find(b=>b.section===section&&b.type==="heading");
       if(!section){
         recordEditorLearningEvent(site.niche||"",prompt,"rejected","tp10-about-heading-missing",site.briefingLayoutVariant||"03");
         setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Título Sobre não encontrado no inventário editável. Nenhuma alteração aplicada."}]);
+        return;
+      }
+      // Repeated request after cloud persistence: the target may already be saved.
+      // Verify the rendered heading without pretending a second mutation occurred.
+      if(existing?.text==="A música transforma vidas."&&existing.textExplicit===true){
+        const prior={...site,blocks:site.blocks.map(b=>b.id===existing.id?{...b,text:"Aprender é transformar.",textExplicit:false}:b)};
+        const alreadyProof=planUniversalVisualProof(prior,site,[existing.id]);
+        if(!alreadyProof.ok){
+          setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Título já está salvo, mas não foi possível construir a conferência visual: "+alreadyProof.reason}]);
+          return;
+        }
+        pendingUniversalVisualProofRef.current={trace:activeSubmissionTraceRef.current,prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"03",
+          contract:alreadyProof.contract,siteAfter:site,regressionSentinels:captureCurrentPreviewRegression(site,site,[])};
+        setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Título já consta no rascunho. Conferindo se aparece na prévia, sem aplicar uma segunda alteração."}]);
         return;
       }
       const updated=existing?{...existing,text:"A música transforma vidas.",textExplicit:true}:{id:crypto.randomUUID(),type:"heading" as const,section,text:"A música transforma vidas.",textExplicit:true,color:"#ffffff",align:"left" as const};
