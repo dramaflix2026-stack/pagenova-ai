@@ -691,7 +691,7 @@ export default function BuilderV2() {
       const iframe=previewVisualAuditRef.current?.querySelector("iframe");
       const doc=iframe?.contentDocument,win=iframe?.contentWindow;
       const root=doc?.getElementById("pn-v2-preview-root")||doc?.body;
-      const stale=site!==pending.siteAfter;
+      const stale=JSON.stringify(site.blocks)!==JSON.stringify(pending.siteAfter.blocks)||site.templateId!==pending.siteAfter.templateId||site.briefingLayoutVariant!==pending.siteAfter.briefingLayoutVariant;
       const positive=stale?{ok:false,reason:"Outra versão do site foi carregada antes da conferência."}:
         root&&win?auditUniversalVisualProof(root,win,pending.contract):
         {ok:false,reason:"A prévia não está disponível para conferir a edição."};
