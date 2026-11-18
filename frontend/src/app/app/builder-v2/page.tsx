@@ -1516,7 +1516,7 @@ export default function BuilderV2() {
       const floralHero=site.briefingLayoutVariant==="01"&&
         /floricultur/i.test([site.niche||"",selectedNiche||""].join(" "))&&
          (isExplicitFloriculturePeonyHeroIntent(prompt)||isExplicitFloricultureRoseHeroIntent(prompt));
-      const floralHeroPhoto=isExplicitFloricultureRoseHeroIntent(prompt)?verifiedPinkWhiteRoseBouquetPhoto:floralHeroPhoto;
+      const floralHeroPhoto=isExplicitFloricultureRoseHeroIntent(prompt)?verifiedPinkWhiteRoseBouquetPhoto:verifiedPeonyBouquetPhoto;
       if(floralHero&&!reference&&!institutionalFiles.length&&!propertyFiles.length){
         const result=applyVerifiedFloricultureHeroPhoto(site,floralHeroPhoto);
         if(!result.ok){
