@@ -32,7 +32,7 @@ export function BuilderV2TP10Model3({brand,niche,universalSectionImages,site,ema
  const heroSection=site?resolveUniversalSection(site,"capa"):null;
  const editedHeroTitle=site?.blocks.find(b=>b.section===heroSection&&b.type==="heading"&&b.textExplicit===true)?.text;
  const editedHeroDescription=site?.blocks.find(b=>b.section===heroSection&&b.type==="paragraph"&&b.textExplicit===true)?.text;
- const aboutSection=site?resolveUniversalSection(site,"sobre"):null;
+ const aboutSection=site?(resolveUniversalSection(site,"sobre")||site.blocks.find(b=>b.type==="heading"&&/^(?:Aprender é transformar\.|A música transforma vidas\.)$/i.test((b.text||"").trim()))?.section||"about"):null;
  const aboutHeadingBlock=site?.blocks.find(b=>b.section===aboutSection&&b.type==="heading"&&b.textExplicit===true&&typeof b.text==="string"&&b.text.trim());
  const editedAboutTitle=aboutHeadingBlock?.text;
  const editedHeroImage=site?.blocks.find(b=>b.section===heroSection&&b.type==="image"&&b.imageExplicit===true&&typeof b.src==="string"&&/^https:\/\//i.test(b.src))?.src;
