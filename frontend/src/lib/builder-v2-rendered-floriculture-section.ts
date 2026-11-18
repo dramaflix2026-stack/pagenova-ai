@@ -36,6 +36,12 @@ export function applyRenderedFloricultureSectionCreation<T extends UniversalSite
  const firstLine=instruction.split(/(?<!\d)\.\s*(?:\n|$)/)[0];
  const following=firstLine.match(/\b(?:imediatamente\s+|logo\s+)?(?:depois|ap[oó]s)\s+(?:(?:da|do|de)\s+)?(?:se[cç][aã]o\s+)?(.+?)(?=\s+e\s+(?:imediatamente\s+)?antes\b|\s*,\s*(?:e\s+)?antes\b|[.!?]|$)/iu);
  const preceding=firstLine.match(/\b(?:e\s+)?(?:imediatamente\s+)?antes\s+(?:(?:da|do|de)\s+)?(?:se[cç][aã]o\s+)?(.+?)(?=[.!?]|$)/iu);
+ // "Immediately before the footer" is already a complete placement constraint.
+ // Never ask the customer to supply the preceding section for this request.
+ const footerOnly=/\\b(?:imediatamente\\s+|logo\\s+)?antes\\s+(?:(?:do|da)\\s+)?(?:rodap[eé]|footer)\\b/iu.test(firstLine);
+ if(footerOnly&&!following){
+  return {ok:false,error:"A posição antes do rodapé foi reconhecida automaticamente, mas a inserção ainda não possui comprovação visual neste layout. Nenhuma alteração aplicada; não aprove esta tentativa."};
+ }
  if(!following||!preceding)return {ok:false,error:"Informe duas referências: depois de qual seção e antes de qual seção. Nenhuma alteração aplicada."};
  const after=resolveRenderedFloralAnchor(following[1]),before=resolveRenderedFloralAnchor(preceding[1]);
  if(!after||!before)return {ok:false,error:"A referência visual não foi identificada: depois de '"+quote(following[1])+"', antes de '"+quote(preceding[1])+"'. Nenhuma alteração aplicada."};
