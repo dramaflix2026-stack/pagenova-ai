@@ -21,8 +21,8 @@ const classroomPhoto="/api/floral-image?id=photo-1509062522246-3755977927d7&w=12
 export function curatedRealSectionPhoto(description:string):string|null{
  const text=norm(description);
  // Prefer the actual subject over incidental words such as "aluno".
- // Reuse an existing music-school asset already present in TP10 Model 2.
- if(/(?:violao|guitarra|musica|professor)/.test(text))return "/api/floral-image?id=photo-1516280440614-37939bbacd81&w=1200";
+ // Pexels 7520984: documented real photograph of a teacher teaching a boy acoustic guitar; do not reuse microphone imagery.
+ if(/(?:violao|guitarra|musica|professor)/.test(text))return "https://images.pexels.com/photos/7520984/pexels-photo-7520984.jpeg?auto=compress&cs=tinysrgb&w=1200";
  return /(?:estudant|alun|sala de aula|classroom|escola|educacao)/.test(text)?classroomPhoto:null;
 }
 export function readUniversalSectionPhoto(overrides:Record<string,string>|undefined,section:string,fallback:string):string{
