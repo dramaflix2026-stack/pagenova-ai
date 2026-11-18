@@ -38,7 +38,7 @@ export function applyRenderedFloricultureSectionCreation<T extends UniversalSite
  const preceding=firstLine.match(/\b(?:e\s+)?(?:imediatamente\s+)?antes\s+(?:(?:da|do|de)\s+)?(?:se[cç][aã]o\s+)?(.+?)(?=[.!?]|$)/iu);
  // "Immediately before the footer" is already a complete placement constraint.
  // Never ask the customer to supply the preceding section for this request.
- const footerOnly=/\\b(?:imediatamente\\s+|logo\\s+)?antes\\s+(?:(?:do|da)\\s+)?(?:rodap[eé]|footer)\\b/iu.test(firstLine);
+ const footerOnly=/\b(?:imediatamente\s+|logo\s+)?antes\s+(?:(?:do|da)\s+)?(?:rodap[eé]|footer)\b/iu.test(firstLine);
  if(footerOnly&&!following){
   return {ok:false,error:"A posição antes do rodapé foi reconhecida automaticamente, mas a inserção ainda não possui comprovação visual neste layout. Nenhuma alteração aplicada; não aprove esta tentativa."};
  }
