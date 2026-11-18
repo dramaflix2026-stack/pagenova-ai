@@ -109,6 +109,15 @@ export function applyUniversalPracticalEdit<T extends UniversalSite>(site:T,inst
    return fail("A integridade dos blocos não foi comprovada. Nenhuma alteração aplicada.");
   return {ok:true,site:{...site,blocks} as T,changedIds:ordered.flatMap(group=>group.ids)};
  }
+ // Atomic customer-language request: section background plus card-title color.
+ const twoColors=text.match(/^altere\s+exclusivamente\s+a\s+cor\s+de\s+fundo\s+da\s+se[cç][aã]o\s+["“]([^"”]+)["”]\s+para\s+[\p{L}\s-]*\(\s*(#[a-f0-9]{6})\s*\)\s+e\s+a\s+cor\s+dos\s+t[ií]tulos\s+dos\s+(?:cursos|cards)\s+para\s+[\p{L}\s-]*\(\s*(#[a-f0-9]{6})\s*\)/iu);
+ if(twoColors){
+  const section=resolveUniversalSection(site,twoColors[1]);
+  if(!section)return fail("A seção '"+twoColors[1]+"' não foi identificada de forma inequívoca. Nenhuma alteração aplicada.");
+  const raw=site.universalSectionStyles;
+  const styles=raw&&typeof raw==="object"&&!Array.isArray(raw)?raw as Record<string,Record<string,unknown>>:{};
+  return {ok:true,site:{...site,universalSectionStyles:{...styles,[section]:{...styles[section],backgroundColor:twoColors[2],cardTitleColor:twoColors[3]}}} as T,changedIds:["section-style:"+section]};
+ }
  // Atomic three-color section edit: never acknowledge just the first color.
  const palette=text.match(/^na\s+se[cç][aã]o\s+["“]?([^"”,]+)["”]?,?\s+altere\s+a\s+cor\s+de\s+fundo\s+para\s+(#[a-f0-9]{6}),?\s+a\s+cor\s+dos\s+t[ií]tulos\s+para\s+(#[a-f0-9]{6})\s+e\s+a\s+cor\s+das\s+descri[cç][oõ]es\s+para\s+(#[a-f0-9]{6})/i);
  if(palette){
