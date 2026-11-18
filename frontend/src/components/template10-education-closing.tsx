@@ -1,5 +1,5 @@
 "use client";
-const imageFallback=(event:import("react").SyntheticEvent<HTMLImageElement>)=>{const el=event.currentTarget;if(el.dataset.fallback)return;el.dataset.fallback="true";el.src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1100&q=80";};
+const imageFallback=(event:import("react").SyntheticEvent<HTMLImageElement>)=>{const el=event.currentTarget;if(el.dataset.fallback)return;el.dataset.fallback="true";el.src="/api/floral-image?id=photo-1516321318423-f06f85e504b3&w=960";};
 
 import {template10Photo} from "@/components/template10-education-sections";
 import {useState} from "react";
@@ -65,7 +65,7 @@ export function Template10EducationClosing({niche,brand,site,contact={},faqs=[]}
  :
  <div className="pn-t10-closing-wrap pn-t10-admissions-grid pn-t10-admissionsGridEditorial">
   <figure className="pn-t10-admissionsVisual">
-   <img onError={imageFallback} loading="lazy" decoding="async" src={"https://images.unsplash.com/"+template10Photo(niche,9)+"?auto=format&fit=crop&w=1600&q=90"} alt={"Fotografia ilustrativa real da internet de ambiente relacionado a "+niche}/>
+   <img onError={imageFallback} loading="lazy" decoding="async" src={"/api/floral-image?id="+encodeURIComponent(template10Photo(niche,9))+"&w=1600"} alt={"Fotografia ilustrativa real da internet de ambiente relacionado a "+niche}/>
    <figcaption><span className="pn-t10-admissionsPhotoEyebrow">APRENDER É EVOLUIR</span><strong>Novas oportunidades começam com uma conversa.</strong><span className="pn-t10-admissionsPhotoNote">Fotografia ilustrativa — não representa necessariamente a instituição.</span></figcaption>
   </figure>
   <div className="pn-t10-admissionsBody">
