@@ -1180,7 +1180,7 @@ export default function BuilderV2() {
         const visual:Block={id,type:"image",text:"Fotografia ilustrativa",color:"#ffffff",align:"center",section,src:nichePhotoBase+bank.desktop[index]+".png",mobileSrc:nichePhotoBase+bank.mobile[index]+".png"};
         const previous=blocks.findIndex(b=>b.id===id);
         if(previous>=0)blocks[previous]=visual;
-        else {const position=blocks.findIndex(b=>(b.section||"principal")===section&&b.type==="heading");if(position>=0)blocks.splice(position+1,0,visual);}
+        else {const position=blocks.findIndex(b=>(b.section||"principal")===section&&b.type==="heading");if(position>=0)blocks.splice(position+1,0,visual);else blocks.push(visual);}
       }
       setMessages(prev=>[...prev,{role:"assistant",text:"6 fotografias do banco do nicho "+photoNiche+" aplicadas, com versões desktop e mobile. Nenhuma imagem nova foi gerada."}]);
       return {...current,blocks};
@@ -1206,7 +1206,7 @@ export default function BuilderV2() {
       const visual:Block=coverReplacement&&coverBlock?{...coverBlock,section:heroSection,src,mobileSrc:undefined,imageExplicit:true}:{id,type:"image",text:"Fotografia ilustrativa",color:"#ffffff",align:"center",section,src,...(coverReplacement?{imageExplicit:true}:{})};
       const previous=blocks.findIndex(b=>b.id===id);
       if(previous>=0)blocks[previous]=visual;
-      else {const position=blocks.findIndex(b=>(b.section||"principal")===section&&b.type==="heading");if(position>=0)blocks.splice(position+1,0,visual);}
+      else {const position=blocks.findIndex(b=>(b.section||"principal")===section&&b.type==="heading");if(position>=0)blocks.splice(position+1,0,visual);else blocks.push(visual);}
       if(coverReplacement){
         // Specialized template renderers read the first image block as their cover.
         // Move only the edited cover ahead of other images; keep their relative order.
