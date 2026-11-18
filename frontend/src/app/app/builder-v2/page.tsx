@@ -30,7 +30,7 @@ import {quarantineReviewedReuses,reuseKey,type ReuseEdge,type ReuseOutcome} from
 import {auditFamilyTransfers,type FamilySourceReview,type FamilySolutionMemory,type FamilyTargetReview} from "@/lib/builder-v2-family-transfer-audit";
 import {applyApprovedSectionBackground} from "@/lib/builder-v2-universal-learned-style";
 import {applyRenderedSectionBackground} from "@/lib/builder-v2-rendered-section-background";
-import {applyFloralBeforeFooterCards,applyRenderedFloricultureSectionCreation,applyRenderedFloricultureSectionMove} from "@/lib/builder-v2-rendered-floriculture-section";
+import {applyFloralBeforeFooterCards,applyRenderedFloricultureSectionCreation,applyRenderedFloricultureSectionMove,moveFloralCareSection} from "@/lib/builder-v2-rendered-floriculture-section";
 import {createClient as createSupabaseBrowserClient} from "@/lib/supabase/client";
 import {parseUniversalCopyEdit,isIsolatedUniversalCopyResult} from "@/lib/builder-v2-universal-copy-edits";
 
@@ -1606,6 +1606,18 @@ export default function BuilderV2() {
       // Model 01 editor-owned sections can refer to real premium component
       // anchors without corresponding generated blocks. Verify the two DOM
       // neighbors and center only the existing section heading before ML reuse.
+      const careMove=!reference&&!institutionalFiles.length&&!propertyFiles.length?moveFloralCareSection(site,prompt):null;
+      if(careMove){
+        if(!careMove.ok){
+          recordEditorLearningEvent(site.niche||"",prompt,"rejected","floral-care-move-preflight",site.briefingLayoutVariant||"01",undefined,undefined,activeSubmissionTraceRef.current);
+          setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:careMove.error}]);return;
+        }
+        recordVersion(site,"Antes de mover Cuidados com suas Flores");
+        setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
+        setSite(careMove.site);setInstruction("");setGenerationError("");
+        setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Seção reposicionada no projeto. Confira na prévia se está entre Depoimentos e Como Comprar, sem duplicação, antes de aprovar."}]);
+        return;
+      }
       const floralMovement=!reference&&!institutionalFiles.length&&!propertyFiles.length
         ?applyRenderedFloricultureSectionMove(site,prompt):null;
       if(floralMovement){
