@@ -23,8 +23,8 @@ const profiles:Record<string,{focus:string;topics:[string,string,string];photos:
 "centros de treinamento corporativo":{focus:"Conhecimento que move equipes",topics:["Desenvolvimento de equipes","Aprendizagem corporativa","Competências profissionais"],photos:["photo-1552664730-d307ca884978","photo-1521737711867-e3b97375f902","photo-1556761175-b413da4baf72","photo-1531482615713-2afd69097998"]}
 };
 const extra=["photo-1524178232363-1fb2b075b655","photo-1523050854058-8df90110c9f1","photo-1523580494863-6f3031224c94","photo-1513258496099-48168024aec0","photo-1503676260728-1c00da094a0b","photo-1546410531-bb4caa6b424d","photo-1497633762265-9d179a990aa6","photo-1531482615713-2afd69097998"];
-const img=(id:string)=>"https://images.unsplash.com/"+id+"?auto=format&fit=crop&w=1400&q=85";
-const fallback=(e:React.SyntheticEvent<HTMLImageElement>)=>{const el=e.currentTarget;if(el.dataset.fallbackApplied)return;el.dataset.fallbackApplied="1";el.src="https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=1200&q=80";};
+const img=(id:string)=>"/api/floral-image?id="+encodeURIComponent(id)+"&w=1600";
+const fallback=(e:React.SyntheticEvent<HTMLImageElement>)=>{const el=e.currentTarget;if(el.dataset.fallbackApplied)return;el.dataset.fallbackApplied="1";el.src="/api/floral-image?id=photo-1523580494863-6f3031224c94&w=1200";};
 export function BuilderV2TP10Model3({brand,niche,universalSectionImages,site,email,phone,address,reviews=[],publishedMode=false,faqs=[],gallery=[]}:Props){
  const [menu,setMenu]=useState(false),[open,setOpen]=useState<number|null>(0),[notice,setNotice]=useState("");
  const p=profiles[norm(niche)]||profiles["cursos profissionalizantes"];
