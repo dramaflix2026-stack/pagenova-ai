@@ -627,10 +627,12 @@ export default function BuilderV2() {
       const iframe=previewVisualAuditRef.current?.querySelector("iframe");
       const doc=iframe?.contentDocument;
       const root=doc?.getElementById("pn-v2-preview-root")||doc?.body;
-      const targets=root?findUniversalPreviewSections(root,"diferenciais"):[];
+      const targets=root?(pending.section==="about-first"?Array.from(root.querySelectorAll<HTMLElement>("#tp10m2-about")):findUniversalPreviewSections(root,"diferenciais")):[];
       const displayed=targets.flatMap(section=>Array.from(section.querySelectorAll<HTMLImageElement>("img")))
-        .filter(image=>image.getAttribute("src")===pending.src);
-      if(targets.length===1&&displayed.length===1){
+        .filter(image=>image.getAttribute("src")===pending.src&&image.complete&&image.naturalWidth>0);
+      const firstAboutImage=pending.section==="about-first"?targets[0]?.querySelector<HTMLImageElement>(".aboutPhotos img:first-child"):null;
+      const photoInCorrectSlot=pending.section!=="about-first"||firstAboutImage===displayed[0];
+      if(targets.length===1&&displayed.length===1&&photoInCorrectSlot){
         pendingSectionPhotoVisualReviewRef.current=null;
         window.clearInterval(timer);
         recordEditorLearningEvent(pending.niche,pending.prompt,"applied","universal-image-section-visual-verified",pending.variant,pending.solution?{...pending.solution,verification:"visual"}:null,undefined,pending.trace);
