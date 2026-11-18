@@ -602,7 +602,7 @@ export default function BuilderV2() {
       const root=doc?.getElementById("pn-v2-preview-root")||doc?.body;
       const heroPhotos=root?Array.from(root.querySelectorAll<HTMLImageElement>("img[data-universal-hero-photo='true']")):[];
       const photo=heroPhotos.length===1?heroPhotos[0]:undefined;
-      if(site.universalHeroImageOverride===pending.src&&photo?.getAttribute("src")===pending.src&&photo.complete&&photo.naturalWidth>0){
+      if(site.universalHeroImageOverride===pending.src&&photo?.getAttribute("src")===(pending.strategy==="floriculture-hero-photo"?("/api/floral-image?id="+encodeURIComponent(pending.src.match(/photo-\d{10,15}-[a-z0-9]{8,20}/i)?.[0]||"")+"&w=1600"):pending.src)&&photo.complete&&photo.naturalWidth>0){
         pendingHeroPhotoVisualReviewRef.current=null;window.clearInterval(timer);
         recordEditorLearningEvent(pending.niche,pending.prompt,"applied",pending.strategy==="floriculture-hero-photo"?"floriculture-hero-photo-visual-verified":"automotive-hero-photo-visual-verified",pending.variant,null,undefined,pending.trace);
         captureReviewCandidate();
@@ -1517,6 +1517,7 @@ export default function BuilderV2() {
         /floricultur/i.test([site.niche||"",selectedNiche||""].join(" "))&&
          (isExplicitFloriculturePeonyHeroIntent(prompt)||isExplicitFloricultureRoseHeroIntent(prompt));
       const floralHeroPhoto=isExplicitFloricultureRoseHeroIntent(prompt)?verifiedPinkWhiteRoseBouquetPhoto:verifiedPeonyBouquetPhoto;
+      const floralHeroBrowserSrc=(url:string)=>{const m=url.match(/^https:\/\/images\.unsplash\.com\/(photo-\d{10,15}-[a-z0-9]{8,20})/i);return m?"/api/floral-image?id="+encodeURIComponent(m[1])+"&w=1600":url;};
       if(floralHero&&!reference&&!institutionalFiles.length&&!propertyFiles.length){
         const result=applyVerifiedFloricultureHeroPhoto(site,floralHeroPhoto);
         if(!result.ok){
@@ -1530,7 +1531,7 @@ export default function BuilderV2() {
           const timeout=window.setTimeout(()=>{image.onload=null;image.onerror=null;resolve(false);},9000);
           image.onload=()=>{window.clearTimeout(timeout);resolve(image.naturalWidth>0);};
           image.onerror=()=>{window.clearTimeout(timeout);resolve(false);};
-          image.src=floralHeroPhoto;
+          image.src=floralHeroBrowserSrc(floralHeroPhoto);
         });
         setBusy(false);
         if(!loaded){
