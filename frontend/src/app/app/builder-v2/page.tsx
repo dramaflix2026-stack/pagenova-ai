@@ -30,7 +30,7 @@ import {quarantineReviewedReuses,reuseKey,type ReuseEdge,type ReuseOutcome} from
 import {auditFamilyTransfers,type FamilySourceReview,type FamilySolutionMemory,type FamilyTargetReview} from "@/lib/builder-v2-family-transfer-audit";
 import {applyApprovedSectionBackground} from "@/lib/builder-v2-universal-learned-style";
 import {applyRenderedSectionBackground} from "@/lib/builder-v2-rendered-section-background";
-import {applyRenderedFloricultureSectionCreation,applyRenderedFloricultureSectionMove} from "@/lib/builder-v2-rendered-floriculture-section";
+import {applyFloralBeforeFooterCards,applyRenderedFloricultureSectionCreation,applyRenderedFloricultureSectionMove} from "@/lib/builder-v2-rendered-floriculture-section";
 import {createClient as createSupabaseBrowserClient} from "@/lib/supabase/client";
 import {parseUniversalCopyEdit,isIsolatedUniversalCopyResult} from "@/lib/builder-v2-universal-copy-edits";
 
@@ -1554,6 +1554,19 @@ export default function BuilderV2() {
       // Renderer-aware section additions are executed before generic/learned
       // route ranking. Preserve the customer's actual card text, BOTH section
       // anchors, and the first-try trace. No learned success without DOM proof.
+      const floralFooterCards=!reference&&!institutionalFiles.length&&!propertyFiles.length
+        ?applyFloralBeforeFooterCards(site,prompt):null;
+      if(floralFooterCards){
+        if(!floralFooterCards.ok){
+          setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:floralFooterCards.error}]);
+          return;
+        }
+        recordVersion(site,"Antes de adicionar cuidados florais antes do rodapé");
+        setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
+        setSite(floralFooterCards.site);setInstruction("");setGenerationError("");
+        setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Seção adicionada aos dados do projeto antes do rodapé. Confira a prévia visual e os três cards antes de aprovar; a gravação de dados, sozinha, não comprova a exibição."}]);
+        return;
+      }
       const renderedFloralSection=!reference&&!institutionalFiles.length&&!propertyFiles.length
         ?applyRenderedFloricultureSectionCreation(site,prompt):null;
       if(renderedFloralSection){
