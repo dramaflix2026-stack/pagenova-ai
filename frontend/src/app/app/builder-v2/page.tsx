@@ -1153,6 +1153,8 @@ export default function BuilderV2() {
       /alinhe?.*esquerda|alinh.*esquerda/.test(normalized) ? "left" :
       /alinhe?.*direita|alinh.*direita/.test(normalized) ? "right" : null;
     if (!align || !/todos|todas|tudo|site inteiro|site todo|pagina inteira|pagina toda/.test(normalized)) return null;
+    // Scope and preservation clauses must never trigger global alignment.
+    if (/(?:na|no|dentro da|dentro do)\s+secao|(?:tres|3)\s+cards|(?:primeiro|segundo|terceiro)\s+["\u201c]|(?:ordem|reorden|reorganize)|preserve|mantenha|nao duplique|nao remova|demais secoes|todos os demais|todas as demais/.test(normalized)) return null;
     if (!/textos|titulos|descricoes|paragrafos|botoes|elementos|conteudo|site|pagina|tudo/.test(normalized)) return null;
     if (/nao (?:centralize|alinhe|altere)|exceto|menos|somente|apenas|so o|so a/.test(normalized)) return null;
     const next: Site = {...current,blocks:current.blocks.map(block => ({
