@@ -214,11 +214,12 @@
 }
 @media(min-width:1280px){
   .pn-builder-editor .pn-editor-chat{
-    position:sticky;
-    top:92px;
-    max-height:calc(100vh - 110px);
-    overflow-y:auto;
-    scrollbar-width:thin;
+    position:relative;
+    top:auto;
+    max-height:none;
+    height:auto;
+    overflow:visible;
+    scrollbar-width:auto;
   }
 }
 @media(max-width:767px){
@@ -294,3 +295,7 @@
 .pn-immersive-3d :is(article,section) :is(h1,h2,h3){letter-spacing:-.035em;text-wrap:balance}
 @media(prefers-reduced-motion:reduce){.pn-immersive-3d *{transform:none!important;transition:none!important;animation:none!important}}
 @media(hover:none){.pn-immersive-3d :is(article,section):hover img{transform:none}}
+
+/* Editor conversation expands with its messages on desktop. Only the page scrolls. */
+.pn-builder-editor .pn-editor-chat{height:auto;max-height:none;overflow:visible;align-self:start}
+.pn-builder-editor .pn-builder-chat-history{height:auto;max-height:none;overflow:visible;overflow-wrap:anywhere}
