@@ -123,8 +123,8 @@
       "path": "src/components/builder-v2-tp10-model2.tsx",
       "blobSha": "dbf6c25acde5a783d883cfd229bf1267517f6330",
       "approvedBindingRevision": {
-        "sha": "977681ce33ed5518fc609a9c65733188726c9a88",
-        "reason": "Explicit user approval 2026-11-18: repair TP10 Education Model 02 universal text editing data wiring and visual proof, preserving approved default design and Models 01/03."
+        "sha": "5afd9791795347612ec618f788139c2c3e494e28",
+        "reason": "Explicit user approval 2026-11-18: universal background color edit must render in TP10 Education Model 02; retain approved default visual design and all other models."
       }
     },
     {
