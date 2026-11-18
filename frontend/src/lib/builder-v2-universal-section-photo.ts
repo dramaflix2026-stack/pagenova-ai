@@ -6,14 +6,14 @@ export function parseScopedSectionPhotoRequest(instruction:string):ScopedSection
  const first=instruction.trim().split(/(?:\.\s+|\n)(?:preserve|mantenha|sem alterar|nao altere|garanta)\b/i)[0];
  const match=first.match(/^(?:substitua|troque|altere|mude)\s+(?:(?:somente|apenas|exclusivamente)\s+)?(?:a\s+)?(?:(?:primeira|1ª|1a)\s+)?(?:fotografia|foto|imagem)\s+(?:(?:principal|de destaque)\s+)?(?:da|do)\s+se[cç][aã]o\s+(.+?)\s+(?:por|pela|para)\s+(?:(?:uma?|a)\s+)?(?:fotografia|foto|imagem)\s+(.+?)(?:\.|$)/i);
  if(!match)return null;
- return {sectionLabel:match[1].trim(),description:match[2].trim()};
+ return {sectionLabel:match[1].trim().replace(/^[\s"“”\u2018\u2019\u0027]+|[\s"“”\u2018\u2019\u0027]+$/g,""),description:match[2].trim()};
 }
 export function isSingleSectionImageIntent(instruction:string):boolean{
  const text=norm(instruction);
  return /(?:substitu|troqu|alter|mud)\w*/.test(text)&&/(?:fotografia|foto|imagem)/.test(text)&&/\bsecao\b/.test(text)&&!/(?:todas|todos|seis|6)\s+(?:as\s+)?(?:imagens|fotos|fotografias)/.test(text);
 }
 export function canonicalPhotoSection(label:string):string|null{
- const name=norm(label).replace(/^(?:a|o|da|do|nossos?|nossas?)\s+/,"").trim();
+ const name=norm(label).replace(/^[\s"“”\u2018\u2019\u0027]+|[\s"“”\u2018\u2019\u0027]+$/g,"").replace(/^(?:a|o|da|do|nossos?|nossas?)\s+/,"").trim();
  return ["abordagem","diferenciais","diferencial"].includes(name)?"differences": /^(?:sobre|sobre a instituicao|sobre a escola|sobre nos)$/.test(name)?"about-first":null;
 }
 /* Existing, curated real classroom photograph from Unsplash, not generated content. */
