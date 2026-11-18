@@ -121,7 +121,10 @@ export function planInstitutionalImageEdit<T extends InstitutionalMediaSite>(sit
   const fit=/sem\s+cort|inteir[ao]|formato\s+original|object.contain/.test(s)?"contain" as const:
     /preench|recort|corte\s+central|object.cover/.test(s)?"cover" as const:undefined;
   // Never confuse "retirada da internet" with an order to remove a photo.
-  const remove=/\b(?:remova|remover|exclua|excluir|apague|apagar|retire|retirar|tire|tirar)\b/.test(s);
+  // Only the mutation clause can authorize destructive actions. Preservation clauses such as
+  // "Nao duplique nem remova conteudo" must never remove a photograph.
+  const mutationClause=s.split(/(?:\.|;|\n)\s*(?:preserve|mantenha|mantendo|nao\s+(?:altere|modifique|duplique|remova)|sem\s+alterar)\b/)[0];
+  const remove=/^(?:remova|remover|exclua|excluir|apague|apagar|retire|retirar|tire|tirar)\b/.test(mutationClause);
   const reorder=/\b(?:reorden|mova|inver|troque\s+a\s+ordem)\w*/.test(s);
   const isGallery=/galeria|portfoli|portfolio/.test(norm(section));
   const mediaLayout:MediaLayout|undefined=/\bcarrossel\b/.test(s)?"carousel":/\bmosaico\b/.test(s)?"mosaic":
