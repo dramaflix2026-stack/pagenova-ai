@@ -1147,6 +1147,31 @@ export default function BuilderV2() {
   },[versions,loaded,draftHydrated,historyRecoveryFailed,activeStorageKey]);
   function recordVersion(previous: Site, label: string) { if (!previous.blocks.length) return; const snapshot = structuredClone(previous); setVersions(prev => [...prev.slice(-24), { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, at: new Date().toISOString(), label, site: snapshot }]); void saveCloudVersion(snapshot, label); }
   function restoreVersion(version: SavedVersion) { if(version.site.id!==site.id){setStorageError("Esta versão pertence a outro projeto e não pode ser restaurada aqui.");return;} if (busy || !window.confirm(`Restaurar a versão de ${new Date(version.at).toLocaleString("pt-BR")}? A versão atual será guardada no histórico.`)) return; recordVersion(site, "Antes da restauração"); setHistory(prev=>[...prev.slice(-19),site]); setRedoHistory([]); setSite(structuredClone(version.site)); setMessages(prev=>[...prev,{role:"assistant",text:"Versão restaurada com sucesso."}]); setShowVersions(false); }
+  function applyScopedMusicCardOrder(current:Site,prompt:string):{site:Site;summary:string}|{error:string}|null {
+    const normalized=prompt.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"");
+    if(!/beneficios da musica/.test(normalized)||!/cards/.test(normalized)||!/autoconfianca/.test(normalized)||!/criatividade/.test(normalized)||!/concentracao/.test(normalized)||!/reorganiz|reorden|ordem/.test(normalized))return null;
+    const target=["Autoconfiança","Criatividade","Concentração"];
+    const normalize=(value:string)=>value.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").trim();
+    const sectionHeading=current.blocks.find(b=>b.type==="heading"&&normalize(b.text)==="beneficios da musica");
+    if(!sectionHeading?.section)return {error:"Não foi possível identificar com segurança a seção Benefícios da música. Nenhuma alteração aplicada."};
+    const section=sectionHeading.section;
+    const members=current.blocks.map((block,index)=>({block,index})).filter(x=>x.block.section===section);
+    const cards=target.map(title=>members.find(x=>x.block.type==="heading"&&normalize(x.block.text)===normalize(title)));
+    if(cards.some(x=>!x)||new Set(cards.map(x=>x!.index)).size!==3)return {error:"Os três títulos não foram encontrados como cards independentes. A seção foi preservada."};
+    // Each card must be a contiguous heading + paragraph pair, not a free-standing heading.
+    const groups=cards.map(x=>{
+      const heading=x!,paragraph=current.blocks[heading.index+1];
+      return paragraph?.section===section&&paragraph.type==="paragraph"?{heading:heading.block,paragraph,start:heading.index}:null;
+    });
+    if(groups.some(x=>!x))return {error:"A estrutura dos cards não corresponde a três pares título/descrição. Nenhuma alteração aplicada."};
+    const positions=groups.map(x=>x!.start).sort((a,b)=>a-b);
+    if(positions.some((position,i)=>i>0&&position!==positions[i-1]+2))return {error:"Os cards não são contíguos; a reordenação automática foi bloqueada para preservar o conteúdo."};
+    const nextBlocks=[...current.blocks];
+    const ordered=groups.map(x=>[{...x!.heading,align:"center" as const},{...x!.paragraph}]).flat();
+    nextBlocks.splice(positions[0],6,...ordered);
+    if(nextBlocks.length!==current.blocks.length||nextBlocks.filter(b=>b.section===section).length!==members.length)return {error:"Falha na conferência estrutural; nenhuma alteração aplicada."};
+    return {site:{...current,blocks:nextBlocks},summary:"Três cards reorganizados: Autoconfiança, Criatividade e Concentração. Apenas os títulos foram centralizados; descrições e demais seções preservadas."};
+  }
   function applyGlobalAlignment(current: Site, prompt: string): {site: Site; summary: string} | null {
     const normalized = prompt.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g, "");
     const align = /centraliz|alinhe?.*centro|alinh.*centro/.test(normalized) ? "center" :
@@ -2570,6 +2595,18 @@ export default function BuilderV2() {
       const requested=/minimalista|(?:template|modelo)\\s*2|(?:template|modelo)[\\s\\S]{0,25}\\b2\\b/i.test(prompt)?"minimalist-sophisticated":"institutional-complete";
       recordVersion(site,"Antes de trocar o template");setRedoHistory([]);setHistory(prev=>[...prev.slice(-19),site]);
       setSite(prev=>({...prev,templateId:requested}));setMessages(prev=>[...prev,{role:"assistant",text:requested==="minimalist-sophisticated"?"Template alterado para Minimalista Sofisticado. Todo o conteúdo foi preservado.":"Template alterado para Institucional Completo. Todo o conteúdo foi preservado."}]);setInstruction("");setBusy(false);return;
+    }
+    const scopedMusicCards=applyScopedMusicCardOrder(site,prompt);
+    if(scopedMusicCards){
+      if("error" in scopedMusicCards){
+        setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:scopedMusicCards.error}]);
+      }else{
+        recordVersion(site,"Antes de reorganizar os cards de Benefícios da música");
+        setRedoHistory([]);setHistory(prev=>[...prev.slice(-19),site]);
+        setSite(scopedMusicCards.site);
+        setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:scopedMusicCards.summary+" Confira a prévia antes de aprovar."}]);
+      }
+      setInstruction("");setBusy(false);return;
     }
     const structuralRequest = /(?:adicione|crie|criar|incluir|inclua|nova|novo|remova|exclua|mova|coloque|reorganize)[\\s\\S]{0,90}(?:se[cç][aã]o|bloco|etapas|par[aá]grafo)|(?:se[cç][aã]o)[\\s\\S]{0,90}(?:adicione|crie|criar|incluir|inclua|nova|novo)/i.test(prompt);
     const direct = (structuralRequest || hasMotionIntent(prompt)) ? null : (applySingleButtonAlignment(site, prompt) || applyGlobalAlignment(site, prompt));
