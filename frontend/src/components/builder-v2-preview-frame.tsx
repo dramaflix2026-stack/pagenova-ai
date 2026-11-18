@@ -164,8 +164,8 @@ export function BuilderV2PreviewFrame({device,children}:{device:BuilderPreviewDe
   const targetHeight=device==="mobile"?780:device==="tablet"?900:800;
   const scale=Math.min(1,Math.max(0.08,(availableWidth-2)/targetWidth));
   const visualWidth=targetWidth*scale;
-  return <div ref={viewportRef} aria-label={device==="mobile"?"Prévia mobile do site":device==="tablet"?"Prévia tablet do site":"Prévia desktop do site"} className="relative w-full min-w-0 overflow-hidden rounded-xl border border-white/10 bg-[#0b1110]">
-    <div style={{position:"relative",width:"100%",height:Math.round(targetHeight*scale),minHeight:availableWidth?undefined:420}}>
+  return <div ref={viewportRef} aria-label={device==="mobile"?"Prévia mobile do site":device==="tablet"?"Prévia tablet do site":"Prévia desktop do site"} className="relative isolate w-full min-w-0 max-w-full overflow-hidden rounded-xl border border-white/10 bg-[#0b1110]">
+    <div style={{position:"relative",width:"100%",maxWidth:"100%",height:Math.round(targetHeight*scale),minHeight:availableWidth?undefined:420,overflow:"hidden"}}>
       <iframe
         ref={frameRef}
         scrolling="yes"
