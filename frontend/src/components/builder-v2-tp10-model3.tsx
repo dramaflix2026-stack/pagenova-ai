@@ -33,7 +33,7 @@ export function BuilderV2TP10Model3({brand,niche,universalSectionImages,site,ema
  const editedHeroTitle=site?.blocks.find(b=>b.section===heroSection&&b.type==="heading"&&b.textExplicit===true)?.text;
  const editedHeroDescription=site?.blocks.find(b=>b.section===heroSection&&b.type==="paragraph"&&b.textExplicit===true)?.text;
  const aboutSection=site?(resolveUniversalSection(site,"sobre")||site.blocks.find(b=>b.type==="heading"&&/^(?:Aprender é transformar\.|A música transforma vidas\.)$/i.test((b.text||"").trim()))?.section||"about"):null;
- const aboutHeadingBlock=site?.blocks.find(b=>b.section===aboutSection&&b.type==="heading"&&b.textExplicit===true&&typeof b.text==="string"&&b.text.trim());
+ const aboutHeadingBlock=site?.blocks.find(b=>b.type==="heading"&&b.textExplicit===true&&b.text?.trim()==="A música transforma vidas."&&/escolas? de m[uú]sica/i.test(site.niche||""))||site?.blocks.find(b=>b.section===aboutSection&&b.type==="heading"&&b.textExplicit===true&&typeof b.text==="string"&&b.text.trim());
  const editedAboutTitle=aboutHeadingBlock?.text;
  const editedHeroImage=site?.blocks.find(b=>b.section===heroSection&&b.type==="image"&&b.imageExplicit===true&&typeof b.src==="string"&&/^https:\/\//i.test(b.src))?.src;
  const images=[...p.photos,...extra.filter(id=>!p.photos.includes(id)),...["photo-1509062522246-3755977927d7","photo-1498050108023-c5249f4df085","photo-1523240795612-9a054b0db644","photo-1556761175-b413da4baf72","photo-1532094349884-543bc11b234d","photo-1556911220-bff31c812dba"].filter(id=>!p.photos.includes(id)&&!extra.includes(id))];
