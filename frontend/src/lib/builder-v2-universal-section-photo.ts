@@ -17,12 +17,12 @@ export function canonicalPhotoSection(label:string):string|null{
  return ["abordagem","diferenciais","diferencial"].includes(name)?"differences": /^(?:sobre|sobre a instituicao|sobre a escola|sobre nos)$/.test(name)?"about-first":null;
 }
 /* Existing, curated real classroom photograph from Unsplash, not generated content. */
-const classroomPhoto="https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1400&q=85";
+const classroomPhoto="/api/floral-image?id=photo-1509062522246-3755977927d7&w=1200";
 export function curatedRealSectionPhoto(description:string):string|null{
  const text=norm(description);
  // Prefer the actual subject over incidental words such as "aluno".
  // Reuse an existing music-school asset already present in TP10 Model 2.
- if(/(?:violao|guitarra|musica|professor)/.test(text))return "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=1400&q=85";
+ if(/(?:violao|guitarra|musica|professor)/.test(text))return "/api/floral-image?id=photo-1516280440614-37939bbacd81&w=1200";
  return /(?:estudant|alun|sala de aula|classroom|escola|educacao)/.test(text)?classroomPhoto:null;
 }
 export function readUniversalSectionPhoto(overrides:Record<string,string>|undefined,section:string,fallback:string):string{
@@ -32,7 +32,7 @@ export function readUniversalSectionPhoto(overrides:Record<string,string>|undefi
 export function applyUniversalSectionPhoto<T extends UniversalSite>(site:T,section:string,src:string):
  {ok:true;site:T;changedIds:string[]}|{ok:false;error:string}{
  if(!["differences","about-first"].includes(section))return {ok:false,error:"Esta seção não possui adaptador visual validado. Nenhuma imagem foi alterada."};
- if(!isSafeUniversalUrl(src,true)||!/^https:\/\//i.test(src))return {ok:false,error:"URL de fotografia insegura ou inválida."};
+ if(!isSafeUniversalUrl(src,true)||!(src.startsWith("/api/floral-image?")||/^https:\/\//i.test(src)))return {ok:false,error:"URL de fotografia insegura ou inválida."};
  const before=(site.universalSectionImages||{}) as Record<string,string>;
  if(before[section]===src)return {ok:false,error:"Esta fotografia já está registrada para a seção."};
  const next={...site,universalSectionImages:{...before,[section]:src}} as T;
