@@ -28,6 +28,45 @@ const stripConstraints=(s:string)=>s.trim().replace(/\.\s*(?:preserve|mantenha|n
 
 export function applyUniversalPracticalEdit<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
  const text=stripConstraints(instruction);
+ // Replace the copy of exactly three existing cards, retaining every block ID.
+ // The explicit numbered card format is required to avoid guessing user intent.
+ const replaceCards=text.match(/^na\s+se[cç][aã]o\s+(?:atualmente\s+intitulada\s+)?["“]([^"”]+)["”],?\s+corrija\s+exclusivamente\s+o\s+conte[uú]do\s+existente/i);
+ if(replaceCards){
+  const section=resolveUniversalSection(site,replaceCards[1]);
+  if(!section)return fail("Seção solicitada não localizada sem ambiguidade. Nenhuma alteração aplicada.");
+  const entries=[...text.matchAll(/Card\s+([123])\s*[:：—–]\s*([^\r\n]+)\s*\r?\nDescri[cç][aã]o\s*[:：—–]\s*([^\r\n]+)/gi)];
+  if(entries.length!==3||entries.some((entry,i)=>Number(entry[1])!==i+1))
+   return fail("Informe os três cards numerados com título e descrição. Nenhuma alteração aplicada.");
+  const indexed=site.blocks.map((block,index)=>({block,index})).filter(item=>item.block.section===section);
+  const heading=indexed.find(item=>item.block.type==="heading");
+  if(!heading)return fail("Título da seção não encontrado. Nenhuma alteração aplicada.");
+  const cards:{titleIndex:number;descriptionIndex?:number;kind:"pair"|"inline"}[]=[];
+  for(let i=0;i<indexed.length;i++){
+   const current=indexed[i];
+   if(current.index===heading.index)continue;
+   if(current.block.type==="heading"){
+    const next=indexed[i+1];
+    if(!next||next.block.type!=="paragraph"||next.index!==current.index+1)
+     return fail("Estrutura de card incompleta. Nenhuma alteração aplicada.");
+    cards.push({titleIndex:current.index,descriptionIndex:next.index,kind:"pair"});i++;
+   }else if(current.block.type==="paragraph"&&/^([^:：—–]{2,100})\s*[:：—–]\s*(.+)$/.test(String(current.block.text||""))){
+    cards.push({titleIndex:current.index,kind:"inline"});
+   }
+  }
+  if(cards.length!==3)return fail("A seção não contém exatamente três cards editáveis. Nenhuma alteração aplicada.");
+  const blocks=site.blocks.map(block=>({...block}));
+  blocks[heading.index].text="Benefícios da música";
+  cards.forEach((card,i)=>{
+   const title=entries[i][2].trim().replace(/^\*\*|\*\*$/g,"");
+   const description=entries[i][3].trim();
+   if(card.kind==="pair"){
+    blocks[card.titleIndex].text=title;
+    blocks[card.descriptionIndex!].text=description;
+   }else blocks[card.titleIndex].text=title+": "+description;
+  });
+  const changedIds=[heading.index,...cards.flatMap(card=>card.descriptionIndex===undefined?[card.titleIndex]:[card.titleIndex,card.descriptionIndex])].map(index=>blocks[index].id);
+  return {ok:true,site:{...site,blocks} as T,changedIds};
+ }
  // Reorder exactly three existing custom cards without creating or deleting blocks.
  // Supports both heading+paragraph cards and "Title: description" paragraph cards.
  const reorder=text.match(/^na\s+se[cç][aã]o\s+["“]?([^"”\n,]+)["”]?,?\s+reorganize\s+(?:exclusivamente\s+|somente\s+|apenas\s+)?os\s+tr[eê]s\s+cards\s+existentes\s+nesta\s+ordem\s*:\s*\n\s*1[.)-]\s*([^\n]+)\n\s*2[.)-]\s*([^\n]+)\n\s*3[.)-]\s*([^\n]+)/i);
