@@ -72,7 +72,7 @@ export function TP10UniversalCustomSections({blocks,sectionEvents=[],children,au
   }
   return [...grouped].map(([id,items]):Section=>{
    const heading=items.find(b=>b.type==="heading");
-   const title=heading?.text||id.replace(/^custom-/,"").replace(/-/g," ");
+   const title=(heading?.text||id.replace(/^custom-/,"").replace(/-/g," ")).trim().replace(/^\*\*\s*["“]?\s*(.*?)\s*["”]?\s*\*\*$/u,"$1").replace(/^["“](.*?)["”]$/u,"$1").trim();
    const rest=items.slice(1).filter(b=>b.type==="heading"||b.type==="paragraph");
    const cards:Section["cards"]=[];
    let introduction="";
