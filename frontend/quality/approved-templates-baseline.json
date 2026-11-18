@@ -123,16 +123,16 @@
       "path": "src/components/builder-v2-tp10-model2.tsx",
       "blobSha": "dbf6c25acde5a783d883cfd229bf1267517f6330",
       "approvedBindingRevision": {
-        "sha": "3f4ff53891d41b4f3ca8e95d38100b4e108f8edb",
-        "reason": "Shared single-image editing bridge for TP10 difference section, opt-in only. Preserves approved Model 2/3 default designs, photos and all previously approved sections."
+        "sha": "75e17d5c1754f57228f577a728e65ee70fccc877",
+        "reason": "Functional image delivery only: serve existing education photographs and fallback through the cached same-origin proxy, preserving the approved layout and content."
       }
     },
     {
       "path": "src/components/builder-v2-tp10-model3.tsx",
       "blobSha": "45824e42f82dd813703358d326dcc398ab6f6b4d",
       "approvedBindingRevision": {
-        "sha": "3cbbf31c2c72a18851b357f4080d8e84f3a0154f",
-        "reason": "Shared single-image editing bridge for TP10 difference section, opt-in only. Preserves approved Model 2/3 default designs, photos and all previously approved sections."
+        "sha": "224c252a2dd9264775a14722bcb666911ead1eb6",
+        "reason": "Functional image delivery only: serve existing education photographs and fallback through the cached same-origin proxy, preserving the approved layout and content."
       }
     },
     {
