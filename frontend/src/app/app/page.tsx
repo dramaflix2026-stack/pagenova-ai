@@ -150,10 +150,6 @@ export default async function AppPage(){
           <span className="flex h-20 w-20 items-center justify-center rounded-full border border-lime-300/30 bg-lime-300/10 text-lime-300"><PlayCircle size={40} strokeWidth={1.5}/></span>
         </div>
       </section>
-      <footer className="mt-10 flex flex-wrap items-center justify-between gap-2 border-t border-white/10 pt-5 text-[11px] text-white/35">
-        <span>PageNova AI · Sua plataforma de criação</span>
-        <Link href="/app/atualizacoes" className="inline-flex items-center gap-1 transition hover:text-lime-300"><Clock3 size={12}/> Histórico de atualizações <ChevronRight size={12}/></Link>
-      </footer>
     </div>
   </main>;
 }
