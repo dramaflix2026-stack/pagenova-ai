@@ -68,7 +68,7 @@
       "blobSha": "39f70209f2e11a82b84923c43d28eae10e4c344a",
       "approvedBindingRevision": {
         "sha": "4f3075ca023dbbebb1b87d15285dfb4397764c1e",
-        "reason": "User-requested functional image-loading repair on 2026-11-19: retry failed Unsplash/Pexels images through existing same-origin proxy, retain niche fallback and preserve all approved template layouts."
+        "reason": "Explicit user approval 2026-11-19: functional image-loading repair; retry failed Unsplash/Pexels images through existing same-origin proxy, retain niche fallback, preserve approved template layouts."
       }
     },
     {
