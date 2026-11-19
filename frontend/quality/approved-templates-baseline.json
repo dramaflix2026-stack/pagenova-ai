@@ -67,8 +67,8 @@
       "path": "src/components/builder-v2-site.tsx",
       "blobSha": "39f70209f2e11a82b84923c43d28eae10e4c344a",
       "approvedBindingRevision": {
-        "sha": "a68c1dd5fe56b75b8d5eb933be7baee1e7567580",
-        "reason": "Explicit user approval 2026-11-17: preserve TP6 Floricultura Models 01/02 protected rendering; 2026-11-18 functional TP10 Education Model 02 site data wiring and visual proof repair, without changing approved layouts."
+        "sha": "4f3075ca023dbbebb1b87d15285dfb4397764c1e",
+        "reason": "User-requested functional image-loading repair on 2026-11-19: retry failed Unsplash/Pexels images through existing same-origin proxy, retain niche fallback and preserve all approved template layouts."
       }
     },
     {
