@@ -13,7 +13,7 @@ declare global {
 
 const LEGACY_PIXEL_ID = "1051066844418593";
 const PUBLIC_LANDING_PIXEL_ID = "2101736870240618";
-const PUBLIC_LANDING_ROUTES = new Set(["/", "/en", "/es"]);
+const PUBLIC_LANDING_ROUTES = new Set(["/", "/en", "/es", "/cadastro", "/login", "/montar-pacote", "/planos-atuais"]);
 
 /**
  * The existing pixel continues to track the legacy app. When the new
@@ -23,7 +23,7 @@ const PUBLIC_LANDING_ROUTES = new Set(["/", "/en", "/es"]);
  */
 export function MetaPixel({ newLandingEnabled = false }: { newLandingEnabled?: boolean }) {
   const pathname = usePathname() ?? "/";
-  const isNewMarketingPage = newLandingEnabled && PUBLIC_LANDING_ROUTES.has(pathname);
+  // Public acquisition and authentication routes belong to the same Meta dataset.\n  // Do not switch pixels after a CTA takes the visitor to signup or login.\n  const isNewMarketingPage = PUBLIC_LANDING_ROUTES.has(pathname);
   const pixelId = isNewMarketingPage ? PUBLIC_LANDING_PIXEL_ID : LEGACY_PIXEL_ID;
   const [scriptReady, setScriptReady] = useState(false);
   const initialized = useRef(new Set<string>());
