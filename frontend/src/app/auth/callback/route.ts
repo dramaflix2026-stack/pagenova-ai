@@ -11,6 +11,7 @@ function getSafeNext(value: string | null) {
   }
 
   if (
+    value === "/login" ||
     value === "/app" ||
     value.startsWith("/app/") ||
     value === "/reset-password"
