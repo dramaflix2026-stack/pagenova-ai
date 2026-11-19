@@ -760,6 +760,26 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       return NextResponse.json({site:retail.site,summary:retail.summary,changedIds:retail.changedIds});
     }
   }
+  // Deterministic, section-scoped background edits: a single hex color is enough.
+  // Preserve all other blocks, design tokens, images and template identity.
+  if(!isFresh&&!fullSiteBrief&&body.universalOperations===undefined&&Array.isArray(editingSite?.blocks)&&editingSite.blocks.length){
+    const requestedColor=instructionText.match(/#[0-9a-fA-F]{6}\b/)?.[0]?.toUpperCase();
+    const actionClause=instructionText.split(/(?:\n\s*\n|\.\s+)(?=(?:preserve|mantenha|n[aã]o\s+altere|sem\s+alterar)\b)/i)[0];
+    const wantsHeroBackground=/(?:altere|troque|mude|atualize|aplique|defina|modifique)\b/i.test(actionClause)
+      &&/(?:cor\s+de\s+fundo|fundo|background)\b/i.test(actionClause)
+      &&/(?:hero|capa|se[cç][aã]o\s+principal)\b/i.test(actionClause);
+    if(requestedColor&&wantsHeroBackground){
+      const headings=editingSite.blocks.filter(b=>b.type==="heading");
+      const hero=headings.find(b=>/^(?:hero|inicio|home|principal|capa)$/i.test(String(b.section||"")))
+        ||headings[0];
+      if(!hero)return NextResponse.json({error:"Não foi possível identificar a seção principal. Nenhuma alteração aplicada."},{status:422});
+      const section=String(hero.section||"");
+      const current=String(hero.background||"").toUpperCase();
+      if(current===requestedColor)return NextResponse.json({site:editingSite,summary:"O fundo da seção principal já está na cor solicitada. Demais elementos preservados."});
+      const blocks=editingSite.blocks.map(b=>b===hero?{...b,background:requestedColor}:b);
+      return NextResponse.json({site:{...editingSite,blocks},summary:"Fundo da seção principal atualizado para "+requestedColor+". Demais elementos preservados.",changedIds:[hero.id]});
+    }
+  }
   // A palette request mentioning "preserve animations" is NEVER a motion edit.
   if(!isFresh&&!fullSiteBrief&&Array.isArray(editingSite?.blocks)&&editingSite.blocks.length){
     const edited=applyUniversalPaletteEdit(
