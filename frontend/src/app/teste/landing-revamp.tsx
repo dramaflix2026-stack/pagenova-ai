@@ -267,7 +267,7 @@ export function LandingRevamp({ official = false, initialLanguage = "pt" }: { of
     <div className="pnr-mobile-flag-switch" role="group" aria-label="Idioma da página">{(["pt","en","es"] as const).map(value=><button key={value} type="button" className={lang===value?"is-active":""} aria-label={value==="pt"?"Português":value==="en"?"English":"Español"} aria-pressed={lang===value} onClick={()=>switchLang(value)}><LanguageFlag code={value}/></button>)}</div>
     <button className="pnr-menu-toggle" type="button" aria-expanded={menu} aria-label="Menu" onClick={()=>setMenu(v=>!v)}>{menu?<X/>:<Menu/>}</button>
    </div>
-   {menu&&<nav className="pnr-mobile-menu">{t.nav.map((label,i)=><a key={label} href={navigation[i]} onClick={()=>setMenu(false)}>{label}</a>)}<Link href="/login" onClick={()=>trackMarketingClick("ClickLogin")}>{t.login}</Link><Link href="/cadastro" onClick={()=>trackMarketingClick("ClickCriarProjeto")} className="pnr-btn pnr-btn-primary" onClick={()=>setMenu(false)}>{t.start}<ArrowRight size={17}/></Link></nav>}
+   {menu&&<nav className="pnr-mobile-menu">{t.nav.map((label,i)=><a key={label} href={navigation[i]} onClick={()=>setMenu(false)}>{label}</a>)}<Link href="/login" onClick={()=>trackMarketingClick("ClickLogin")}>{t.login}</Link><Link href="/cadastro" onClick={()=>{trackMarketingClick("ClickCriarProjeto");setMenu(false)}} className="pnr-btn pnr-btn-primary">{t.start}<ArrowRight size={17}/></Link></nav>}
   </header>
   <main>
    <section id="plataforma" className="pnr-hero pnr-hero--premium" data-motion-scope="hero">
