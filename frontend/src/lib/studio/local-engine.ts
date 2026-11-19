@@ -140,8 +140,39 @@ export function localForm(prompt:string,existing?:FormInput|null):FormInput{
   })(),intent:prompt,whatsapp:"",visualTheme:kind==="survey"?"rose":"emerald",motion:true});
 }
 const outcome=(id:string,title:string,description:string):QuizOutcome=>({id,title,description,ctaLabel:"Conhecer próximos passos",ctaUrl:""});
+/** Preserve explicit question/answer blocks instead of inventing generic content. */
+function explicitQuizQuestions(prompt:string):QuizQuestion[]{
+ const lines=prompt.split(/\r?\n/);
+ const found:Array<{title:string;answers:string[]}>=[];let current:{title:string;answers:string[]}|null=null;
+ for(const raw of lines){
+  const line=raw.trim().replace(/^#{1,6}\s*/,"").replace(/^\*\*(.*?)\*\*$/, "$1");
+  const heading=/^(?:\*\*)?(?:pergunta|quest[aã]o)\s*\d{1,2}\s*[—–:.-]\s*(.+?)(?:\*\*)?$/i.exec(line);
+  if(heading){if(current)found.push(current);current={title:heading[1].replace(/\*\*/g,"").trim(),answers:[]};continue;}
+  if(current){
+   const option=/^(?:[-*•]\s+|[A-F][).]\s+)(.+)$/.exec(line);
+   if(option)current.answers.push(option[1].replace(/\*\*/g,"").trim());
+   else if(line&&/^(?:#{1,6}\s*|\*\*)?(?:sistema de pontua[cç][aã]o|captura de leads|tela de resultado|funcionalidades|crit[eé]rios|identidade visual)/i.test(raw.trim())){found.push(current);current=null;}
+  }
+ }
+ if(current)found.push(current);
+ if(!found.length)return [];
+ if(found.length<3||found.length>15||found.some(q=>q.title.length<5||q.answers.length<2||q.answers.length>6))
+  throw new Error("O briefing contém perguntas explícitas incompletas. Revise as perguntas e alternativas (3 a 15 perguntas, 2 a 6 opções cada).");
+ return found.map((q,i)=>({id:"q"+(i+1),title:q.title,options:q.answers.map((label,j)=>({id:"o"+(j+1),label,outcomeId:["perfil-a","perfil-b","perfil-c"][Math.min(j,2)]}))}));
+}
 export function localQuiz(prompt:string,existing?:QuizInput|null):QuizInput{
  const subject=topic(prompt,75);
+ if(!existing){
+  const explicit=explicitQuizQuestions(prompt);
+  if(explicit.length){
+   if(/(?:0\s*(?:a|–|-)\s*100|pontua[cç][aã]o|gr[aá]fico circular|recomenda[cç][oõ]es personalizadas)/i.test(prompt))
+    throw new Error("O gerador local ainda não suporta pontuação de 0 a 100 nem diagnósticos personalizados. As perguntas foram identificadas, mas não vou criar um quiz com resultados incorretos. Use um briefing sem pontuação avançada ou aguarde a integração de um motor compatível.");
+   const outcomes=[outcome("perfil-a","Perfil inicial","Seu perfil indica que você está começando."),outcome("perfil-b","Em evolução","Seu perfil indica progresso."),outcome("perfil-c","Avançado","Seu perfil indica maior experiência.")];
+   const titleMatch=/^(?:\\*\\*)?(?:nome do projeto|t[ií]tulo)\\s*:\\s*(.+?)(?:\\*\\*)?$/im.exec(prompt);
+   const title=titleMatch?titleMatch[1].replace(/\\*\\*/g,"").trim():subject;
+   return normalizeQuiz({title,subtitle:"Responda às perguntas para conhecer seu perfil.",prompt,theme:/azul profundo|midnight/i.test(prompt)?"midnight":"emerald",collectLeads:/captar|captura|leads|coletar/i.test(prompt),outcomes,questions:explicit,motion:true});
+  }
+ }
  if(existing){
    const add=/\b(?:adicion[ae]|inclu[ai]|acrescent[ae])\s+(?:uma?\s+)?pergunta\s*(?:sobre|:)?\s*([^.!?\n]+)/i.exec(prompt);
    const questions=[...existing.questions];
