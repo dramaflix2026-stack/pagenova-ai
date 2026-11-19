@@ -25,11 +25,15 @@ test("official homepage stays legacy until the explicit v2 feature flag", () => 
   }
 });
 
-test("existing login, cadastro and five-day free trial are preserved", () => {
+test("existing login and signup routes remain available without free-trial signup claims", () => {
   assert.ok((landing.match(/\/cadastro\?trial=1/g) ?? []).length >= 4);
   assert.doesNotMatch(landing, /href="\/cadastro"/);
   assert.match(landing, /href="\/login"/);
-  assert.match(signup, /teste gr[aá]tis de 5 dias/i);
+  assert.match(signup, /Crie sua conta PageNova AI/);
+  assert.doesNotMatch(signup, /teste gr[aá]tis de 5 dias/i);
+  assert.match(signup, /\/auth\/callback\?next=\/login/);
+  const callback = content("src/app/auth/callback/route.ts");
+  assert.ok(callback.includes('value === "/login"'));
   assert.match(signup, /createClient/);
   assert.match(login, /createClient/);
 });
