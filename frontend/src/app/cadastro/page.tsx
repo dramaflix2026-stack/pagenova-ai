@@ -26,7 +26,7 @@ export default function CadastroPage() {
       const { error: resendError } = await supabase.auth.resend({
         type: "signup",
         email: email.trim().toLowerCase(),
-        options: { emailRedirectTo: window.location.origin + "/auth/callback?next=/app" },
+        options: { emailRedirectTo: window.location.origin + "/auth/callback?next=/login" },
       });
       if (resendError) {
         setError(["over_request_rate_limit", "over_email_send_rate_limit", "too_many_requests"].includes(resendError.code || "")
@@ -63,7 +63,7 @@ export default function CadastroPage() {
         email: email.trim().toLowerCase(),
         password,
         options: {
-          emailRedirectTo: window.location.origin + "/auth/callback?next=/app",
+          emailRedirectTo: window.location.origin + "/auth/callback?next=/login",
         },
       });
 
@@ -114,9 +114,9 @@ export default function CadastroPage() {
             <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-2xl border border-emerald-400/20 bg-emerald-400/10 text-xl text-emerald-300" aria-hidden="true">
               ✦
             </div>
-            <h1 className="text-2xl font-bold tracking-tight">Comece seu teste grátis de 5 dias</h1>
+            <h1 className="text-2xl font-bold tracking-tight">Crie sua conta PageNova AI</h1>
             <p className="mt-2 text-sm leading-6 text-white/55">
-              Sem cartão e sem compromisso. Confirme seu e-mail, entre na plataforma e experimente as ferramentas com limites gratuitos.
+              Já adquiriu a PageNova AI? Cadastre-se com o e-mail utilizado na compra e confirme o endereço para acessar sua conta.
             </p>
           </div>
 
@@ -191,13 +191,13 @@ export default function CadastroPage() {
 
               <button type="submit" disabled={loading}
                 className="flex h-12 w-full items-center justify-center rounded-xl bg-[#8fec78] text-sm font-bold text-[#14220f] transition hover:bg-[#a8f494] disabled:cursor-not-allowed disabled:opacity-55">
-                {loading ? "Criando conta..." : "Iniciar teste grátis de 5 dias"}
+                {loading ? "Criando conta..." : "Criar minha conta"}
               </button>
             </form>
           )}
 
           <p className="mt-5 text-center text-xs leading-5 text-white/45">
-            A avaliação começa no primeiro acesso ao painel após a confirmação do e-mail. São 5 dias, 2 gerações de sites pelo CRM e 5 páginas Google Places. Sem cobrança automática.
+            Após confirmar seu e-mail, faça login com os dados cadastrados. O acesso às ferramentas depende da contratação vinculada à sua conta.
           </p>
           <div className="mt-5 flex flex-wrap items-center justify-center gap-2 border-t border-white/10 pt-5 text-center text-sm">
             <span className="text-white/45">Já tem uma conta?</span>
