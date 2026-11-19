@@ -22,7 +22,7 @@ const PUBLIC_LANDING_ROUTES = new Set(["/", "/en", "/es", "/cadastro", "/login",
  * navigation never records a PageView in both Meta datasets.
  */
 export function MetaPixel({ newLandingEnabled = false }: { newLandingEnabled?: boolean }) {
-  const pathname = usePathname() ?? "/";
+  void newLandingEnabled; // Kept for compatibility with the existing layout.\n  const pathname = usePathname() ?? "/";
   // Public acquisition and authentication routes belong to the same Meta dataset.\n  // Do not switch pixels after a CTA takes the visitor to signup or login.\n  const isNewMarketingPage = PUBLIC_LANDING_ROUTES.has(pathname);
   const pixelId = isNewMarketingPage ? PUBLIC_LANDING_PIXEL_ID : LEGACY_PIXEL_ID;
   const [scriptReady, setScriptReady] = useState(false);
