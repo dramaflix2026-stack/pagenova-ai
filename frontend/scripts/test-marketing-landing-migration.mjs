@@ -26,8 +26,9 @@ test("official homepage stays legacy until the explicit v2 feature flag", () => 
 });
 
 test("existing login and signup routes remain available without free-trial signup claims", () => {
-  assert.ok((landing.match(/\/cadastro\?trial=1/g) ?? []).length >= 4);
-  assert.doesNotMatch(landing, /href="\/cadastro"/);
+  assert.ok((landing.match(/href="\/cadastro"/g) ?? []).length >= 3);
+  assert.doesNotMatch(landing, /href="\/cadastro\?trial=1"/);
+  assert.match(landing, /trackMarketingClick\("ClickCriarProjeto"\)/);
   assert.match(landing, /href="\/login"/);
   assert.match(signup, /Crie sua conta PageNova AI/);
   assert.doesNotMatch(signup, /teste gr[aá]tis de 5 dias/i);
