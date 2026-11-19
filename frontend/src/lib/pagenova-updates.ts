@@ -12,6 +12,54 @@ export type PageNovaUpdate={
 
 export const pagenovaUpdates:readonly PageNovaUpdate[]=[
   {
+    id:"2026-11-19-historico-de-entregas",
+    date:"2026-11-19",category:"Melhoria",featuredOnHome:true,
+    title:"Rastreamento de campanhas e jornada de cadastro",
+    summary:"A landing pública recebeu ajustes no Pixel da Meta e na navegação entre cadastro e login.",
+    details:["Eventos dos botões de criação, login e montagem de pacote instrumentados no site.","Pixel oficial mantido nas rotas públicas de aquisição e autenticação.","Cadastro e confirmação de e-mail ajustados para o fluxo de login."],
+    href:"/",linkLabel:"Conhecer a PageNova"
+  },
+  {
+    id:"2026-11-18-historico-de-entregas",
+    date:"2026-11-18",category:"Correção",featuredOnHome:true,
+    title:"Editor mais preciso em imagens, cards e seções",
+    summary:"Melhorias na edição pontual e na verificação visual, preservando as experiências aprovadas.",
+    details:["Reorganização de cards com títulos e descrições preservados.","Troca direcionada de fotografias com entrega por proxy de imagens.","Correções de cores, títulos e localização de seções no editor universal."],
+    href:"/app/builder-v2",linkLabel:"Abrir Studio"
+  },
+  {
+    id:"2026-11-17-historico-de-entregas",
+    date:"2026-11-17",category:"Melhoria",featuredOnHome:false,
+    title:"Mais controle sobre edições e aprendizado",
+    summary:"O editor e o painel interno receberam verificações mais rigorosas para reconhecer alterações reais.",
+    details:["Matriz interna de cobertura dos cinco testes por nicho e experiência.","Reutilização de estratégias condicionada a evidências e avaliações verificadas.","Novas experiências de floricultura e ajustes em imagens e seções automotivas."],
+    href:"/app/builder-v2",linkLabel:"Abrir Studio"
+  },
+  {
+    id:"2026-11-16-historico-de-entregas",
+    date:"2026-11-16",category:"Novidade",featuredOnHome:false,
+    title:"Projetos mais seguros e editor com validação visual",
+    summary:"Evolução do salvamento de projetos e do sistema de avaliação de resultados do editor.",
+    details:["Rascunhos recuperáveis entre armazenamento local e nuvem autenticada.","Histórico de versões isolado por projeto e validação antes de publicar.","Etapas de rastreabilidade, diagnóstico e comprovação visual das edições."],
+    href:"/app/builder-v2",linkLabel:"Abrir Studio"
+  },
+  {
+    id:"2026-11-15-historico-de-entregas",
+    date:"2026-11-15",category:"Melhoria",featuredOnHome:false,
+    title:"Experiências educacionais mais completas",
+    summary:"Os modelos de educação receberam melhorias de apresentação, contato e conteúdo.",
+    details:["Galerias, depoimentos e perguntas frequentes refinados.","Seções de matrículas e localização com canais de contato definidos.","Ajustes visuais preservados nas versões aprovadas."],
+    href:"/app/builder-v2",linkLabel:"Abrir Studio"
+  },
+  {
+    id:"2026-11-14-historico-de-entregas",
+    date:"2026-11-14",category:"Melhoria",featuredOnHome:false,
+    title:"Nova apresentação para cursos e escolas",
+    summary:"Avanços na composição das páginas educacionais, com foco em clareza e navegação.",
+    details:["Cabeçalho, hero e apresentação dos cursos aprimorados.","Seções de diferenciais, metodologia e ambientes reorganizadas.","Melhorias em depoimentos, contato e rodapé dos modelos de educação."],
+    href:"/app/builder-v2",linkLabel:"Abrir Studio"
+  },
+  {
     id:"2026-11-13-comandos-mais-naturais-e-retorno-de-avaliacoes",
     date:"2026-11-13",category:"Melhoria",featuredOnHome:true,
     title:"Comandos mais naturais e retorno de avaliações",
