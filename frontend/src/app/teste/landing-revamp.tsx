@@ -182,6 +182,7 @@ const products = [
 const audiencesIcons=[MonitorSmartphone,Rocket,Store,Target];
 const priceIcons=[Zap,BarChart3,Layers3,Crown];
 const amounts=[207,247,397,597];
+const checkoutUrls=["https://pay.kiwify.com.br/ON277u4","https://pay.kiwify.com.br/2m1rDJy",null,"https://pay.kiwify.com.br/grqYCk6"] as const;
 
 export function LandingRevamp({ official = false, initialLanguage = "pt" }: { official?: boolean; initialLanguage?: Lang } = {}) {
  const [lang,setLang]=useState<Lang>(initialLanguage);
@@ -254,7 +255,6 @@ export function LandingRevamp({ official = false, initialLanguage = "pt" }: { of
   window.history.replaceState(null,"",url.toString());
  };
  const homePath=official?(initialLanguage==="pt"?"/":`/${initialLanguage}`):"/teste";
- const packagePath=official?"/montar-pacote":"/teste/montar-pacote";
  const navigation=["#solucoes","#estilos","#planos","#publicos"];
  const footerAnchors=[["#solucoes","#solucoes","#planos"],["#solucoes","#planos","#estilos"],["#faq","#faq","#faq"]];
  return <div className="pnr-page" data-visual-stage="static">
@@ -314,7 +314,7 @@ export function LandingRevamp({ official = false, initialLanguage = "pt" }: { of
      <div className="pnr-price-top"><span className="pnr-price-icon"><Icon size={22}/></span><div><h3>{p.name}</h3><small>{p.subtitle}</small></div></div>
      <div className="pnr-price-number"><span>R$</span><strong>{amounts[i]}</strong><span>/mês</span></div>
      <div className="pnr-price-details"><span>{t.includes}</span><ul>{p.features.map(f=><li key={f}><Check size={15}/>{f}</li>)}</ul></div>
-     {i===2?<button type="button" className="pnr-price-button pnr-price-button-soon" disabled aria-label="Apps e Sistemas: Em Breve">Em Breve</button>:<Link href={packagePath+"?plan="+(["studio","crm","apps","completo"][i])} onClick={()=>trackMarketingClick("ClickMontarPacote",{pacote:["studio","crm","apps","completo"][i]})} className={"pnr-price-button"+(i===3?" primary":"")}>Montar meu pacote <ArrowRight size={15}/></Link>}<small className="pnr-price-pending">{i===2?"Disponível em breve":"Personalize sua contratação"}</small>
+     {i===2?<button type="button" className="pnr-price-button pnr-price-button-soon" disabled aria-label="Apps e Sistemas: Em Breve">Em Breve</button>:<a href={checkoutUrls[i]!} onClick={()=>trackMarketingClick("ClickMontarPacote",{pacote:["studio","crm","apps","completo"][i],destino:"kiwify"})} className={"pnr-price-button"+(i===3?" primary":"")} rel="noopener noreferrer">{lang==="pt"?"Contratar agora":lang==="es"?"Contratar ahora":"Subscribe now"} <ArrowRight size={15}/></a>}<small className="pnr-price-pending">{i===2?"Disponível em breve":lang==="pt"?"Pagamento seguro na Kiwify":lang==="es"?"Pago seguro en Kiwify":"Secure checkout on Kiwify"}</small>
     </article>})}</div><p className="pnr-footnote">{t.pricesNote}</p>
    </section>
    <PageNovaTrustSections language={lang}/>
