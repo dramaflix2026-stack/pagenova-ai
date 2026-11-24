@@ -82,7 +82,7 @@ export function BuilderV2TP4Physiotherapy({site,variant,publishedMode=false}:{si
  const examples=!publishedMode&&!verified.length;
  const reviews=examples?demoReviews.map(r=>({...r,portrait:"https://images.pexels.com/photos/"+r.portrait+"/pexels-photo-"+r.portrait+".jpeg?auto=compress&cs=tinysrgb&w=250"})):verified;
  const cover=variant==="01"?0:variant==="02"?2:1;
- const editedHeroPhoto=typeof site.universalHeroImageOverride==="string"&&/^https:\/\/images\.pexels\.com\/photos\/\d+\/pexels-photo-\d+\.jpeg\?/i.test(site.universalHeroImageOverride)?site.universalHeroImageOverride:null;
+ const editedHeroPhoto=typeof site.universalHeroImageOverride==="string"&&(/^https:\/\/images\.pexels\.com\/photos\/\d+\/pexels-photo-\d+\.jpeg\?/i.test(site.universalHeroImageOverride)||/^\/api\/physio-photo\?slot=\d{1,2}$/.test(site.universalHeroImageOverride))?site.universalHeroImageOverride:null;
  const heroPhoto=editedHeroPhoto||photo(cover);
  const secondary=variant==="01"?5:variant==="02"?3:12;
  const tertiary=variant==="01"?13:variant==="02"?14:11;
