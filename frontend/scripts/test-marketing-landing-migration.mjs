@@ -56,10 +56,13 @@ test("approved PT/EN/ES gallery and guarantee assets exist", () => {
   for (const path of files) assert.ok(existsSync(resolve(root, path)), "Missing approved asset: " + path);
 });
 
-test("preview and official landing routes use their own navigation and package paths", () => {
+test("preview and official landing routes use their own navigation and direct Kiwify checkout paths", () => {
   assert.ok(landing.includes('const homePath=official?'));
-  assert.ok(landing.includes('const packagePath=official?"/montar-pacote":"/teste/montar-pacote"'));
-  assert.ok(landing.includes('href={packagePath+"?plan="'));
+  assert.ok(landing.includes('const checkoutUrls=['));
+  for (const checkout of ["ON277u4","2m1rDJy","grqYCk6"]) assert.ok(landing.includes("https://pay.kiwify.com.br/"+checkout));
+  assert.ok(landing.includes('href={checkoutUrls[i]!}'));
+  assert.ok(landing.includes('i===2?<button'));
+  assert.ok(!landing.includes('href={packagePath+"?plan="'));
   assert.ok(landing.includes('window.location.assign(value==="pt"?"/"'));
   const shell = content("src/app/teste/landing-shell.tsx");
   assert.match(shell, /Poppins\(/);
