@@ -2540,6 +2540,33 @@ export default function BuilderV2() {
           setMessages(previous=>[...previous,{role:"user",text:prompt},{role:"assistant",text:"Fotografia da oficina preparada. Conferindo a imagem principal na prévia antes de registrar a edição."}]);
           return;
         }
+        // TP4 Physiotherapy: one verified Hero photo, never the generic six-image pipeline.
+        // The dedicated renderer reads universalHeroImageOverride in all three variants.
+        const physioHeroPhotoRequest=/(?:fisioterap|vitalis)/i.test([site.niche||"",site.title||"",selectedNiche||""].join(" "))
+          &&/(?:substitua|troque|altere|mude)/i.test(prompt)
+          &&/(?:imagem|foto|fotografia)/i.test(prompt)
+          &&/(?:hero|capa|se[cç][aã]o principal)/i.test(prompt)
+          &&/(?:fisioterap|reabilita[cç][aã]o)/i.test(prompt);
+        if(physioHeroPhotoRequest&&!reference&&!institutionalFiles.length){
+          const chosen="https://images.pexels.com/photos/20860624/pexels-photo-20860624.jpeg?auto=compress&cs=tinysrgb&w=1600";
+          if(site.universalHeroImageOverride===chosen)
+            throw new Error("A fotografia solicitada já está aplicada na capa. Nenhuma outra imagem foi alterada.");
+          const loaded=await new Promise<boolean>(resolve=>{
+            const image=new window.Image();
+            const timeout=window.setTimeout(()=>{image.onload=null;image.onerror=null;resolve(false);},18000);
+            image.onload=()=>{window.clearTimeout(timeout);resolve(image.naturalWidth>0);};
+            image.onerror=()=>{window.clearTimeout(timeout);resolve(false);};
+            image.src=chosen;
+          });
+          if(!loaded)throw new Error("A nova fotografia não carregou. O projeto foi preservado.");
+          const next={...site,universalHeroImageOverride:chosen};
+          recordVersion(site,"Antes de substituir a fotografia principal da Fisioterapia");
+          setRedoHistory([]);setHistory(previous=>[...previous.slice(-19),site]);
+          pendingHeroPhotoVisualReviewRef.current={prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",src:chosen,before:site,trace:activeSubmissionTraceRef.current};
+          setSite(next);setInstruction("");setGenerationError("");
+          setMessages(previous=>[...previous,{role:"user",text:prompt},{role:"assistant",text:"Fotografia real de fisioterapia preparada para a capa. Conferindo o carregamento na prévia antes de registrar a edição."}]);
+          return;
+        }
         if(isSingleSectionImageIntent(prompt)){
           const request=parseScopedSectionPhotoRequest(prompt);
           const section=request?canonicalPhotoSection(request.sectionLabel):null;
