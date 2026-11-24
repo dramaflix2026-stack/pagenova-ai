@@ -1,14 +1,7 @@
 "use client";
 
 type Props={contactHref?:string};
-const photos=[
- "https://unsplash.com/photos/XP8o9_Arwqg/download?force=true&w=1200",
- "https://unsplash.com/photos/gW34cv-Ojjs/download?force=true&w=1200",
- "https://unsplash.com/photos/RDhXpNrafIU/download?force=true&w=1200",
- "https://unsplash.com/photos/8t6tk7LYLrE/download?force=true&w=1200",
- "https://unsplash.com/photos/rU_bvNfr8pQ/download?force=true&w=1200",
- "https://unsplash.com/photos/8IOn8x1zrGE/download?force=true&w=1200"
-];
+const photos=Array.from({length:6},(_,index)=>"/api/automotive-photo?slot="+index);
 const items=[
  {name:"Revisão preventiva",description:"Inspeções e cuidados periódicos para acompanhar as condições do veículo e planejar sua manutenção.",tag:"INSPEÇÃO E CUIDADO"},
  {name:"Troca de óleo e filtros",description:"Serviço de lubrificação e substituição de filtros conforme as especificações aplicáveis ao veículo.",tag:"LUBRIFICAÇÃO"},
@@ -17,7 +10,7 @@ const items=[
  {name:"Ar-condicionado automotivo",description:"Avaliação das condições de funcionamento e manutenção do sistema de climatização.",tag:"CONFORTO E CLIMATIZAÇÃO"},
  {name:"Alinhamento e balanceamento",description:"Inspeção e ajustes de rodas conforme a necessidade e a disponibilidade dos equipamentos.",tag:"RODAS E ESTABILIDADE"}
 ];
-const fallbackPhoto="https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=1200&q=85";
+
 export function TP9VerticeServices({contactHref}:Props){
  const contact=contactHref&&(/^(https?:\/\/|mailto:|tel:)/i.test(contactHref)||contactHref==="#tp9-contato")?contactHref:"#tp9-orcamento";
  const external=/^https?:\/\//.test(contact);
@@ -50,7 +43,7 @@ export function TP9VerticeServices({contactHref}:Props){
  @media(prefers-reduced-motion:reduce){.pn-vh-services .vhs-card,.pn-vh-services .vhs-image img{transition:none}}
  `}</style>
  <div className="vhs-wrap"><div className="vhs-intro"><div><p className="vhs-kicker">02 / Nossos serviços</p><h2 id="tp9-vertice-services-title">Excelência técnica em cada serviço.</h2></div><p className="vhs-subtitle">Do diagnóstico à manutenção, conheça os cuidados que podem fazer parte da rotina do seu veículo.</p></div>
- <div className="vhs-grid">{items.map((item,index)=><article className="vhs-card" key={item.name}><div className="vhs-image"><img src={photos[index]} alt={"Fotografia ilustrativa relacionada a "+item.name.toLowerCase()} loading="lazy" onError={event=>{if(event.currentTarget.src!==fallbackPhoto)event.currentTarget.src=fallbackPhoto}}/><span className="vhs-index">{String(index+1).padStart(2,"0")}</span></div><div className="vhs-info"><p className="vhs-tag">{item.tag}</p><h3>{item.name}</h3><p className="vhs-desc">{item.description}</p><a className="vhs-link" href={contact} target={external?"_blank":undefined} rel={external?"noopener noreferrer":undefined}>Solicitar avaliação <span aria-hidden="true">↗</span></a></div></article>)}</div>
+ <div className="vhs-grid">{items.map((item,index)=><article className="vhs-card" key={item.name}><div className="vhs-image"><img src={photos[index]} alt={"Fotografia ilustrativa relacionada a "+item.name.toLowerCase()} loading="lazy"/><span className="vhs-index">{String(index+1).padStart(2,"0")}</span></div><div className="vhs-info"><p className="vhs-tag">{item.tag}</p><h3>{item.name}</h3><p className="vhs-desc">{item.description}</p><a className="vhs-link" href={contact} target={external?"_blank":undefined} rel={external?"noopener noreferrer":undefined}>Solicitar avaliação <span aria-hidden="true">↗</span></a></div></article>)}</div>
  </div>
  </section>;
 }
