@@ -259,7 +259,7 @@
       "path": "src/components/builder-v2-tp4-physiotherapy.tsx",
       "blobSha": "a9699d84f19a766861dcaa8169b77ea6cd95df29",
       "approvedBindingRevision": {
-        "sha": "9008b039420c8ffc2560bb3794d72b038815907c",
+        "sha": "db0b5d8384a2cf7eab59559adbf08b63e9239f6c",
         "reason": "Functional-only image load recovery for all TP4 physiotherapy variants: alternate remote sources and final accessible illustration when providers fail; preserves approved markup, CSS and Hero override; pending visual validation."
       }
     },
