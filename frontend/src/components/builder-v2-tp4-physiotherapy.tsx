@@ -15,7 +15,7 @@ export const TP4_PHYSIO_IMAGE_IDS=[
  "20860580","20860616","20860593","20860618","20860584",
  "20860582","27730554","14797757","5793695","7942574"
 ] as const;
-const photo=(index:number)=>"https://images.pexels.com/photos/"+TP4_PHYSIO_IMAGE_IDS[index]+"/pexels-photo-"+TP4_PHYSIO_IMAGE_IDS[index]+".jpeg?auto=compress&cs=tinysrgb&w=1600";
+const photo=(index:number)=>"/api/physio-photo?slot="+index;
 /** Image recovery is shared by all three TP4 variants. Never leave broken-image icons in the preview. */
 const recoveryPhotos=[
  "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1400&q=85",
