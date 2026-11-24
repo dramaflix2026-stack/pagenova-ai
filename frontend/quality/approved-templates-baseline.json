@@ -257,7 +257,11 @@
     },
     {
       "path": "src/components/builder-v2-tp4-physiotherapy.tsx",
-      "blobSha": "a9699d84f19a766861dcaa8169b77ea6cd95df29"
+      "blobSha": "a9699d84f19a766861dcaa8169b77ea6cd95df29",
+      "approvedBindingRevision": {
+        "sha": "29b57cbaf6f0820c48c978d9258950884ace22b6",
+        "reason": "Functional-only Hero image override binding for all three physiotherapy models; preserves approved layout, other photos and CSS; pending visual user acceptance."
+      }
     },
     {
       "path": "src/components/builder-v2-tp4-veterinary.css",
