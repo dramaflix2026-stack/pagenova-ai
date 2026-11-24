@@ -2545,10 +2545,10 @@ export default function BuilderV2() {
         const physioHeroPhotoRequest=/(?:fisioterap|vitalis)/i.test([site.niche||"",site.title||"",selectedNiche||""].join(" "))
           &&/(?:substitua|troque|altere|mude)/i.test(prompt)
           &&/(?:imagem|foto|fotografia)/i.test(prompt)
-          &&/(?:hero|capa|se[cç][aã]o principal)/i.test(prompt)
+          &&/(?:hero|capa|primeira se[cç][aã]o|se[cç][aã]o principal|imagem principal|fotografia principal|foto principal)/i.test(prompt)
           &&/(?:fisioterap|reabilita[cç][aã]o)/i.test(prompt);
         if(physioHeroPhotoRequest&&!reference&&!institutionalFiles.length){
-          const chosen="https://images.pexels.com/photos/20860624/pexels-photo-20860624.jpeg?auto=compress&cs=tinysrgb&w=1600";
+          const chosen="/api/physio-photo?slot=3";
           if(site.universalHeroImageOverride===chosen)
             throw new Error("A fotografia solicitada já está aplicada na capa. Nenhuma outra imagem foi alterada.");
           const loaded=await new Promise<boolean>(resolve=>{
