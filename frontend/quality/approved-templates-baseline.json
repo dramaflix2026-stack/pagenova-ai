@@ -67,8 +67,8 @@
       "path": "src/components/builder-v2-site.tsx",
       "blobSha": "39f70209f2e11a82b84923c43d28eae10e4c344a",
       "approvedBindingRevision": {
-        "sha": "4f3075ca023dbbebb1b87d15285dfb4397764c1e",
-        "reason": "Explicit user approval 2026-11-17: TP6 Floricultura M1/M2 layouts preserved; 2026-11-18 TP10 Education M2 binding. Explicit user approval 2026-11-19: image recovery via existing cached proxy and niche fallback; no approved layout changes."
+        "sha": "0703e433f66f1d6f125aa244d778dd04d47976fd",
+        "reason": "Functional-only global image error recovery at BuilderV2Site root: allowlisted external photo sources retry via same-origin image gateway, preserving all approved layouts, copy, section ordering, and styles; requires production visual verification."
       }
     },
     {
