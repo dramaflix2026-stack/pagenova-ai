@@ -278,7 +278,25 @@ type BuilderV2SiteProps={site:BuilderV2SiteData;selectedNiche?:string;publishedM
 /** All 3 model variants in every niche enter through this universal motion boundary.
  *  The classic renderer keeps its existing block-specific motion system intact. */
 export function BuilderV2Site(props:BuilderV2SiteProps){
- return <UniversalSiteScrollMotion site={props.site}><BuilderV2SiteContent {...props}/></UniversalSiteScrollMotion>;
+ return <div onErrorCapture={event=>{
+  const target=event.target;
+  if(!(target instanceof HTMLImageElement))return;
+  const attempt=Number(target.dataset.pnImageRecovery||"0");
+  if(attempt>0)return;
+  const source=target.currentSrc||target.src;
+  let url:URL;
+  try{url=new URL(source,window.location.origin);}catch{return;}
+  if(url.protocol!=="https:"||!["images.unsplash.com","images.pexels.com","unsplash.com"].includes(url.hostname))return;
+  target.dataset.pnImageRecovery="1";
+  const automotive=/automot|auto center|oficina|mec[aâ]nic|v[eé]rtice/i.test([props.site.niche,props.site.title,props.site.header?.brand].join(" "));
+  if(automotive&&url.hostname==="unsplash.com"){
+   const images=Array.from(target.closest("section")?.querySelectorAll("img")||[]);
+   const slot=Math.max(0,images.indexOf(target))%6;
+   target.src="/api/automotive-photo?slot="+slot;
+  }else{
+   target.src="/api/builder-image?url="+encodeURIComponent(url.toString());
+  }
+ }}><UniversalSiteScrollMotion site={props.site}><BuilderV2SiteContent {...props}/></UniversalSiteScrollMotion></div>;
 }
 
 function BuilderV2SiteContent(props:BuilderV2SiteProps){
