@@ -67,8 +67,8 @@
       "path": "src/components/builder-v2-site.tsx",
       "blobSha": "39f70209f2e11a82b84923c43d28eae10e4c344a",
       "approvedBindingRevision": {
-        "sha": "0703e433f66f1d6f125aa244d778dd04d47976fd",
-        "reason": "Explicit user approval 2026-11-17 TP6 and 2026-11-18 TP10 bindings; 2026-11-19 photo recovery. Functional-only shared image-error retry via first-party gateway, preserving approved layouts and content; pending visual validation."
+        "sha": "f9d46858fb8f318ff51b29bd823c725f545d584e",
+        "reason": "Explicit user approval of global broken-image repair on 2026-11-25. Functional-only niche-aware automotive image gateway fallback, preserving all approved template layouts, copy and section order; visual validation pending."
       }
     },
     {
