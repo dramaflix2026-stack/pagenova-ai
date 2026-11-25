@@ -10,7 +10,18 @@ export async function GET(request:NextRequest){
  try{url=new URL(raw);}catch{return new NextResponse("Invalid image URL",{status:400});}
  if(url.protocol!=="https:"||!hosts.has(url.hostname)||url.username||url.password||url.port)return new NextResponse("Unsupported image host",{status:400});
  if(url.hostname==="unsplash.com"&&!/^\/photos\/[a-zA-Z0-9_-]+\/download$/.test(url.pathname))return new NextResponse("Unsupported image path",{status:400});
- const candidates=[url.toString()];
+ // Preserve the requested photo first; if the upstream file is gone, try a
+ // real photograph from the same automotive category, never a generic image.
+ const automotive=/automot|auto.center|oficina|mecan|vertice/i.test(request.nextUrl.searchParams.get("context")||"");
+ const automotiveIds=[
+  "photo-1486262715619-67b85e0b08d3",
+  "photo-1493238792000-8113da705763",
+  "photo-1544636331-e26879cd4d9b",
+  "photo-1507136566006-cfc505b114fc",
+  "photo-1614200187524-dc4b892acf16",
+  "photo-1542362567-b07e54358753"
+ ];
+ const candidates=[url.toString(),...(automotive?automotiveIds.map(id=>"https://images.unsplash.com/"+id+"?auto=format&fit=crop&w=1200&q=80"):[])];
 
  for(const candidate of candidates){
   try{
