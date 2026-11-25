@@ -11,7 +11,7 @@ export async function GET(request:NextRequest){
  if(url.protocol!=="https:"||!hosts.has(url.hostname)||url.username||url.password||url.port)return new NextResponse("Unsupported image host",{status:400});
  if(url.hostname==="unsplash.com"&&!/^\/photos\/[a-zA-Z0-9_-]+\/download$/.test(url.pathname))return new NextResponse("Unsupported image path",{status:400});
  const candidates=[url.toString()];
- if(url.hostname==="images.unsplash.com")candidates.push("https://images.pexels.com/photos/20860624/pexels-photo-20860624.jpeg?auto=compress&cs=tinysrgb&w=1200");
+
  for(const candidate of candidates){
   try{
    const response=await fetch(candidate,{redirect:"manual",signal:AbortSignal.timeout(6500),headers:{Accept:"image/avif,image/webp,image/jpeg,image/png,image/*;q=0.8"}});
