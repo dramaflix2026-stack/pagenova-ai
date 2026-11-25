@@ -294,7 +294,7 @@ export function BuilderV2Site(props:BuilderV2SiteProps){
    const slot=Math.max(0,images.indexOf(target))%6;
    target.src="/api/automotive-photo?slot="+slot;
   }else{
-   target.src="/api/builder-image?url="+encodeURIComponent(url.toString());
+   target.src="/api/builder-image?url="+encodeURIComponent(url.toString())+(automotive?"&context=automotive":"");
   }
  }}><UniversalSiteScrollMotion site={props.site}><BuilderV2SiteContent {...props}/></UniversalSiteScrollMotion></div>;
 }
