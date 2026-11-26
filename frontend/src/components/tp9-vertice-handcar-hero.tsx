@@ -91,7 +91,7 @@ export function TP9VerticeHandcarHero({headline,description,contactHref}:Props){
    </div>
   </div>
   <div className="vh-photo">
-   <img src={photo} alt="Fotografia ilustrativa de manutenção de veículo em oficina automotiva" fetchPriority="high" />
+   <img src={photo} alt="Fotografia ilustrativa de manutenção de veículo em oficina automotiva" fetchPriority="high" onError={event=>{const img=event.currentTarget;if(img.dataset.fallbackTried)return;img.dataset.fallbackTried="1";img.src="https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=1600&q=85";}} />
    <span className="vh-photo-accent" aria-hidden="true"/>
    <div className="vh-photo-info"><strong>SEU VEÍCULO, NOSSA ATENÇÃO.</strong><span>Revisão · Diagnóstico · Manutenção</span></div>
   </div>
