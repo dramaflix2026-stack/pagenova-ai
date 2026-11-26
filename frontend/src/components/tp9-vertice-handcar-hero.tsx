@@ -14,7 +14,7 @@ export function TP9VerticeHandcarHero({headline,description,contactHref}:Props){
  // This approved visual is intentionally authoritative for Vértice until an
  // explicitly user-edited hero override is wired into the universal editor.
  // Seed/CRM-generated image blocks must never reinsert the old composite.
- const photo=defaultPhoto;
+ const photo="/api/automotive-photo?slot=hero";
  const contact=contactHref&&(/^(https?:\/\/|mailto:|tel:)/i.test(contactHref)||contactHref==="#tp9-contato")?contactHref:"#tp9-orcamento";
  const external=/^https?:\/\//i.test(contact);
  const closeMenu=()=>setMenuOpen(false);
@@ -93,7 +93,7 @@ export function TP9VerticeHandcarHero({headline,description,contactHref}:Props){
    </div>
   </div>
   <div className="vh-photo">
-   <img src={photo} alt="Fotografia ilustrativa de manutenção de veículo em oficina automotiva" fetchPriority="high" onError={e=>{if(e.currentTarget.src!==fallbackPhoto)e.currentTarget.src=fallbackPhoto;}}/>
+   <img src={photo} alt="Fotografia ilustrativa de manutenção de veículo em oficina automotiva" fetchPriority="high" />
    <span className="vh-photo-accent" aria-hidden="true"/>
    <div className="vh-photo-info"><strong>SEU VEÍCULO, NOSSA ATENÇÃO.</strong><span>Revisão · Diagnóstico · Manutenção</span></div>
   </div>
