@@ -22,8 +22,14 @@ export async function GET(request:NextRequest){
   try{
    const bytes=await readFile(join(process.cwd(),"public","images","automotive",`${raw==="hero"?"hero":`service-${slot}`}.${extension}`));
    if(bytes.byteLength<2000||bytes.byteLength>8_000_000)continue;
+   const valid=extension==="webp"
+    ?bytes.toString("ascii",0,4)==="RIFF"&&bytes.toString("ascii",8,12)==="WEBP"
+    :extension==="png"
+     ?bytes[0]===137&&bytes[1]===80&&bytes[2]===78&&bytes[3]===71
+     :bytes[0]===255&&bytes[1]===216&&bytes[2]===255;
+   if(!valid)continue;
    const type=extension==="jpg"||extension==="jpeg"?"image/jpeg":extension==="png"?"image/png":"image/webp";
-   return new NextResponse(new Uint8Array(bytes),{headers:{"Content-Type":type,"Cache-Control":"public, max-age=31536000, immutable","X-Content-Type-Options":"nosniff","X-PageNova-Image-Source":"local"}});
+   return new NextResponse(new Uint8Array(bytes),{headers:{"Content-Type":type,"Cache-Control":"public, max-age=300, s-maxage=3600, stale-while-revalidate=86400","X-Content-Type-Options":"nosniff","X-PageNova-Image-Source":"local"}});
   }catch{/* Asset not installed yet; keep existing gateway as transitional fallback. */}
  }
  const sources=[photos[slot],photos[(slot+1)%photos.length],photos[(slot+2)%photos.length]];
