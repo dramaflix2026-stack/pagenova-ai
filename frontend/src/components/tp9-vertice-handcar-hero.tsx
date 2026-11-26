@@ -3,8 +3,6 @@
 import {useState} from "react";
 
 type Props={brand:string;niche:string;headline?:string;description?:string;image?:string;contactHref?:string};
-const defaultPhoto="https://images.unsplash.com/photo-1677230017871-f19937f21a8c?auto=format&fit=crop&w=1800&q=85";
-const fallbackPhoto="https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=1800&q=85";
 
 export function TP9VerticeHandcarHero({headline,description,contactHref}:Props){
  const [menuOpen,setMenuOpen]=useState(false);
