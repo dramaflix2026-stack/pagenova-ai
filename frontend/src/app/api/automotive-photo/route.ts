@@ -1,4 +1,6 @@
 import {NextRequest,NextResponse} from "next/server";
+import {readFile} from "node:fs/promises";
+import {join} from "node:path";
 
 /** Same-origin image gateway for the six Vértice Auto Center service cards. */
 export const runtime="nodejs";
@@ -14,6 +16,16 @@ export async function GET(request:NextRequest){
  const raw=request.nextUrl.searchParams.get("slot")||"";
  if(!/^[0-5]$/.test(raw))return new NextResponse("Invalid photo slot",{status:400});
  const slot=Number(raw);
+ // Prefer packaged, versioned photographs. Once the six files are installed,
+ // rendering no longer requires an external image provider.
+ for(const extension of ["webp","jpg","jpeg","png"]){
+  try{
+   const bytes=await readFile(join(process.cwd(),"public","images","automotive",`service-${slot}.${extension}`));
+   if(bytes.byteLength<2000||bytes.byteLength>8_000_000)continue;
+   const type=extension==="jpg"||extension==="jpeg"?"image/jpeg":extension==="png"?"image/png":"image/webp";
+   return new NextResponse(new Uint8Array(bytes),{headers:{"Content-Type":type,"Cache-Control":"public, max-age=31536000, immutable","X-Content-Type-Options":"nosniff","X-PageNova-Image-Source":"local"}});
+  }catch{/* Asset not installed yet; keep existing gateway as transitional fallback. */}
+ }
  const sources=[photos[slot],photos[(slot+1)%photos.length],photos[(slot+2)%photos.length]];
  for(const id of sources){
   try{
