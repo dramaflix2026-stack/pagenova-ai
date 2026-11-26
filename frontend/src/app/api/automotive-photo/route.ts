@@ -14,13 +14,13 @@ const photos=[
 ] as const;
 export async function GET(request:NextRequest){
  const raw=request.nextUrl.searchParams.get("slot")||"";
- if(!/^[0-5]$/.test(raw))return new NextResponse("Invalid photo slot",{status:400});
- const slot=Number(raw);
+ if(!/^(?:[0-5]|hero)$/.test(raw))return new NextResponse("Invalid photo slot",{status:400});
+ const slot=raw==="hero"?0:Number(raw);
  // Prefer packaged, versioned photographs. Once the six files are installed,
  // rendering no longer requires an external image provider.
  for(const extension of ["webp","jpg","jpeg","png"]){
   try{
-   const bytes=await readFile(join(process.cwd(),"public","images","automotive",`service-${slot}.${extension}`));
+   const bytes=await readFile(join(process.cwd(),"public","images","automotive",`${raw==="hero"?"hero":`service-${slot}`}.${extension}`));
    if(bytes.byteLength<2000||bytes.byteLength>8_000_000)continue;
    const type=extension==="jpg"||extension==="jpeg"?"image/jpeg":extension==="png"?"image/png":"image/webp";
    return new NextResponse(new Uint8Array(bytes),{headers:{"Content-Type":type,"Cache-Control":"public, max-age=31536000, immutable","X-Content-Type-Options":"nosniff","X-PageNova-Image-Source":"local"}});
