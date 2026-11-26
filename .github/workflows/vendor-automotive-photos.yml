@@ -1,0 +1,24 @@
+name: Vendor automotive photos
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  vendor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download and validate real photographs
+        run: node frontend/scripts/vendor-automotive-photos.mjs
+      - name: Commit verified image assets
+        run: |
+          if [ -n "$(git status --porcelain -- frontend/public/images/automotive)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add frontend/public/images/automotive
+            git commit -m "assets: vendor verified automotive photographs"
+            git push
+          else
+            echo "Automotive photographs already present; no changes."
+          fi
