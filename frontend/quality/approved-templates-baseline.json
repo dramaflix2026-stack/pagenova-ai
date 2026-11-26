@@ -68,7 +68,7 @@
       "blobSha": "39f70209f2e11a82b84923c43d28eae10e4c344a",
       "approvedBindingRevision": {
         "sha": "f9d46858fb8f318ff51b29bd823c725f545d584e",
-        "reason": "Explicit user approval of global broken-image repair on 2026-11-25. Functional-only niche-aware automotive image gateway fallback, preserving all approved template layouts, copy and section order; visual validation pending."
+        "reason": "Explicit user approval 2026-11-17 TP6 M1/M2 and 2026-11-18 TP10 bindings. User-requested 2026-11-25 global image repair: functional-only niche-aware automotive photo gateway fallback; approved layouts, copy and section order unchanged. Visual validation pending."
       }
     },
     {
