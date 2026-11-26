@@ -2,6 +2,20 @@
 
 type Props={contactHref?:string};
 const photos=Array.from({length:6},(_,index)=>"/api/automotive-photo?slot="+index);
+const browserFallbackIds=[
+ "photo-1486262715619-67b85e0b08d3",
+ "photo-1493238792000-8113da705763",
+ "photo-1544636331-e26879cd4d9b",
+ "photo-1507136566006-cfc505b114fc",
+ "photo-1614200187524-dc4b892acf16",
+ "photo-1542362567-b07e54358753"
+];
+function fallbackPhoto(event:import("react").SyntheticEvent<HTMLImageElement>,index:number){
+ const img=event.currentTarget;
+ if(img.dataset.fallbackTried)return;
+ img.dataset.fallbackTried="1";
+ img.src="https://images.unsplash.com/"+browserFallbackIds[index]+"?auto=format&fit=crop&w=1200&q=82";
+}
 const items=[
  {name:"Revisão preventiva",description:"Inspeções e cuidados periódicos para acompanhar as condições do veículo e planejar sua manutenção.",tag:"INSPEÇÃO E CUIDADO"},
  {name:"Troca de óleo e filtros",description:"Serviço de lubrificação e substituição de filtros conforme as especificações aplicáveis ao veículo.",tag:"LUBRIFICAÇÃO"},
@@ -43,7 +57,7 @@ export function TP9VerticeServices({contactHref}:Props){
  @media(prefers-reduced-motion:reduce){.pn-vh-services .vhs-card,.pn-vh-services .vhs-image img{transition:none}}
  `}</style>
  <div className="vhs-wrap"><div className="vhs-intro"><div><p className="vhs-kicker">02 / Nossos serviços</p><h2 id="tp9-vertice-services-title">Excelência técnica em cada serviço.</h2></div><p className="vhs-subtitle">Do diagnóstico à manutenção, conheça os cuidados que podem fazer parte da rotina do seu veículo.</p></div>
- <div className="vhs-grid">{items.map((item,index)=><article className="vhs-card" key={item.name}><div className="vhs-image"><img src={photos[index]} alt={"Fotografia ilustrativa relacionada a "+item.name.toLowerCase()} loading="lazy"/><span className="vhs-index">{String(index+1).padStart(2,"0")}</span></div><div className="vhs-info"><p className="vhs-tag">{item.tag}</p><h3>{item.name}</h3><p className="vhs-desc">{item.description}</p><a className="vhs-link" href={contact} target={external?"_blank":undefined} rel={external?"noopener noreferrer":undefined}>Solicitar avaliação <span aria-hidden="true">↗</span></a></div></article>)}</div>
+ <div className="vhs-grid">{items.map((item,index)=><article className="vhs-card" key={item.name}><div className="vhs-image"><img src={photos[index]} alt={"Fotografia ilustrativa relacionada a "+item.name.toLowerCase()} loading="lazy" onError={event=>fallbackPhoto(event,index)}/><span className="vhs-index">{String(index+1).padStart(2,"0")}</span></div><div className="vhs-info"><p className="vhs-tag">{item.tag}</p><h3>{item.name}</h3><p className="vhs-desc">{item.description}</p><a className="vhs-link" href={contact} target={external?"_blank":undefined} rel={external?"noopener noreferrer":undefined}>Solicitar avaliação <span aria-hidden="true">↗</span></a></div></article>)}</div>
  </div>
  </section>;
 }
